@@ -1,3 +1,4 @@
+import 'package:car_control/Page/Carburante.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
@@ -91,7 +92,7 @@ class CostiState extends State<Costi>{
             labelBackgroundColor: Colors.lightGreen.shade200,
             backgroundColor: Colors.white70,
             label: 'Carburante',
-            //onTap: () => Navigator.of(context).pushNamed(Carburante.routeName)
+            onTap: () => Navigator.of(context).pushNamed(Carburante.routeName)
             ),
             ],
               ),

@@ -6,6 +6,7 @@ import 'Page/login_page.dart';
 import 'Page/signup_page.dart';
 import 'Page/home_page.dart';
 import 'Page/AddScadenza.dart';
+import 'Page/Carburante.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
         HomePage.routeName: (context) => HomePage(),
         AddVeicolo.routeName: (context) => AddVeicolo(),
         AddScadenza.routeName: (context) => AddScadenza(),
+        Carburante.routeName: (context) => Carburante(),
       },
     );
   }
