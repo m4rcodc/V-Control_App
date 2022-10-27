@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_signin_button/button_list.dart';
+import 'package:flutter_signin_button/button_view.dart';
 import 'home_page.dart';
 
 class LoginPage extends StatelessWidget {
@@ -118,11 +120,19 @@ class LoginPage extends StatelessWidget {
                     const SizedBox(height: 20),
                     Padding(
                       padding: const EdgeInsets.only(top: 25.0),
-                      child: Row(
+                      child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          login(Icons.add),
-                          login(Icons.book_online),
+                          SignInButton(
+                            Buttons.Google,
+                            text: "Accedi con Google",
+                            onPressed: () {},
+                          ),
+                          SignInButton(
+                            Buttons.Facebook,
+                            text: 'Accedi con Facebook',
+                            onPressed: () {},
+                          )
                         ],
                       ),
                     ),
