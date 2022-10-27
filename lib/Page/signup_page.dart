@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'home_page.dart';
 
@@ -108,7 +109,24 @@ class _SignupPageState extends State<SignupPage> {
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(25))
                         ),
-                        onPressed: () => Navigator.of(context).pushNamed(HomePage.routeName),
+                        onPressed: () async {
+                          //debugPrint("Email: ${emailController.text} - Password ${passwordController.text}");
+                          try {
+                            Firebase.initializeApp();
+                            final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                              email: emailController.text,
+                              password: passwordController.text,
+                            );
+                          } on FirebaseAuthException catch (e) {
+                            if (e.code == 'weak-password') {
+                              debugPrint('The password provided is too weak.');
+                            } else if (e.code == 'email-already-in-use') {
+                              debugPrint('The account already exists for that email.');
+                            }
+                          } catch (e) {
+                            debugPrint(e.toString());
+                          }
+                        },
                           /*print(emailController);
                   print(passwordController);
                   Provider.of<Auth>(context, listen: false).signup(emailController.text, passwordController.text);
