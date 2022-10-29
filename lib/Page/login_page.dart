@@ -1,4 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_signin_button/button_list.dart';
+import 'package:flutter_signin_button/button_view.dart';
 import 'home_page.dart';
 
 class LoginPage extends StatelessWidget {
@@ -93,7 +96,22 @@ class LoginPage extends StatelessWidget {
                           backgroundColor: Colors.indigo,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))
                         ),
-                        onPressed: () => Navigator.of(context).pushNamed(HomePage.routeName),
+                        onPressed: () async {
+                          try {
+                            final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+                                email: emailController.text,
+                                password: passwordController.text
+                            );
+                              Navigator.of(context).pushNamed(HomePage.routeName);
+                          } on FirebaseAuthException catch (e) {
+                            if (e.code == 'user-not-found') {
+                              debugPrint('No user found for that email.');
+                            } else if (e.code == 'wrong-password') {
+                              debugPrint('Wrong password provided for that user.');
+                            }
+                          }
+
+                        },
                         child: const Text('Accedi', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white,),),
                       ),
                     ),
@@ -102,11 +120,19 @@ class LoginPage extends StatelessWidget {
                     const SizedBox(height: 20),
                     Padding(
                       padding: const EdgeInsets.only(top: 25.0),
-                      child: Row(
+                      child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          login(Icons.add),
-                          login(Icons.book_online),
+                          SignInButton(
+                            Buttons.Google,
+                            text: "Accedi con Google",
+                            onPressed: () {},
+                          ),
+                          SignInButton(
+                            Buttons.Facebook,
+                            text: 'Accedi con Facebook',
+                            onPressed: () {},
+                          )
                         ],
                       ),
                     ),

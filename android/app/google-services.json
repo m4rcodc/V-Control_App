@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "1097648256893",
+    "project_id": "emad2022-23",
+    "storage_bucket": "emad2022-23.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1097648256893:android:43d792712c8648457cbe14",
+        "android_client_info": {
+          "package_name": "com.example.car_control"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1097648256893-rnp9k6lpf41n15d654av4kn2ek3oavhr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiTxUYDOG6ZygkuAE494bBRSsi8gM4Mpg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1097648256893-rnp9k6lpf41n15d654av4kn2ek3oavhr.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1097648256893-qb5e9q5amoakbdoih1p0maubdl852erh.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flutterProjectProva"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
