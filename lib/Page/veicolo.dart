@@ -27,7 +27,7 @@ class _VeicoloState extends State<Veicolo>{
           decoration: const BoxDecoration(
               borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
               gradient: LinearGradient(
-                  colors: [Colors.green,Colors.lightGreen],
+                  colors: [Colors.cyan,Colors.lightBlue],
                   begin: Alignment.topRight,
                   end: Alignment.bottomLeft
               )
@@ -35,20 +35,36 @@ class _VeicoloState extends State<Veicolo>{
         ),
       ),
           body: Container(
-                    decoration: const BoxDecoration(
+            padding: EdgeInsets.all(10),
+               decoration: const BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
-                          colors: [Colors.lightGreen, Colors.white70],
+                          colors: [Colors.lightBlue, Colors.white70],
                         )
                     ),
+            child: Card(
+              elevation: 40,
+              color: Colors.grey[300],
+              shadowColor: Colors.blue,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+              margin: EdgeInsets.fromLTRB(30, 10, 30, 10),
+              child: Column(
+                children: [
+                  Image(
+                    image: AssetImage(''),
+                    fit: BoxFit.fill,
+                  ),
+
+                ],
+              )
+            )
           ),
         floatingActionButton: FloatingActionButton(
              onPressed: ()  => Navigator.of(context).pushNamed(AddVeicolo.routeName),
             //icon: const Icon(Icons.add),
             child: Icon(Icons.add),
-            backgroundColor: Colors.green,
-
+            backgroundColor: Colors.cyan,
         ),
     );
   }

@@ -1,4 +1,6 @@
+import 'package:car_control/Page/Autolavaggio.dart';
 import 'package:car_control/Page/Carburante.dart';
+import 'package:car_control/Page/Manutenzione.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
@@ -23,7 +25,7 @@ class CostiState extends State<Costi>{
           decoration: const BoxDecoration(
             borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
             gradient: LinearGradient(
-              colors: [Colors.green, Colors.lightGreen],
+              colors: [Colors.cyan, Colors.lightBlue],
               begin: Alignment.topRight,
               end: Alignment.bottomLeft,
             ),
@@ -49,7 +51,7 @@ class CostiState extends State<Costi>{
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Colors.lightGreen, Colors.white70],
+                colors: [Colors.lightBlue, Colors.white70],
               )
           ),
         child: TabBarView(
@@ -68,28 +70,28 @@ class CostiState extends State<Costi>{
         renderOverlay: false,
           elevation: 8.0,
           shape: CircleBorder(),
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.cyan,
           children: [
       SpeedDialChild(
             child: Icon(Icons.build),
               backgroundColor: Colors.white70,
-                labelStyle: TextStyle(fontSize: 18.0),
-              labelBackgroundColor: Colors.lightGreen.shade200,
+                labelStyle: TextStyle(fontSize: 18.0, color: Colors.white),
+              labelBackgroundColor: Colors.lightBlue.shade300,
               label: 'Manutenzione',
-              onTap: () => print('FIRST CHILD')
+              onTap: () => Navigator.of(context).pushNamed(Manutenzione.routeName)
     ),
     SpeedDialChild(
           child: Icon(Icons.local_car_wash),
-            labelStyle: TextStyle(fontSize: 18.0),
-          labelBackgroundColor: Colors.lightGreen.shade200,
+            labelStyle: TextStyle(fontSize: 18.0, color: Colors.white),
+          labelBackgroundColor: Colors.lightBlue.shade300,
           backgroundColor: Colors.white70,
           label: 'Autolavaggio',
-          onTap: () => print('SECOND CHILD'),
+          onTap: () => Navigator.of(context).pushNamed(Autolavaggio.routeName)
           ),
     SpeedDialChild(
             child: Icon(Icons.local_gas_station),
-            labelStyle: TextStyle(fontSize: 18.0),
-            labelBackgroundColor: Colors.lightGreen.shade200,
+            labelStyle: TextStyle(fontSize: 18.0, color: Colors.white),
+            labelBackgroundColor: Colors.lightBlue.shade300,
             backgroundColor: Colors.white70,
             label: 'Carburante',
             onTap: () => Navigator.of(context).pushNamed(Carburante.routeName)

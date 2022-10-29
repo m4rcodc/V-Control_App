@@ -41,9 +41,9 @@ class HomePage extends StatefulWidget {
                       horizontal: 15.0, vertical: 15),
                   child: GNav(
                     backgroundColor: Colors.white70,
-                    color: Colors.lightGreen,
+                    color: Colors.lightBlue,
                     activeColor: Colors.white,
-                    tabBackgroundColor: Colors.green.shade300,
+                    tabBackgroundColor: Colors.blue.shade300,
                     gap: 8,
                     /*onTabChange: (index) {
                       print(index);

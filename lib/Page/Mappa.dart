@@ -21,7 +21,7 @@ class _MappaState extends State<Mappa>{
             decoration: const BoxDecoration(
               borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
               gradient: LinearGradient(
-                colors: [Colors.green,Colors.lightGreen],
+                colors: [Colors.cyan,Colors.lightBlue],
                 begin: Alignment.topRight,
                 end: Alignment.bottomLeft
             )
@@ -33,7 +33,7 @@ class _MappaState extends State<Mappa>{
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Colors.lightGreen, Colors.white70],
+              colors: [Colors.lightBlue, Colors.white70],
             )
           ),
         child:const Center(

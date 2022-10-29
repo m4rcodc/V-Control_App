@@ -1,3 +1,5 @@
+import 'package:car_control/Page/Autolavaggio.dart';
+import 'package:car_control/Page/Manutenzione.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'Page/addVeicolo.dart';
@@ -34,6 +36,8 @@ class MyApp extends StatelessWidget {
         AddVeicolo.routeName: (context) => AddVeicolo(),
         AddScadenza.routeName: (context) => AddScadenza(),
         Carburante.routeName: (context) => Carburante(),
+        Manutenzione.routeName: (context) => Manutenzione(),
+        Autolavaggio.routeName: (context) => Autolavaggio(),
       },
     );
   }
