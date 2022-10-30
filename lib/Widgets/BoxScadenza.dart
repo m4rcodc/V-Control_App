@@ -6,10 +6,10 @@ class BoxScadenza extends StatelessWidget{
   String _subtitle = "";
   Color _coloreBord = Colors.green;
   IconData _icona = Icons.abc_sharp;
-  final void Function()? dettagli;
+  final void Function()? pagamento;
   final void Function()? modifica;
 
-  BoxScadenza(titolo,sottotitolo,colore,icona,{super.key, required this.dettagli, required this.modifica}){
+  BoxScadenza(titolo,sottotitolo,colore,icona,{super.key, this.pagamento, required this.modifica}){
     _title = titolo;
     _subtitle = sottotitolo;
     _coloreBord = colore;
@@ -32,7 +32,7 @@ class BoxScadenza extends StatelessWidget{
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-             ListTile(
+            ListTile(
               leading: Icon(
                 _icona,
                 size: 45,
@@ -44,8 +44,13 @@ class BoxScadenza extends StatelessWidget{
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 TextButton(
-                  onPressed: dettagli,
-                  child: const Text('Dettagli'),
+                    onPressed: pagamento,
+                    child:Row(
+                      children: const [
+                        Icon(Icons.monetization_on,color: Colors.green,),
+                        Text("Pagamento")
+                      ],
+                    )
                 ),
                 const SizedBox(width: 8),
                 TextButton(
