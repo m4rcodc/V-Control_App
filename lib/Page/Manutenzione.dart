@@ -1,3 +1,4 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -12,6 +13,13 @@ class Manutenzione extends StatefulWidget {
 }
 
 class _ManutenzioneState extends State<Manutenzione>{
+
+  final List<String> ChoiceManutenzione = [
+    'Cambio olio',
+    'Cambio gomme',
+  ];
+
+  String? selectedValue;
 
   DateTime date = DateTime.now();
 
@@ -108,6 +116,65 @@ class _ManutenzioneState extends State<Manutenzione>{
               ),
             ),
             Container(
+              margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
+              child: DropdownButtonFormField2(
+                decoration: InputDecoration(
+                  //Add isDense true and zero Padding.
+                  //Add Horizontal padding using buttonPadding and Vertical padding by increasing buttonHeight instead of add Padding here so that The whole TextField Button become clickable, and also the dropdown menu open under The whole TextField Button.
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                    focusedBorder:  OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.indigoAccent),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white70
+                ),
+                isExpanded: true,
+                hint: const Text(
+                  'Tipo di manutenzione',
+                  style: TextStyle(fontSize: 14),
+                ),
+                icon: const Icon(
+                  Icons.arrow_drop_down,
+                  color: Colors.black45,
+                ),
+                iconSize: 30,
+                buttonHeight: 60,
+                buttonPadding: const EdgeInsets.only(left: 20, right: 10),
+                dropdownDecoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                items: ChoiceManutenzione
+                    .map((item) =>
+                    DropdownMenuItem<String>(
+                      value: item,
+                      child: Text(
+                        item,
+                        style: const TextStyle(
+                          fontSize: 14,
+                        ),
+                      ),
+                    ))
+                    .toList(),
+                validator: (value) {
+                  if (value == null) {
+                    return 'Seleziona un veicolo.';
+                  }
+                },
+                onChanged: (value) {
+                  //Do something when changing the item if you want.
+                },
+                onSaved: (value) {
+                  selectedValue = value.toString();
+                },
+              ),
+            ),
+            Container(
               margin: const EdgeInsets.symmetric(vertical: 18.0,horizontal: 15.0),
               child: TextFormField(
                 keyboardType: TextInputType.number,
@@ -142,7 +209,7 @@ class _ManutenzioneState extends State<Manutenzione>{
               ),
             ),
             Container(
-              margin: const EdgeInsets.symmetric(vertical: 70.0,horizontal: 60.0),
+              margin: const EdgeInsets.symmetric(vertical: 40.0,horizontal: 90.0),
               child: ElevatedButton(
                 onPressed: () => print("Prova"),
                 style: ElevatedButton.styleFrom(
@@ -168,7 +235,7 @@ class _ManutenzioneState extends State<Manutenzione>{
                         width: 14,
                       ),
                       Text(
-                        "Aggiungi manutenzione",
+                        "Aggiungi",
                         style: TextStyle(
                           fontSize: 18,
                           color: Colors.white,

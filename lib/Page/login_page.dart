@@ -84,8 +84,8 @@ class LoginPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 45),
-                    userInput(emailController, 'Email', TextInputType.emailAddress),
-                    userInput(passwordController, 'Password', TextInputType.visiblePassword),
+                    //userInput(emailController, 'Email', TextInputType.emailAddress),
+                    //userInput(passwordController, 'Password', TextInputType.visiblePassword),
                     Container(
                       height: 55,
                       // for an exact replicate, remove the padding.
@@ -96,22 +96,8 @@ class LoginPage extends StatelessWidget {
                           backgroundColor: Colors.indigo,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))
                         ),
-                        onPressed: () async {
-                          try {
-                            final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-                                email: emailController.text,
-                                password: passwordController.text
-                            );
-                              Navigator.of(context).pushNamed(HomePage.routeName);
-                          } on FirebaseAuthException catch (e) {
-                            if (e.code == 'user-not-found') {
-                              debugPrint('No user found for that email.');
-                            } else if (e.code == 'wrong-password') {
-                              debugPrint('Wrong password provided for that user.');
-                            }
-                          }
+                    onPressed: ()  => Navigator.of(context).pushNamed(HomePage.routeName),
 
-                        },
                         child: const Text('Accedi', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white,),),
                       ),
                     ),

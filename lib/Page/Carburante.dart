@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -178,16 +180,19 @@ class _CarburanteState extends State<Carburante>{
                   onChanged: (value) {
                     setState(() {
                       costoAlLitro = double.tryParse(value);
-                      labelLitri = (costoRifornimento! ~/ costoAlLitro!).toString();
-                      //labelLitri ??= 'prova';
+                      /*if(costoAlLitro != null && costoRifornimento != null) {
+                        labelLitri = (costoRifornimento! ~/ costoAlLitro!).toString();
+                      }
+                      else {
+                        labelLitri = '0';
+                      }*/
                     });
                   },
                 ),
               ),
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 18.0,horizontal: 15.0),
-                child: TextFormField(
-                  //initialValue: 'prova',
+                child: TextField(
                   readOnly: true,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -196,7 +201,8 @@ class _CarburanteState extends State<Carburante>{
                       horizontal: 20,
                       vertical: 20,
                     ),
-                    hintText: '$labelLitri',
+                    hintText: calcoloLitri(),
+                    //labelLitri == null ? '' : calcoloLitri(),
                     hintStyle: const TextStyle(fontSize: 14),
                     floatingLabelBehavior: FloatingLabelBehavior.always,
                     labelText: 'Litri',
@@ -248,7 +254,7 @@ class _CarburanteState extends State<Carburante>{
                 ),
               ),
               Container(
-                margin: const EdgeInsets.symmetric(vertical: 70.0,horizontal: 60.0),
+                margin: const EdgeInsets.symmetric(vertical: 70.0,horizontal: 90.0),
                 child: ElevatedButton(
                   onPressed: () => print("Prova"),
                   style: ElevatedButton.styleFrom(
@@ -260,7 +266,7 @@ class _CarburanteState extends State<Carburante>{
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       vertical: 16,
-                      horizontal: 6,
+                      horizontal: 2,
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -273,7 +279,7 @@ class _CarburanteState extends State<Carburante>{
                           width: 14,
                         ),
                         Text(
-                          "Aggiungi rifornimento",
+                          "Aggiungi",
                           style: TextStyle(
                             fontSize: 18,
                             color: Colors.white,
@@ -289,15 +295,21 @@ class _CarburanteState extends State<Carburante>{
       ),
     );
   }
+  String? calcoloLitri(){
+
+    if(labelLitri == null) {
+      labelLitri = '';
+    }
+    else if(costoAlLitro != null && costoRifornimento != null) {
+      labelLitri = (costoRifornimento! ~/ costoAlLitro!).toString();
+    }
+
+    else {
+      labelLitri = '0';
+    }
+
+    return labelLitri;
   }
-  /*
-  num? calcoloLitri(){
-
-    litri = (costoRifornimento! / costoAlLitro!)!;
-
-    return litri;
-
   }
-  */
 
 

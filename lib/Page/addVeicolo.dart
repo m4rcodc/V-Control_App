@@ -44,7 +44,6 @@ class _AddVeicoloState extends State<AddVeicolo> {
   String? selectedValue;
 
   final _formKey = GlobalKey<FormState>();
-//prova
 
 
   @override

@@ -34,12 +34,13 @@ class CostiState extends State<Costi>{
         bottom: const TabBar(
           isScrollable: true,
           indicatorColor: Colors.white,
-          indicatorWeight: 5,
+          indicatorWeight: 5.0,
+          indicatorSize: TabBarIndicatorSize.label,
           tabs: [
-            Tab(icon: Icon(Icons.home), text: 'Home'),
-            Tab(icon: Icon(Icons.star), text: 'Feed'),
-            Tab(icon: Icon(Icons.face), text: 'Profile'),
-            Tab(icon: Icon(Icons.settings), text: 'Settings'),
+            Tab(icon: Icon(Icons.public), text: 'Generali'),
+            Tab(icon: Icon(Icons.local_gas_station), text: 'Carburante'),
+            Tab(icon: Icon(Icons.build), text: 'Manutenzione'),
+            Tab(icon: Icon(Icons.local_car_wash), text: 'Autolavaggio'),
           ],
         ),
         elevation: 8,
@@ -56,10 +57,10 @@ class CostiState extends State<Costi>{
           ),
         child: TabBarView(
           children: [
-            buildPage('Home Page'),
-            buildPage('Feed Page'),
-            buildPage('Profile Page'),
-            buildPage('Settings Page'),
+            buildPage('Generali'),
+            buildPage('Carburante'),
+            buildPage('Manutenzione'),
+            buildPage('Autolavaggio'),
           ],
         ),
       ),

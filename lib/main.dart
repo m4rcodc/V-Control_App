@@ -1,4 +1,6 @@
 import 'package:car_control/Page/AddAssicurazione.dart';
+import 'package:car_control/Page/AddBollo.dart';
+import 'package:car_control/Page/AddTagliando.dart';
 import 'package:car_control/Page/Autolavaggio.dart';
 import 'package:car_control/Page/Manutenzione.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +42,8 @@ class MyApp extends StatelessWidget {
         Manutenzione.routeName: (context) => Manutenzione(),
         Autolavaggio.routeName: (context) => Autolavaggio(),
         AddAssicurazione.routeName: (context) => AddAssicurazione(),
+        AddTagliando.routeName: (context) => AddTagliando(),
+        AddBollo.routeName: (context) => AddBollo(),
       },
     );
   }

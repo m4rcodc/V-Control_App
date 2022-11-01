@@ -1,50 +1,31 @@
-import 'package:car_control/Page/Scadenze.dart';
-import 'package:car_control/Page/home_page.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 
-class AddAssicurazione extends StatefulWidget{
-  static const routeName = '/add-Assicurazione';
+class AddBollo extends StatefulWidget{
+  static const routeName = '/add-bollo';
 
   @override
-  State<AddAssicurazione> createState() => _AddAssicurazioneState();
+  State<AddBollo> createState() => _AddBollo();
 }
 
-class _AddAssicurazioneState extends State<AddAssicurazione> {
-  late String nome;
+class _AddBollo extends State<AddBollo> {
   late String prezzo;
-  late String tipoScad;
-  //late DateTime dataScad;
+  late DateTime dataScad;
   String selectedDate = "Inserisci la data di scadenza";
 
   DateTime date = DateTime.now();
-
-
-  final List<String> choiceScad = [
-    "Annuale",
-    "Semestrale",
-    "Trimestrale"
-  ];
 
   final _formKey = GlobalKey<FormState>();
 
   void _submit(){
     if (_formKey.currentState!.validate()){
-      var info = {
-        'titolo': 'Assicurazione Auto',
-        'nome': nome,
-        'prezzo': prezzo,
-        'tipoScad': tipoScad,
-        'dataScad': date,
-      };
-      Scadenze.insert(info);
+      print(prezzo);
+      print(dataScad);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Processing Data')),
       );
-      HomePage.setPage(Scadenze(), 1);
-      Navigator.of(context).pushNamed(HomePage.routeName);
     }
   }
 
@@ -53,7 +34,7 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
     return Scaffold(
         extendBodyBehindAppBar: true,
         appBar: AppBar(
-          title: Text("Aggiugi Assicurazione"),
+          title: Text("Aggiugi Bollo"),
           centerTitle: true,
           backgroundColor: Colors.transparent,
           elevation: 0.0,
@@ -73,8 +54,8 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
           //padding: EdgeInsets.only(top: 20.0,left: 20.0, right: 20.0),
             decoration:const BoxDecoration(
                 gradient: LinearGradient(
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                   colors: [Colors.lightBlue, Colors.white70],
                 )
             ),
@@ -85,41 +66,7 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
                   Container(
                     margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
                     alignment: Alignment.center,
-                    child: Image.asset('images/insurance.png',height: 150,width: 150),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
-                    child: TextFormField(
-                      onChanged: (value) {
-                        setState(() {
-                          nome = value;
-                        });
-                      },
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 20,
-                        ),
-                        hintText: "Inserisci il nome dell'assicurazione",
-                        hintStyle: const TextStyle(fontSize: 14),
-                        filled: true,
-                        fillColor: Colors.white70,
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(color: Colors.grey),
-                        ),
-                        focusedBorder:  OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.indigoAccent),
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                      validator: (String? value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Inserisci il nome';
-                        }
-                        return null;
-                      },
-                    ),
+                    child: Image.asset('images/taxes.png',height: 150,width: 150),
                   ),
                   Container(
                     margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
@@ -153,65 +100,6 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
                           return 'Inserisci il prezzo';
                         }
                         return null;
-                      },
-                    ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
-                    child: DropdownButtonFormField2(
-                      decoration: InputDecoration(
-                        //Add isDense true and zero Padding.
-                        //Add Horizontal padding using buttonPadding and Vertical padding by increasing buttonHeight instead of add Padding here so that The whole TextField Button become clickable, and also the dropdown menu open under The whole TextField Button.
-                          isDense: true,
-                          contentPadding: EdgeInsets.zero,
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide(color: Colors.grey),
-                          ),
-                          focusedBorder:  OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.indigoAccent),
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white70
-                      ),
-                      isExpanded: true,
-                      hint: const Text(
-                        'Tipologia scadenza',
-                        style: TextStyle(fontSize: 14),
-                      ),
-                      icon: const Icon(
-                        Icons.arrow_drop_down,
-                        color: Colors.black45,
-                      ),
-                      iconSize: 30,
-                      buttonHeight: 60,
-                      buttonPadding: const EdgeInsets.only(left: 20, right: 10),
-                      dropdownDecoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      items: choiceScad
-                          .map((item) =>
-                          DropdownMenuItem<String>(
-                            value: item,
-                            child: Text(
-                              item,
-                              style: const TextStyle(
-                                fontSize: 14,
-                              ),
-                            ),
-                          ))
-                          .toList(),
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Seleziona tipologia scadenza';
-                        }
-                      },
-                      onChanged: (value) {
-                        tipoScad = value.toString();
-                      },
-                      onSaved: (value) {
-                        tipoScad = value.toString();
                       },
                     ),
                   ),
@@ -294,7 +182,7 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
                                 width: 14,
                               ),
                               Text(
-                                "Aggiungi assicurazione",
+                                "Aggiungi bollo",
                                 style: TextStyle(
                                   fontSize: 18,
                                   color: Colors.white,

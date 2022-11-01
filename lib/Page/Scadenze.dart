@@ -1,19 +1,63 @@
 import 'package:car_control/Page/AddAssicurazione.dart';
+import 'package:car_control/Page/AddBollo.dart';
+import 'package:car_control/Page/AddTagliando.dart';
+import 'package:car_control/Page/home_page.dart';
+import 'package:car_control/Page/veicolo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import '../Widgets/BoxScadenza.dart';
 
 
 class Scadenze extends StatefulWidget {
+  static const routeName = '/scadenze';
+
+
+  static List<Widget> lista = [
+    BoxScadenza(
+        "Bollo",
+        "Scaduto\n",
+        Colors.red,
+        Icons.account_balance_wallet,
+        pagamento: (){},
+        modifica: (){}
+    ),
+    BoxScadenza(
+        "Assicurazione Auto",
+        "Allianz Direct\nScadenza 14/12/2022",
+        Colors.green,
+        Icons.add_chart_sharp,
+        pagamento: (){},
+        modifica: (){}
+    ),
+  ];
+
+  static void insert(var info){
+    lista.add(
+        AnimationWidget(BoxScadenza(
+            info['titolo'],
+            info['nome'],
+            Colors.green,
+            Icons.add_chart_sharp,
+            pagamento: (){},
+            modifica: (){}
+        ))
+    );
+  }
 
   @override
-  _ScadenzeState createState() => _ScadenzeState();
+  _ScadenzeState createState() => _ScadenzeState(lista);
 }
 
-
 class _ScadenzeState extends State<Scadenze>{
+  late List<Widget> listaScadenze;
+
+  _ScadenzeState(List<Widget> lista){
+    listaScadenze = lista;
+  }
+
   @override
   Widget build(BuildContext context) {
+    HomePage.resetPage();
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -32,9 +76,9 @@ class _ScadenzeState extends State<Scadenze>{
           decoration:const BoxDecoration(
               borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
               gradient: LinearGradient(
-                  colors: [Colors.blue,Colors.cyan],
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter
+                  colors: [Colors.cyan,Colors.lightBlue],
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
               )
           ),
         ),
@@ -46,27 +90,12 @@ class _ScadenzeState extends State<Scadenze>{
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Colors.cyan, Colors.white70],
+              colors: [Colors.lightBlue, Colors.white70],
             )
         ),
         child: Center(
             child: ListView(
-              children:  [
-                BoxScadenza("Assicurazione Auto",
-                    "Allianz Direct\nScadenza 14/12/2022",
-                    Colors.green,
-                    Icons.add_chart_sharp,
-                    pagamento: (){},
-                    modifica: (){}
-                ),
-                BoxScadenza("Bollo",
-                    "Scaduto\n",
-                    Colors.red,
-                    Icons.account_balance_wallet,
-                    pagamento: (){},
-                    modifica: (){}
-                )
-              ],
+                children:  listaScadenze
             )
         ),
       ),
@@ -79,35 +108,84 @@ class _ScadenzeState extends State<Scadenze>{
         shape: CircleBorder(),
         children: [
           SpeedDialChild(
-            child: const Icon(Icons.build,color: Colors.white),
-            labelStyle: const TextStyle(fontSize: 22.0),
-            backgroundColor: Colors.blue,
+            child: const Icon(Icons.build),
+            backgroundColor: Colors.white70,
+            labelStyle: const TextStyle(fontSize: 18.0, color: Colors.white),
+            labelBackgroundColor: Colors.lightBlue.shade300,
             label: 'Manutenzione ordinaria',
             //onTap: () => Navigator.of(context).pushNamed(),
           ),
           SpeedDialChild(
-            child: const Icon(Icons.oil_barrel,color: Colors.white),
-            backgroundColor: Colors.blue,
-            labelStyle: const TextStyle(fontSize: 22.0),
-            label: 'Tagliando',
-            // onTap: () => Navigator.of(context).pushNamed()
+              child: const Icon(Icons.checklist),
+              backgroundColor: Colors.white70,
+              labelStyle: const TextStyle(fontSize: 18.0, color: Colors.white),
+              labelBackgroundColor: Colors.lightBlue.shade300,
+              label: 'Tagliando',
+              onTap: () => Navigator.of(context).pushNamed(AddTagliando.routeName)
           ),
           SpeedDialChild(
-            child: const Icon(Icons.account_balance_wallet,color: Colors.white),
-            labelStyle: const TextStyle(fontSize: 22.0),
-            backgroundColor: Colors.blue,
+            child: const Icon(Icons.payments),
+            backgroundColor: Colors.white70,
+            labelStyle: const TextStyle(fontSize: 18.0, color: Colors.white),
+            labelBackgroundColor: Colors.lightBlue.shade300,
             label: 'Bollo',
-            // onTap: () => Navigator.of(context).pushNamed(),
+            onTap: () => Navigator.of(context).pushNamed(AddBollo.routeName),
           ),
           SpeedDialChild(
-            child: const Icon(Icons.add_chart,color: Colors.white),
-            labelStyle: const TextStyle(fontSize: 22.0),
-            backgroundColor: Colors.blue,
+            child: const Icon(Icons.security),
+            backgroundColor: Colors.white70,
+            labelStyle: const TextStyle(fontSize: 18.0, color: Colors.white),
+            labelBackgroundColor: Colors.lightBlue.shade300,
             label: 'Assicurazione',
             onTap: () => Navigator.of(context).pushNamed(AddAssicurazione.routeName),
           ),
         ],
       ),
+    );
+  }
+}
+
+class AnimationWidget extends StatefulWidget {
+  late BoxScadenza box;
+  AnimationWidget(BoxScadenza boxScadenza, {super.key}){
+    box = boxScadenza;
+  }
+
+  @override
+  State<AnimationWidget> createState() => _AnimationWidgetState(box);
+}
+
+class _AnimationWidgetState extends State<AnimationWidget> with SingleTickerProviderStateMixin{
+
+  late BoxScadenza _boxScadenza;
+  _AnimationWidgetState(BoxScadenza box){
+    _boxScadenza = box;
+  }
+
+  late final AnimationController _controller = AnimationController(
+    duration: const Duration(seconds: 1),
+    vsync: this,
+  )..forward();
+
+  late final Animation<Offset> _offsetAnimation = Tween<Offset>(
+    begin: const Offset(-1.5, 0.0),
+    end: Offset.zero,
+  ).animate(CurvedAnimation(
+    parent: _controller,
+    curve: Curves.bounceInOut,
+  ));
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SlideTransition(
+      position: _offsetAnimation,
+      child: _boxScadenza,
     );
   }
 }

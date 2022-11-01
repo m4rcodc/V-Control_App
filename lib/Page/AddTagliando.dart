@@ -1,26 +1,23 @@
-import 'package:car_control/Page/Scadenze.dart';
-import 'package:car_control/Page/home_page.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 
-class AddAssicurazione extends StatefulWidget{
-  static const routeName = '/add-Assicurazione';
+class AddTagliando extends StatefulWidget{
+  static const routeName = '/add-tagliando';
 
   @override
-  State<AddAssicurazione> createState() => _AddAssicurazioneState();
+  State<AddTagliando> createState() => _AddTagliandoState();
 }
 
-class _AddAssicurazioneState extends State<AddAssicurazione> {
+class _AddTagliandoState extends State<AddTagliando> {
   late String nome;
   late String prezzo;
   late String tipoScad;
-  //late DateTime dataScad;
+  late DateTime dataScad;
   String selectedDate = "Inserisci la data di scadenza";
 
   DateTime date = DateTime.now();
-
 
   final List<String> choiceScad = [
     "Annuale",
@@ -32,19 +29,13 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
 
   void _submit(){
     if (_formKey.currentState!.validate()){
-      var info = {
-        'titolo': 'Assicurazione Auto',
-        'nome': nome,
-        'prezzo': prezzo,
-        'tipoScad': tipoScad,
-        'dataScad': date,
-      };
-      Scadenze.insert(info);
+      print(nome);
+      print(prezzo);
+      print(tipoScad);
+      print(dataScad);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Processing Data')),
       );
-      HomePage.setPage(Scadenze(), 1);
-      Navigator.of(context).pushNamed(HomePage.routeName);
     }
   }
 
@@ -53,7 +44,7 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
     return Scaffold(
         extendBodyBehindAppBar: true,
         appBar: AppBar(
-          title: Text("Aggiugi Assicurazione"),
+          title: Text("Aggiugi Tagliando"),
           centerTitle: true,
           backgroundColor: Colors.transparent,
           elevation: 0.0,
@@ -73,8 +64,8 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
           //padding: EdgeInsets.only(top: 20.0,left: 20.0, right: 20.0),
             decoration:const BoxDecoration(
                 gradient: LinearGradient(
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                   colors: [Colors.lightBlue, Colors.white70],
                 )
             ),
@@ -85,7 +76,7 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
                   Container(
                     margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
                     alignment: Alignment.center,
-                    child: Image.asset('images/insurance.png',height: 150,width: 150),
+                    child: Image.asset('images/test.png',height: 150,width: 150),
                   ),
                   Container(
                     margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
