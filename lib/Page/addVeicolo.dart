@@ -1,5 +1,8 @@
 import 'dart:io';
+import 'package:car_control/Page/home_page.dart';
+import 'package:car_control/Page/veicolo.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -21,7 +24,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
 
 
 
-  var carMake, carMakeModel;
+  var carMake, carMakeModel,plate;
   var setDefaultMake = true, setDefaultMakeModel = true;
 
   File? image;
@@ -146,6 +149,11 @@ class _AddVeicoloState extends State<AddVeicolo> {
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
+                onChanged: (value) {
+                  setState(() {
+                    plate = value;
+                  });
+                },
               ),
             ),
             Container(
@@ -438,7 +446,20 @@ class _AddVeicoloState extends State<AddVeicolo> {
             Container(
               margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 60.0),
               child: ElevatedButton(
-                onPressed: () => print("Prova"),
+                onPressed: () => {
+                FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+                //await FirebaseFirestore.instance.collection('users').doc.set({'nome': name, 'cognome': surname, 'email' : email});
+                CollectionReference vehicle = FirebaseFirestore.instance.collection('vehicle');
+                // Call the user's CollectionReference to add a new user
+                vehicle.add({
+                'uid': user?.uid, // John Doe
+                'make': carMake, // Stokes and Sons
+                'model': carMakeModel, // 42
+                'plate' : plate,
+                });
+                Navigator.of(context).pushNamed(HomePage.routeName);
+                })
+                },
                 style: ElevatedButton.styleFrom(
                   elevation: 10,
                   backgroundColor: Colors.blue.shade200,

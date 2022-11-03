@@ -3,7 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'home_page.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 class SignupPage extends StatefulWidget {
@@ -20,7 +20,7 @@ class _SignupPageState extends State<SignupPage> {
 
   final _formKey = GlobalKey<FormState>();
   final emailPattern = r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+";
-  final passPattern = "^(?=.*d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,24}\$";
+  //final passPattern = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[*.!@\$%^&(){}[]:;<>,.?/~_+-=|]).{8,32}\$";
 
 
   String name='';
@@ -276,10 +276,10 @@ class _SignupPageState extends State<SignupPage> {
                               else if(value.length < 8 || value.length > 24){
                                 return 'Immetere una password di 8-24 caratteri.';
                               }
-                              else if (!RegExp(passPattern).hasMatch(value))
+                              /*else if (!RegExp(passPattern).hasMatch(value))
                               {
                                 return 'Immetere almeno un carattere maiuscolo,\nminuscolo e speciale.';
-                              }
+                              }*/
                               return null;
                             },
 
@@ -356,11 +356,15 @@ class _SignupPageState extends State<SignupPage> {
 
                                 if (_formKey.currentState!.validate()) {
                                   try {
-                                    Firebase.initializeApp();
                                     credential = FirebaseAuth.instance.createUserWithEmailAndPassword(
                                       email: email,
                                       password: password,
                                     );
+
+
+                                    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+                                      await FirebaseFirestore.instance.collection('users').doc(user?.uid).set({'nome': name, 'cognome': surname, 'email' : email});
+                                    });
 
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(

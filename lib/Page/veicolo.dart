@@ -1,8 +1,9 @@
 import 'package:car_control/Page/addVeicolo.dart';
 import 'package:car_control/Widgets/DetailsCarCard.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Veicolo extends StatefulWidget {
 
@@ -15,6 +16,12 @@ class _VeicoloState extends State<Veicolo>{
 
   @override
   Widget build(BuildContext context) {
+    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+      FirebaseFirestore.instance.collection('vehichle')
+           .where('uid', isEqualTo: user?.uid)
+           .get();
+
+    });
     return Scaffold(
       extendBody: true,
       extendBodyBehindAppBar: true,
