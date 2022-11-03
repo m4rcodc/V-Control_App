@@ -33,7 +33,7 @@ class WelcomePage extends StatelessWidget {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('images/welcome.jpg'),
+                  image: AssetImage('images/welcome.jpg'),
                   fit: BoxFit.fill),
             ),
           ),
@@ -53,7 +53,7 @@ class WelcomePage extends StatelessWidget {
                   ),
                 ),),
               Expanded(
-                flex: 3,
+                flex: 2,
                 child: Column(
                   children: [
                     Container(
@@ -63,11 +63,11 @@ class WelcomePage extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () => Navigator.of(context).pushNamed(LoginPage.routeName),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.indigo,
+                            backgroundColor: Colors.indigo,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))
                         ),
                         child: const Text(
-                          'Accedi',
+                          'Entra nel mondo di CarControl!',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
@@ -75,26 +75,7 @@ class WelcomePage extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Container(
-                      height: 80,
-                      width: double.infinity,
-                      padding: const EdgeInsets.only(top: 25, left: 24, right: 24),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.indigo,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))
-                        ),
-                        onPressed: () => Navigator.of(context).pushNamed(SignupPage.routeName),
-                        child: const Text(
-                          'Registrati',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
+
                   ],
                 ),
               ),

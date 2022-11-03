@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import '../Widgets/select_photo_options_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AddVeicolo extends StatefulWidget{
 
@@ -17,6 +18,11 @@ class _AddVeicoloState extends State<AddVeicolo> {
 
   //Variabile per il metodo imagePicker
   //XFile? image;
+
+
+
+  var carMake, carMakeModel;
+  var setDefaultMake = true, setDefaultMakeModel = true;
 
   File? image;
 
@@ -48,6 +54,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
 
   @override
   Widget build(BuildContext context) {
+    //debugPrint('carMake: $carMake');
+    //debugPrint('carMakeModel: $carMakeModel');
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -201,119 +209,170 @@ class _AddVeicoloState extends State<AddVeicolo> {
             ),
             Container(
               margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
-              child: DropdownButtonFormField2(
-                decoration: InputDecoration(
-                  //Add isDense true and zero Padding.
-                  //Add Horizontal padding using buttonPadding and Vertical padding by increasing buttonHeight instead of add Padding here so that The whole TextField Button become clickable, and also the dropdown menu open under The whole TextField Button.
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder:  OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.indigoAccent),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white70
-                ),
-                isExpanded: true,
-                hint: const Text(
-                  'Marca',
-                  style: TextStyle(fontSize: 14),
-                ),
-                icon: const Icon(
-                  Icons.arrow_drop_down,
-                  color: Colors.black45,
-                ),
-                iconSize: 30,
-                buttonHeight: 60,
-                buttonPadding: const EdgeInsets.only(left: 20, right: 10),
-                dropdownDecoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                items: ChoiceMarca
-                    .map((item) =>
-                    DropdownMenuItem<String>(
-                      value: item,
-                      child: Text(
-                        item,
-                        style: const TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                    ))
-                    .toList(),
-                validator: (value) {
-                  if (value == null) {
-                    return 'Seleziona una marca';
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('carMake')
+                    .orderBy('nome')
+                    .snapshots(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (!snapshot.hasData) {
+                    return Container();
                   }
-                },
-                onChanged: (value) {
-                  //Do something when changing the item if you want.
-                },
-                onSaved: (value) {
+                  if (setDefaultMake) {
+                    //carMake = snapshot.data.docs[0].get('nome');
+                    debugPrint('setDefault make: $carMake');
+                  }
+                  return DropdownButtonFormField2(
+                    decoration: InputDecoration(
+                      //Add isDense true and zero Padding.
+                      //Add Horizontal padding using buttonPadding and Vertical padding by increasing buttonHeight instead of add Padding here so that The whole TextField Button become clickable, and also the dropdown menu open under The whole TextField Button.
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: Colors.grey),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Colors.indigoAccent),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white70
+                    ),
+                    isExpanded: true,
+                    value: carMake,
+                    hint: const Text(
+                      'Marca',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    icon: const Icon(
+                      Icons.arrow_drop_down,
+                      color: Colors.black45,
+                    ),
+                    iconSize: 30,
+                    buttonHeight: 60,
+                    buttonPadding: const EdgeInsets.only(
+                        left: 20, right: 10),
+                    dropdownDecoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    items: snapshot.data.docs.map<DropdownMenuItem<String>>((value) {
+                      return DropdownMenuItem<String>(
+                        value: value.get('nome'),
+                        child: Text(
+                          '${value.get('nome')}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Seleziona un veicolo.';
+                      }
+                    },
+                    onChanged: (value) {
+                      debugPrint('selected onchange: $value');
+                      setState(() {
+                        debugPrint('make selected: $value');
+                        carMake = value;
+                        setDefaultMake = false;
+                        setDefaultMakeModel = true;
+                      });
+                    },
+                    /*onSaved: (value) {
                   selectedValue = value.toString();
+                },*/
+                  );
                 },
               ),
             ),
             Container(
               margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
-              child: DropdownButtonFormField2(
-                decoration: InputDecoration(
-                  //Add isDense true and zero Padding.
-                  //Add Horizontal padding using buttonPadding and Vertical padding by increasing buttonHeight instead of add Padding here so that The whole TextField Button become clickable, and also the dropdown menu open under The whole TextField Button.
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder:  OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.indigoAccent),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white70
-                ),
-                isExpanded: true,
-                hint: const Text(
-                  'Modello',
-                  style: TextStyle(fontSize: 14),
-                ),
-                icon: const Icon(
-                  Icons.arrow_drop_down,
-                  color: Colors.black45,
-                ),
-                iconSize: 30,
-                buttonHeight: 60,
-                buttonPadding: const EdgeInsets.only(left: 20, right: 10),
-                dropdownDecoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                items: ChoiceModello
-                    .map((item) =>
-                    DropdownMenuItem<String>(
-                      value: item,
-                      child: Text(
-                        item,
-                        style: const TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                    ))
-                    .toList(),
-                validator: (value) {
-                  if (value == null) {
-                    return 'Seleziona un modello';
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('carModel')
+                    .where('make', isEqualTo: carMake)
+                    .orderBy('makeModel')
+                    .snapshots(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (!snapshot.hasData) {
+                    debugPrint('snapshot status: ${snapshot.error}');
+                    return Container(
+                      child:
+                      Text(
+                          'snapshot empty carMake: $carMake makeModel: $carMakeModel'),
+                    );
                   }
-                },
-                onChanged: (value) {
-                  //Do something when changing the item if you want.
-                },
-                onSaved: (value) {
+                  if (setDefaultMakeModel) {
+                    //carMake = snapshot.data.docs[0].get('makeModel');
+                    debugPrint('setDefault make: $carMake');
+                  }
+                  return DropdownButtonFormField2(
+                    decoration: InputDecoration(
+                      //Add isDense true and zero Padding.
+                      //Add Horizontal padding using buttonPadding and Vertical padding by increasing buttonHeight instead of add Padding here so that The whole TextField Button become clickable, and also the dropdown menu open under The whole TextField Button.
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: Colors.grey),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Colors.indigoAccent),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white70
+                    ),
+                    isExpanded: true,
+                    value: carMakeModel,
+                    hint: const Text(
+                      'Modello',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    icon: const Icon(
+                      Icons.arrow_drop_down,
+                      color: Colors.black45,
+                    ),
+                    iconSize: 30,
+                    buttonHeight: 60,
+                    buttonPadding: const EdgeInsets.only(
+                        left: 20, right: 10),
+                    dropdownDecoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    items: snapshot.data.docs.map<DropdownMenuItem<String>>((value) {
+                      return DropdownMenuItem<String>(
+                        value: value.get('makeModel'),
+                        child: Text(
+                          '${value.get('makeModel')}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Seleziona un veicolo.';
+                      }
+                    },
+                    onChanged: (value) {
+                      debugPrint('selected onchange: $value');
+                      setState(() {
+                        debugPrint('make selected: $value');
+                        carMakeModel = value;
+                        setDefaultMakeModel = false;
+                      });
+                    },
+                    /*onSaved: (value) {
                   selectedValue = value.toString();
+                },*/
+                  );
                 },
               ),
             ),

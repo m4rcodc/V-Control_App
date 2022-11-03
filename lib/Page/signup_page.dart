@@ -1,11 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'home_page.dart';
+
+
 
 class SignupPage extends StatefulWidget {
 
   static const routeName = '/signup-page';
+
+  const SignupPage({super.key});
 
   @override
   _SignupPageState createState() => _SignupPageState();
@@ -13,9 +18,18 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
 
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final emailPattern = r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+";
+  final passPattern = "^(?=.*d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,24}\$";
 
+
+  String name='';
+  String surname='';
+  String email='';
+  String password='';
+  bool emailValid = false;
+  bool passValid = false;
+  var credential;
 
   Widget signUpWith(IconData icon) {
     return Container(
@@ -40,7 +54,8 @@ class _SignupPageState extends State<SignupPage> {
     return Container(
       height: 55,
       margin: const EdgeInsets.only(bottom: 15),
-      decoration: BoxDecoration(color: Colors.blueGrey.shade200,
+      decoration: BoxDecoration(
+          color: Colors.blueGrey.shade200,
           borderRadius: BorderRadius.circular(30)),
       child: Padding(
         padding: const EdgeInsets.only(left: 25.0, top: 15, right: 25),
@@ -51,7 +66,8 @@ class _SignupPageState extends State<SignupPage> {
           autofocus: false,
           decoration: InputDecoration.collapsed(
             hintText: hintTitle,
-            hintStyle: const TextStyle(fontSize: 18,
+            hintStyle: const TextStyle(
+                fontSize: 18,
                 color: Colors.white70,
                 fontStyle: FontStyle.italic),
           ),
@@ -63,117 +79,340 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            alignment: Alignment.topCenter,
-            fit: BoxFit.fill,
-            image: AssetImage(
-              'images/addtask.jpg',
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              alignment: Alignment.topCenter,
+              fit: BoxFit.fill,
+              image: AssetImage(
+                'images/addtask.jpg',
+              ),
             ),
           ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Container(
-              height: 510,
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(15),
-                    topRight: Radius.circular(15)),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SizedBox(height: 45),
-                    userInput(
-                        emailController, 'Email', TextInputType.emailAddress),
-                    userInput(passwordController, 'Password',
-                        TextInputType.visiblePassword),
-                    Container(
-                      height: 55,
-                      // for an exact replicate, remove the padding.
-                      // pour une réplique exact, enlever le padding.
-                      padding: const EdgeInsets.only(
-                          top: 5, left: 70, right: 70),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.indigo,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(25))
-                        ),
-                        onPressed: () async {
-                          //debugPrint("Email: ${emailController.text} - Password ${passwordController.text}");
-                          try {
-                            Firebase.initializeApp();
-                            final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                              email: emailController.text,
-                              password: passwordController.text,
-                            );
-                          } on FirebaseAuthException catch (e) {
-                            if (e.code == 'weak-password') {
-                              debugPrint('The password provided is too weak.');
-                            } else if (e.code == 'email-already-in-use') {
-                              debugPrint('The account already exists for that email.');
-                            }
-                          } catch (e) {
-                            debugPrint(e.toString());
-                          }
-                        },
-                          /*print(emailController);
-                  print(passwordController);
-                  Provider.of<Auth>(context, listen: false).signup(emailController.text, passwordController.text);
-                  Navigator.of(context.push(MaterialPageRoute(builder: (ctx) => SuccessfulScreen()));*/
-                        child: const Text('Registrati', style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,),),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    //const Center(child: Text('Forgot password ?'),),
-                    const SizedBox(height: 20),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 25.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Container(
+                height: 510,
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(15),
+                      topRight: Radius.circular(15)),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: SingleChildScrollView(
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          signUpWith(Icons.add),
-                          signUpWith(Icons.book_online),
+                          const SizedBox(height: 45),
+
+
+                          TextFormField(
+                            autofocus: true,
+                            textInputAction: TextInputAction.next,
+
+                            decoration: InputDecoration(
+                              filled: true,
+                              hintText: 'Inserisci il tuo nome',
+                              labelText: 'Nome',
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                              prefixIcon: const Icon(Icons.person),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 20,
+                              ),
+                            ),
+
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r"[a-zA-Z]+|\s"),
+                              ),],
+
+
+                            validator: (value) {
+                              if (value==null || value.isEmpty) {
+                                return 'Il campo "Nome" non può essere vuoto';
+                              }
+                              else if (value.length > 32)
+                              {
+                                return 'Il campo "Nome" deve avere lunghezza inferiore a 32 caratteri';
+                              }
+                              return null;
+                            },
+                            onChanged: (value) {
+                              setState(() {
+                                name = value;
+                              });
+                            },
+                          ),
+
+                          const SizedBox(height: 8.0),
+
+                          TextFormField(
+                            autofocus: true,
+                            textInputAction: TextInputAction.next,
+
+                            decoration: InputDecoration(
+                              filled: true,
+                              hintText: 'Inserisci il tuo cognome',
+                              labelText: 'Cognome',
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                              prefixIcon: const Icon(Icons.person),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 20,
+                              ),
+
+                            ),
+
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r"[a-zA-Z]+|\s"),
+                              ),],
+
+                            validator: (value) {
+                              if (value==null || value.isEmpty) {
+                                return 'Il campo "Cognome" non può essere vuoto';
+                              }
+                              else if (value.length > 32)
+                              {
+                                return 'Il campo "Cognome" deve avere lunghezza inferiore a 32 caratteri';
+                              }
+                              return null;
+                            },
+
+                            onChanged: (value) {
+                              setState(() {
+                                surname=value;
+                              });
+                            },
+                          ),
+
+                          const SizedBox(height: 8.0),
+
+                          TextFormField(
+                            autofocus: true,
+                            textInputAction: TextInputAction.next,
+
+                            decoration: InputDecoration(
+                              filled: true,
+                              hintText: 'Inserisci la tua email',
+                              labelText: 'Email',
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                              prefixIcon: const Icon(Icons.email),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 20,
+                              ),
+
+
+
+
+                            ),
+
+
+
+
+
+                            validator: (value) {
+                              if (value==null || value.isEmpty) {
+                                return 'Il campo "Email" non può essere vuoto.';
+                              }
+                              else if (!RegExp(emailPattern).hasMatch(value))
+                              {
+                                return 'Email non valida.';
+                              }
+                              return null;
+                            },
+
+                            onChanged: (value) {
+                              setState(() {
+
+                                if(value.length < 64){
+                                  email=value;
+                                }
+
+                              });
+                            },
+                          ),
+
+                          const SizedBox(height: 8.0),
+
+                          TextFormField(
+                            obscureText: true,
+                            autofocus: true,
+                            textInputAction: TextInputAction.next,
+
+                            decoration: InputDecoration(
+                              filled: true,
+                              hintText: 'Inserisci la password',
+                              labelText: 'Password',
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                              prefixIcon: const Icon(Icons.lock),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 20,
+                              ),
+
+                            ),
+
+
+
+                            validator: (value) {
+                              if (value==null || value.isEmpty) {
+                                return 'Il campo "Password" non può essere vuoto.';
+                              }
+
+                              else if(value.length < 8 || value.length > 24){
+                                return 'Immetere una password di 8-24 caratteri.';
+                              }
+                              else if (!RegExp(passPattern).hasMatch(value))
+                              {
+                                return 'Immetere almeno un carattere maiuscolo,\nminuscolo e speciale.';
+                              }
+                              return null;
+                            },
+
+                            onChanged: (value) {
+                              setState(() {
+                                if(value.length < 16)
+                                {
+                                  password=value;
+                                }
+
+                              });
+                            },
+                          ),
+
+                          const SizedBox(height: 8.0),
+
+                          TextFormField(
+                            obscureText: true,
+                            autofocus: true,
+                            textInputAction: TextInputAction.next,
+
+                            decoration: InputDecoration(
+                              filled: true,
+                              hintText: 'Reinserisci la tua password',
+                              labelText: 'Conferma Password',
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                              prefixIcon: const Icon(Icons.lock),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 20,
+                              ),
+
+                            ),
+
+
+
+                            validator: (value) {
+                              if (value==null || value.isEmpty) {
+                                return 'Il campo "Conferma Password" non può essere vuoto.';
+                              }
+
+                              else if(value != password){
+                                return 'La password non coincide';
+                              }
+
+                              return null;
+                            },
+
+                            onChanged: (value) {
+                              setState(() {
+                                if(value.length < 24)
+                                {
+                                  password=value;
+                                }
+                              });
+                            },
+                          ),
+
+                          const SizedBox(height: 8.0),
+
+
+                          Container(
+                            height: 55,
+                            // for an exact replicate, remove the padding.
+                            // pour une réplique exact, enlever le padding.
+                            padding:
+                            const EdgeInsets.only(top: 5, left: 70, right: 70),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.indigo,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(25))),
+                              onPressed: () {
+
+                                if (_formKey.currentState!.validate()) {
+                                  try {
+                                    Firebase.initializeApp();
+                                    credential = FirebaseAuth.instance.createUserWithEmailAndPassword(
+                                      email: email,
+                                      password: password,
+                                    );
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text('Registrazione effettuata!')),
+                                    );
+
+                                  } on FirebaseAuthException catch (e) {
+                                    if (e.code == 'weak-password') {
+                                      debugPrint(
+                                          'The password provided is too weak.');
+                                    } else if (e.code == 'email-already-in-use') {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                            content: Text('Email già utilizzata, registrazione non effettuata')),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    debugPrint(e.toString());
+                                  }
+
+
+                                }
+
+
+                              },
+                              /*print(emailController);
+                        print(passwordController);
+                        Provider.of<Auth>(context, listen: false).signup(emailController.text, passwordController.text);
+                        Navigator.of(context.push(MaterialPageRoute(builder: (ctx) => SuccessfulScreen()));*/
+                              child: const Text(
+                                'Registrati',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+
+                          ),
+
+
                         ],
                       ),
                     ),
-                    const Divider(thickness: 0, color: Colors.white),
-                    /*
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    //Text('Don\'t have an account yet ? ', style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),),
-                    TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      'Sign Up',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-                    ),
                   ),
-                  ],
-                ),
-                  */
-                  ],
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
-
