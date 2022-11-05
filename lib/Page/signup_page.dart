@@ -22,6 +22,7 @@ class _SignupPageState extends State<SignupPage> {
   final emailPattern = r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+";
   //final passPattern = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[*.!@\$%^&(){}[]:;<>,.?/~_+-=|]).{8,32}\$";
 
+  FirebaseAuth auth = FirebaseAuth.instance;
 
   String name='';
   String surname='';
@@ -356,15 +357,18 @@ class _SignupPageState extends State<SignupPage> {
 
                                 if (_formKey.currentState!.validate()) {
                                   try {
-                                    credential = FirebaseAuth.instance.createUserWithEmailAndPassword(
+                                    credential = auth.createUserWithEmailAndPassword(
                                       email: email,
                                       password: password,
                                     );
 
 
-                                    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+                                    /*FirebaseAuth.instance.authStateChanges().listen((User? user) async {
                                       await FirebaseFirestore.instance.collection('users').doc(user?.uid).set({'nome': name, 'cognome': surname, 'email' : email});
-                                    });
+                                    });*/
+
+                                    FirebaseFirestore.instance.collection('users').doc(auth.currentUser?.uid).set({'nome': name, 'cognome': surname, 'email' : email});
+
 
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(

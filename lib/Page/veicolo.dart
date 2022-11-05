@@ -1,9 +1,9 @@
 import 'package:car_control/Page/addVeicolo.dart';
 import 'package:car_control/Widgets/DetailsCarCard.dart';
+import 'package:car_control/models/vehicle.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Veicolo extends StatefulWidget {
 
@@ -13,20 +13,144 @@ class Veicolo extends StatefulWidget {
 
 class _VeicoloState extends State<Veicolo>{
 
+  var make;
+
+
+  String uid = FirebaseAuth.instance.currentUser!.uid;
+
+  Stream<List<Vehicle>> readVehicles() => FirebaseFirestore.instance
+      .collection('vehicle')
+      .where('uid', isEqualTo: uid)
+      .snapshots()
+      .map((snapshot) =>
+      snapshot.docs.map((doc) => Vehicle.fromJson(doc.data())).toList()
+  );
+
+  Widget buildVehicle(Vehicle vehicle) => Stack(
+    children: [
+      Container(
+        height: MediaQuery.of(context).size.height - 80.0,
+        width: MediaQuery.of(context).size.width,
+        color: Colors.transparent,
+      ),
+      Positioned(
+        top: 75.0,
+        child: Container(
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(45.0),
+              topRight: Radius.circular(45.0),
+            ),
+            color: Colors.white60,
+          ),
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+        ),
+      ),
+      Positioned(
+        top: 30.0,
+        left: (MediaQuery.of(context).size.width /2) - 86.0,
+        child:  CircleAvatar(
+          radius: 91.0,
+          backgroundColor: Colors.cyan,
+          child: CircleAvatar(
+              radius: 85.0,
+              backgroundColor: Colors.white,
+              backgroundImage: NetworkImage('${vehicle.image}'),
+          )
+          ,
+        ),
+      ),
+      Positioned(
+        top: 230,
+        left: 10,
+        right: 10,
+        child: Table(
+          children:  [
+            TableRow(
+                children: [
+                  DetailsCarCard(
+                    firstText: "Marca",
+                    secondText: '${vehicle.make}',
+                    icon: Image.asset(
+                      "images/car-search-icon.png",
+                      width: 40,
+                      color: Colors.lightBlue,
+                    ),
+                  ),
+                  DetailsCarCard(
+                    firstText: "Modello",
+                    secondText: '${vehicle.model}',
+                    icon: Image.asset(
+                      "images/modello-auto-icon.png",
+                      width: 40,
+                      color: Colors.lightBlue ,
+                    ),
+                  ),
+
+                ]
+            ),
+            TableRow(
+                children: [
+                  DetailsCarCard(
+                    firstText: "Alimentazione",
+                    secondText: "Benzina",
+                    icon: Image.asset(
+                      "images/fuel-pump-icon.png",
+                      width: 40,
+                      color: Colors.lightBlue ,
+                    ),
+                  ),
+                  DetailsCarCard(
+                    firstText: "Cilindrata",
+                    secondText: "1200",
+                    icon: Image.asset(
+                      "images/engine-auto-icon.png",
+                      width: 40,
+                      color: Colors.lightBlue ,
+                    ),
+                  ),
+
+                ]
+            ),
+            TableRow(
+                children: [
+                  DetailsCarCard(
+                    firstText: "Km attuali",
+                    secondText: '${vehicle.kilometers}',
+                    icon: Image.asset(
+                      "images/tachimetro-icon.png",
+                      width: 40,
+                      color: Colors.lightBlue ,
+                    ),
+
+                  ),
+                  DetailsCarCard(
+                    firstText: "Targa",
+                    secondText: "${vehicle.plate}",
+                    icon: Image.asset(
+                      "images/license-plate-icon.png",
+                      width: 40,
+                      color: Colors.lightBlue ,
+                    ),
+                  ),
+
+                ]
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+
 
   @override
   Widget build(BuildContext context) {
-    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
-      FirebaseFirestore.instance.collection('vehichle')
-           .where('uid', isEqualTo: user?.uid)
-           .get();
-
-    });
     return Scaffold(
       extendBody: true,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-      title:const  Text('Veicolo'),
+        title:const  Text('Veicolo'),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0.0,
@@ -48,137 +172,38 @@ class _VeicoloState extends State<Veicolo>{
           ),
         ),*/
       ),
-          body:
-          Container(
-               decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topRight,
-                          end: Alignment.bottomLeft,
-                          colors: [Colors.lightBlue, Colors.white],
-                        )
-                    ),
-          child: ListView(
-            children: [
-              Stack(
-                children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height - 80.0,
-                    width: MediaQuery.of(context).size.width,
-                    color: Colors.transparent,
-                  ),
-                  Positioned(
-                    top: 75.0,
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(45.0),
-                          topRight: Radius.circular(45.0),
-                        ),
-                          color: Colors.white60,
-                      ),
-                      height: MediaQuery.of(context).size.height,
-                      width: MediaQuery.of(context).size.width,
-                    ),
-                  ),
-                  Positioned(
-                    top: 30.0,
-                    left: (MediaQuery.of(context).size.width /2) - 86.0,
-                    child: const CircleAvatar(
-                      radius: 91.0,
-                      backgroundColor: Colors.cyan,
-                      child: CircleAvatar(
-                        radius: 85.0,
-                        backgroundColor: Colors.white,
-                        backgroundImage: AssetImage('images/audi-rs3-primo-contatto-2021-12_01.jpg')
-                      )
-                      ,
-                    ),
-                  ),
-                  Positioned(
-                    top: 230,
-                    left: 10,
-                    right: 10,
-                    child: Table(
-                      children:  [
-                        TableRow(
-                          children: [
-                            DetailsCarCard(
-                                firstText: "Marca",
-                                secondText: "Fiat",
-                              icon: Image.asset(
-                                "images/car-search-icon.png",
-                                width: 40,
-                                color: Colors.lightBlue,
-                              ),
-                            ),
-                            DetailsCarCard(
-                                firstText: "Modello",
-                                secondText: "Abarth",
-                              icon: Image.asset(
-                                "images/modello-auto-icon.png",
-                                width: 40,
-                                color: Colors.lightBlue ,
-                              ),
-                            ),
+      body:
+      Container(
+        decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
+              colors: [Colors.lightBlue, Colors.white],
+            )
+        ),
 
-                          ]
-                        ),
-                         TableRow(
-                            children: [
-                              DetailsCarCard(
-                                  firstText: "Alimentazione",
-                                  secondText: "Benzina",
-                                icon: Image.asset(
-                                  "images/fuel-pump-icon.png",
-                                  width: 40,
-                                  color: Colors.lightBlue ,
-                                ),
-                              ),
-                              DetailsCarCard(
-                                  firstText: "Cilindrata",
-                                  secondText: "1200",
-                                icon: Image.asset(
-                                  "images/engine-auto-icon.png",
-                                  width: 40,
-                                  color: Colors.lightBlue ,
-                                ),
-                              ),
-
-                            ]
-                        ),
-                        TableRow(
-                            children: [
-                              DetailsCarCard(
-                                  firstText: "Km attuali",
-                                  secondText: "150000",
-                                icon: Image.asset(
-                                  "images/tachimetro-icon.png",
-                                  width: 40,
-                                  color: Colors.lightBlue ,
-                                ),
-
-                              ),
-                              DetailsCarCard(
-                                  firstText: "Targa",
-                                  secondText: "XVC767",
-                                icon: Image.asset(
-                                  "images/license-plate-icon.png",
-                                  width: 40,
-                                  color: Colors.lightBlue ,
-                                ),
-                              ),
-
-                            ]
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          ),
+        child: ListView(
+          physics: NeverScrollableScrollPhysics(),
+          children: [
+         StreamBuilder<List<Vehicle>>(
+            stream: readVehicles(),
+          builder: (context,snapshot) {
+            if (snapshot.hasData) {
+              final vehicle = snapshot.data!;
+              return ListView(
+                shrinkWrap: true,
+                children: vehicle.map(buildVehicle).toList(),
+              );
+            }
+            else{
+              return Center(child: CircularProgressIndicator());
+            }
+          }
+      ),
+      ],
+        ),
+      ),
     );
   }
-    }
+}
 

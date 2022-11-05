@@ -9,7 +9,7 @@ class DetailsCarCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       elevation: 8,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
@@ -21,9 +21,9 @@ class DetailsCarCard extends StatelessWidget {
 
       child: Padding(
         padding: const EdgeInsets.only(
-          left: 16.0,
-          top: 16,
-          bottom: 24,
+          left: 14.0,
+          top: 6,
+          bottom: 15,
           right: 16,
         ),
         child: Column(
