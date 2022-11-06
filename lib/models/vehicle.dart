@@ -6,6 +6,8 @@ class Vehicle {
   String? uid;
   String? image;
   String? kilometers;
+  String? engine;
+  String? fuel;
 
   Vehicle({
     required this.make,
@@ -14,6 +16,9 @@ class Vehicle {
     required this.uid,
     required this.image,
     required this.kilometers,
+    required this.engine,
+    required this.fuel,
+
 });
 
   static Vehicle fromJson(Map<String, dynamic> json) => Vehicle(
@@ -23,6 +28,8 @@ class Vehicle {
     uid: json['uid'],
     image: json['image'],
     kilometers: json['kilometers'],
+    engine: json['engine'],
+    fuel: json['fuel']
   );
 
 }

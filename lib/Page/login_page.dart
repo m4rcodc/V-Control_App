@@ -1,16 +1,15 @@
-import 'dart:io';
-
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:car_control/Page/signup_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_signin_button/button_list.dart';
 import 'package:flutter_signin_button/button_view.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'dart:async';
 import 'dart:convert' show JsonEncoder, json;
 import 'package:http/http.dart' as http;
+import 'package:lottie/lottie.dart';
 import 'home_page.dart';
+import 'package:page_transition/page_transition.dart';
 
 /*
 GoogleSignIn _googleSignIn = GoogleSignIn(
@@ -327,7 +326,12 @@ class _LoginPageState extends State<LoginPage> {
                                         borderRadius: BorderRadius.circular(
                                             25))),
                                 onPressed: () {
-                                  Navigator.of(context).pushNamed(HomePage.routeName);
+
+                                  //Navigator.of(context).pushNamed(HomePage.routeName);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const LoadingScreen()),
+                                  );
                                   if (_formKey.currentState!.validate()) {
                                     try {
                                       credential = FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password,);
@@ -349,8 +353,8 @@ class _LoginPageState extends State<LoginPage> {
                                                 'Email o Password errati!')));
                                       }
 
-                                      Navigator.of(context).pushNamed(
-                                          HomePage.routeName);
+
+                                      Navigator.of(context).pushNamed(HomePage.routeName);
 
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
@@ -427,4 +431,27 @@ class _LoginPageState extends State<LoginPage> {
 
       }
   }
+
+class LoadingScreen extends StatelessWidget{
+
+  static const routeName = '/splash-screen';
+
+  const LoadingScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+
+    return AnimatedSplashScreen(
+      splash: Lottie.network('https://assets6.lottiefiles.com/packages/lf20_hslwihoj.json'),
+      backgroundColor: Colors.lightBlue.shade100,
+      nextScreen: HomePage(),
+      splashIconSize: 250,
+      duration: 2200,
+      splashTransition: SplashTransition.fadeTransition,
+      pageTransitionType: PageTransitionType.fade,
+      animationDuration: const Duration(seconds: 1),
+    );
+  }
+
+}
 

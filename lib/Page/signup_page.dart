@@ -116,8 +116,6 @@ class _SignupPageState extends State<SignupPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           const SizedBox(height: 45),
-
-
                           TextFormField(
                             autofocus: true,
                             textInputAction: TextInputAction.next,

@@ -94,7 +94,7 @@ class _VeicoloState extends State<Veicolo>{
                 children: [
                   DetailsCarCard(
                     firstText: "Alimentazione",
-                    secondText: "Benzina",
+                    secondText: '${vehicle.fuel}',
                     icon: Image.asset(
                       "images/fuel-pump-icon.png",
                       width: 40,
@@ -103,7 +103,7 @@ class _VeicoloState extends State<Veicolo>{
                   ),
                   DetailsCarCard(
                     firstText: "Cilindrata",
-                    secondText: "1200",
+                    secondText: '${vehicle.engine}',
                     icon: Image.asset(
                       "images/engine-auto-icon.png",
                       width: 40,

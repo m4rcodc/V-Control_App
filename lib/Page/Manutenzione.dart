@@ -209,6 +209,39 @@ class _ManutenzioneState extends State<Manutenzione>{
               ),
             ),
             Container(
+              margin: const EdgeInsets.symmetric(vertical: 18.0,horizontal: 15.0),
+              child: TextFormField(
+                maxLines: 6,
+                decoration: InputDecoration(
+                  alignLabelWithHint: true,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 20,
+                  ),
+                  labelStyle: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.black54,
+                  ),
+                  labelText: 'Note',
+                  //hintStyle: const TextStyle(fontSize: 14),
+                  filled: true,
+                  fillColor: Colors.white70,
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  focusedBorder:  OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.indigoAccent),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                  });
+                },
+              ),
+            ),
+            Container(
               margin: const EdgeInsets.symmetric(vertical: 40.0,horizontal: 90.0),
               child: ElevatedButton(
                 onPressed: () => print("Prova"),

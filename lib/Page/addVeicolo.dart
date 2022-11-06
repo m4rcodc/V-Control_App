@@ -1,14 +1,18 @@
 import 'dart:io';
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:car_control/Page/home_page.dart';
-import 'package:car_control/Page/veicolo.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:lottie/lottie.dart';
+import 'package:motion_toast/motion_toast.dart';
+import 'package:motion_toast/resources/arrays.dart';
 import '../Widgets/select_photo_options_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:page_transition/page_transition.dart';
 
 class AddVeicolo extends StatefulWidget{
 
@@ -23,27 +27,62 @@ class _AddVeicoloState extends State<AddVeicolo> {
   //Variabile per il metodo imagePicker
   //XFile? image;
 
+  final GlobalKey<FormState> _formKeyPlate = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKeyType = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKeyEngine = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKeyFuel = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKeyKm = GlobalKey<FormState>();
+
+
   FirebaseAuth auth = FirebaseAuth.instance;
 
-  String? make = 'BMW';
-  String? model = 'X5';
+  String? make;
+  String? model;
   String? plate;
   String? kilometers;
-  String? type = 'Auto';
+  String? type;
+  String? engine;
+  String? fuel;
   var setDefaultMake = true, setDefaultModel = true, setDefaultType = true;
 
   File? image;
   String? imageUrl;
+
+  void makeSelected(value){
+    debugPrint('selected onchange: $value');
+    setState(() {
+      debugPrint('make selected: $value');
+      make = value;
+      setDefaultMake = false;
+      setDefaultModel = true;
+    });
+  }
+
+  void modelSelected(value){
+    debugPrint('selected onchange: $value');
+    setState(() {
+      debugPrint('make selected: $value');
+      model = value;
+      setDefaultModel = false;
+    });
+  }
 
   final List<String> ChoiceCilindrata = [
     '1200',
     '1300',
   ];
 
+  final List<String> ChoiceFuel = [
+    'Benzina',
+    'Diesel',
+    'Metano',
+    'Gas',
+    'Elettrica',
+  ];
+
+
 
   String? selectedValue;
-
-  final _formKey = GlobalKey<FormState>();
 
 
   @override
@@ -119,7 +158,9 @@ class _AddVeicoloState extends State<AddVeicolo> {
             //Plate
             Container(
               margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
-              child: TextFormField(
+              child: Form(
+                key: _formKeyPlate,
+                child: TextFormField(
                 decoration: InputDecoration(
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 20,
@@ -137,12 +178,31 @@ class _AddVeicoloState extends State<AddVeicolo> {
                     borderSide: BorderSide(color: Colors.indigoAccent),
                     borderRadius: BorderRadius.circular(15),
                   ),
+                  errorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red),
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red),
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
                 ),
+                validator: (value){
+                  if(value == null || value.isEmpty){
+                    return 'Inserisci la targa del veicolo';
+                  }
+                  else if(value.isNotEmpty && value.length != 6) {
+                    return 'La lunghezza della targa deve essere pari a 6';
+                  } else {
+                    return null;
+                    }
+                  },
                 onChanged: (value) {
                   setState(() {
                     plate = value;
                   });
                 },
+                ),
               ),
             ),
             //VehicleType
@@ -161,7 +221,10 @@ class _AddVeicoloState extends State<AddVeicolo> {
                     //make = snapshot.data.docs[0].get('nome');
                     debugPrint('setDefault type: $type');
                   }
-                  return DropdownButtonFormField2(
+
+                return Form(
+                  key: _formKeyType,
+                      child: DropdownButtonFormField2(
                     decoration: InputDecoration(
                       //Add isDense true and zero Padding.
                       //Add Horizontal padding using buttonPadding and Vertical padding by increasing buttonHeight instead of add Padding here so that The whole TextField Button become clickable, and also the dropdown menu open under The whole TextField Button.
@@ -175,6 +238,14 @@ class _AddVeicoloState extends State<AddVeicolo> {
                           borderSide: BorderSide(
                               color: Colors.indigoAccent),
                           borderRadius: BorderRadius.circular(15),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red),
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red),
+                          borderRadius: BorderRadius.circular(15.0),
                         ),
                         filled: true,
                         fillColor: Colors.white70
@@ -208,13 +279,14 @@ class _AddVeicoloState extends State<AddVeicolo> {
                       );
                     }).toList(),
                     validator: (value) {
-                      if (value == null) {
-                        return 'Seleziona un veicolo.';
+                      if(value == null) {
+                        return 'Seleziona un tipo di veicolo';
                       }
+                      return null;
                     },
                     onChanged: (value) {
                       debugPrint('selected onchange: $value');
-                      setState(() {
+                        setState(() {
                         debugPrint('make selected: $value');
                         type = value;
                         setDefaultType = false;
@@ -225,7 +297,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
                     /*onSaved: (value) {
                   selectedValue = value.toString();
                 },*/
-                  );
+                  ),
+                );
                 },
               ),
             ),
@@ -293,21 +366,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                         ),
                       );
                     }).toList(),
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Seleziona un veicolo.';
-                      }
-                    },
-                    onChanged: (value) {
-                      debugPrint('selected onchange: $value');
-                      setState(() {
-                        debugPrint('make selected: $value');
-                        make = value;
-                        setDefaultMake = false;
-                        setDefaultModel = true;
-                      });
-                    },
-
+                    onChanged: setDefaultType ? null : (value) async  =>  makeSelected(value),
                     /*onSaved: (value) {
                   selectedValue = value.toString();
                 },*/
@@ -383,19 +442,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                         ),
                       );
                     }).toList(),
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Seleziona un veicolo.';
-                      }
-                    },
-                    onChanged: (value) {
-                      debugPrint('selected onchange: $value');
-                      setState(() {
-                        debugPrint('make selected: $value');
-                        model = value;
-                        setDefaultModel = false;
-                      });
-                    },
+                    onChanged:  setDefaultMake ? null : (value) => modelSelected(value),
                     /*onSaved: (value) {
                   selectedValue = value.toString();
                 },*/
@@ -406,6 +453,9 @@ class _AddVeicoloState extends State<AddVeicolo> {
             //Cilindrata
             Container(
               margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
+              child:
+              Form(
+              key: _formKeyEngine,
               child: DropdownButtonFormField2(
                 decoration: InputDecoration(
                   //Add isDense true and zero Padding.
@@ -419,6 +469,14 @@ class _AddVeicoloState extends State<AddVeicolo> {
                     focusedBorder:  OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.indigoAccent),
                       borderRadius: BorderRadius.circular(15),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red),
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red),
+                      borderRadius: BorderRadius.circular(15.0),
                     ),
                     filled: true,
                     fillColor: Colors.white70
@@ -451,22 +509,26 @@ class _AddVeicoloState extends State<AddVeicolo> {
                     ))
                     .toList(),
                 validator: (value) {
-                  if (value == null) {
-                    return 'Seleziona una cilindrata';
+                  if(value == null) {
+                    return 'Selezionare una cilindrata';
                   }
                 },
                 onChanged: (value) {
-                  //Do something when changing the item if you want.
+                  setState(() {
+                    engine = value;
+                  });
                 },
-                onSaved: (value) {
-                  selectedValue = value.toString();
-                },
+              ),
               ),
             ),
             //Alimentazione
             Container(
               margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
-              child: DropdownButtonFormField2(
+              child:
+              Form(
+              key: _formKeyFuel,
+              child:
+              DropdownButtonFormField2(
                 decoration: InputDecoration(
                   //Add isDense true and zero Padding.
                   //Add Horizontal padding using buttonPadding and Vertical padding by increasing buttonHeight instead of add Padding here so that The whole TextField Button become clickable, and also the dropdown menu open under The whole TextField Button.
@@ -479,6 +541,14 @@ class _AddVeicoloState extends State<AddVeicolo> {
                     focusedBorder:  OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.indigoAccent),
                       borderRadius: BorderRadius.circular(15),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red),
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red),
+                      borderRadius: BorderRadius.circular(15.0),
                     ),
                     filled: true,
                     fillColor: Colors.white70
@@ -498,7 +568,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                 dropdownDecoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
                 ),
-                items: ChoiceCilindrata
+                items: ChoiceFuel
                     .map((item) =>
                     DropdownMenuItem<String>(
                       value: item,
@@ -511,22 +581,28 @@ class _AddVeicoloState extends State<AddVeicolo> {
                     ))
                     .toList(),
                 validator: (value) {
-                  if (value == null) {
-                    return 'Seleziona una cilindrata';
+                  if(value == null){
+                    return 'Seleziona il tipo di alimentazione del veicolo';
                   }
                 },
                 onChanged: (value) {
-                  //Do something when changing the item if you want.
+                  setState(() {
+                    fuel = value;
+                  });
                 },
-                onSaved: (value) {
-                  selectedValue = value.toString();
-                },
+              ),
               ),
             ),
             //Kilometri
             Container(
               margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
-              child: TextFormField(
+              child:
+              Form(
+              key: _formKeyKm,
+                child:
+              TextFormField(
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 20,
@@ -544,12 +620,29 @@ class _AddVeicoloState extends State<AddVeicolo> {
                     borderSide: BorderSide(color: Colors.indigoAccent),
                     borderRadius: BorderRadius.circular(15),
                   ),
+                  errorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red),
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red),
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
                 ),
+                validator: (value) {
+                  if(value == null || value.isEmpty){
+                    return 'Inserisci i kilometri attuali del veicolo';
+                  }
+                  else {
+                    return null;
+                  }
+                },
                 onChanged: (value) {
                   setState(() {
                     kilometers = value;
                   });
                 },
+              ),
               ),
             ),
             //ButtonAddVeicolo
@@ -557,23 +650,47 @@ class _AddVeicoloState extends State<AddVeicolo> {
               margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 60.0),
               child: ElevatedButton(
                 onPressed: () => {
-                FirebaseAuth.instance.authStateChanges().listen((User? user) async {
-                //await FirebaseFirestore.instance.collection('users').doc.set({'nome': name, 'cognome': surname, 'email' : email});
-                CollectionReference vehicle = await FirebaseFirestore.instance.collection('vehicle');
-                //await FirebaseFirestore.instance.collection('vehicle').doc(user?.uid).set({'uid': user?.uid, 'make': carMake, 'model' : carMakeModel, 'plate': plate});
-                // Call the user's CollectionReference to add a new user
+                  if(image == null) {
+                    displayCenterMotionToast()
+                  }
+                  else if(!_formKeyPlate.currentState!.validate()){
+                  }
+                  else if(!_formKeyType.currentState!.validate()){
+                  }
+                  else if(!_formKeyEngine.currentState!.validate()){
+                  }
+                  else if(!_formKeyFuel.currentState!.validate()){
+                  }
+                  else if(!_formKeyKm.currentState!.validate()){
+                  }
+                else{
+            FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+            //await FirebaseFirestore.instance.collection('users').doc.set({'nome': name, 'cognome': surname, 'email' : email});
+            CollectionReference vehicle = await FirebaseFirestore.instance.collection('vehicle');
+            //await FirebaseFirestore.instance.collection('vehicle').doc(user?.uid).set({'uid': user?.uid, 'make': carMake, 'model' : carMakeModel, 'plate': plate});
+            // Call the user's CollectionReference to add a new user
 
-                vehicle.add({
-                'uid': user?.uid, // John Doe
-                'make': make, // Stokes and Sons
-                'model': model, // 42
-                'plate' : plate,
-                'kilometers' : kilometers,
-                'image' : imageUrl,
+            vehicle.add({
+            'uid': user?.uid, // John Doe
+            'make': make, // Stokes and Sons
+            'model': model, // 42
+            'plate' : plate,
+            'kilometers' : kilometers,
+            'image' : imageUrl,
+            'engine' : engine,
+            'fuel' : fuel,
+            });
 
-                });
-                Navigator.of(context).pushNamed(HomePage.routeName);
-                })
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const LoadingScreen()),
+            );
+
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Veicolo aggiunto con successo'), backgroundColor: Colors.lightBlue,  )
+            );
+            })
+            }
                 },
                 style: ElevatedButton.styleFrom(
                   elevation: 10,
@@ -650,6 +767,25 @@ class _AddVeicoloState extends State<AddVeicolo> {
       setState(() => imageUrl = imageURL);
   }
 
+  void displayCenterMotionToast() {
+    MotionToast(
+      icon: Icons.error,
+      primaryColor: Colors.deepOrange,
+      title: const Text(
+        'Errore!',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      width: 350,
+      height: 150,
+      description: const Text(
+        'Per favore inserisci una foto del tuo veicolo',
+      ),
+      //description: "Center displayed motion toast",
+      position: MotionToastPosition.center,
+    ).show(context);
+  }
 
 
 /*
@@ -686,3 +822,30 @@ class _AddVeicoloState extends State<AddVeicolo> {
 
 
 }
+
+
+class LoadingScreen extends StatelessWidget{
+
+  static const routeName = '/splash-screen';
+
+  const LoadingScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+
+    return AnimatedSplashScreen(
+      splash: Lottie.network('https://assets6.lottiefiles.com/packages/lf20_gv7Ovi.json'),
+      backgroundColor: Colors.white,
+      nextScreen: HomePage(),
+      splashIconSize: 250,
+      duration: 2200,
+      splashTransition: SplashTransition.fadeTransition,
+      pageTransitionType: PageTransitionType.fade,
+      animationDuration: const Duration(seconds: 1),
+    );
+  }
+
+}
+
+
+

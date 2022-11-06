@@ -47,6 +47,7 @@ class MyApp extends StatelessWidget {
         AddAssicurazione.routeName: (context) => AddAssicurazione(),
         AddTagliando.routeName: (context) => AddTagliando(),
         AddBollo.routeName: (context) => AddBollo(),
+
       },
     );
   }
