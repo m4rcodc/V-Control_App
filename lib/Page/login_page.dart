@@ -292,10 +292,11 @@ class _LoginPageState extends State<LoginPage> {
                                   return 'Password errata.';
                                 }
 
+                               /*
                                 else if (!RegExp(passPattern).hasMatch(value)) {
                                   return 'Password errata.';
                                 }
-
+                              */
                                 return null;
                               },
 
@@ -328,15 +329,18 @@ class _LoginPageState extends State<LoginPage> {
                                 onPressed: () {
 
                                   //Navigator.of(context).pushNamed(HomePage.routeName);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => const LoadingScreen()),
-                                  );
+
                                   if (_formKey.currentState!.validate()) {
                                     try {
                                       credential = FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password,);
-                                      User? user = FirebaseAuth.instance.currentUser!;
-
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => const LoadingScreen()),
+                                      );
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                          const SnackBar(content: Text(
+                                              'Login effettuato!')));
                                     } on FirebaseAuthException catch (e) {
                                       if (e.code == 'user-not-found') {
                                         debugPrint(
@@ -354,7 +358,7 @@ class _LoginPageState extends State<LoginPage> {
                                       }
 
 
-                                      Navigator.of(context).pushNamed(HomePage.routeName);
+
 
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
