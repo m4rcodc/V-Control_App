@@ -13,9 +13,9 @@ class AddAssicurazione extends StatefulWidget{
 }
 
 class _AddAssicurazioneState extends State<AddAssicurazione> {
-  late String nome;
-  late String prezzo;
-  late String tipoScad;
+  String nome ="";
+  String prezzo ="";
+  String tipoScad ="";
   //late DateTime dataScad;
   String selectedDate = "Inserisci la data di scadenza";
 
@@ -41,7 +41,7 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
       };
       Scadenze.insert(info);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Processing Data')),
+        const SnackBar(content: Text('Aggiunto con successo'),backgroundColor: Colors.green,),
       );
       HomePage.setPage(Scadenze(), 1);
       Navigator.of(context).pushNamed(HomePage.routeName);
@@ -271,7 +271,7 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
                     ),
                   ),
                   Container(
-                      margin: const EdgeInsets.symmetric(vertical: 70.0,horizontal: 60.0),
+                      margin: const EdgeInsets.symmetric(vertical: 50.0,horizontal: 60.0),
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           elevation: 10,

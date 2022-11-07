@@ -1,18 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class BoxScadenza extends StatelessWidget{
 
+  DateTime _dataoggi = DateTime.now();
+
   String _title = "";
   String _subtitle = "";
-  Color _coloreBord = Colors.green;
+  late Color _coloreBord;
+  late DateTime dataScad;
   IconData _icona = Icons.abc_sharp;
   final void Function()? pagamento;
   final void Function()? modifica;
 
-  BoxScadenza(titolo,sottotitolo,colore,icona,{super.key, this.pagamento, required this.modifica}){
+  BoxScadenza(titolo,nomeAssic,scadenza,icona,String prezzo,{super.key, required this.pagamento, required this.modifica}){ //costruttore assicurazione
+    final DateFormat formatter = DateFormat('dd-MM-yyyy');
+    dataScad = scadenza;
+    String strScadenza;
     _title = titolo;
-    _subtitle = sottotitolo;
-    _coloreBord = colore;
+    if(scadenza.compareTo(_dataoggi) < 0){
+      _coloreBord = Colors.red;
+      strScadenza = "Scaduto il "+formatter.format(scadenza);
+    }
+    else if(scadenza.difference(_dataoggi).inDays <= DateUtils.getDaysInMonth(_dataoggi.year, _dataoggi.month)){
+      _coloreBord = Colors.yellow;
+      strScadenza = "Scadenza "+formatter.format(scadenza);
+    }
+    else{
+      _coloreBord = Colors.green;
+      strScadenza = "Scadenza "+formatter.format(scadenza);
+    }
+    if(nomeAssic == ""){
+      if(prezzo == "")
+        _subtitle = strScadenza;
+      else
+        _subtitle = strScadenza+"\n"+prezzo+"€";
+    }
+    else
+      _subtitle = nomeAssic+"\n"+strScadenza+"\n"+prezzo+"€";
     _icona = icona;
   }
 
