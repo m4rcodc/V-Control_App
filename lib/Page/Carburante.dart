@@ -30,11 +30,12 @@ class _CarburanteState extends State<Carburante>{
   int? current_year;
   String? month;
   String? year;
+  double? kmVeicolo;
   late double totalCost;
 
   //DateTime date = DateTime.now();
   DateTime now = new DateTime.now();
-  var formatter = new DateFormat('yyyy-MM-dd');
+  var formatter = new DateFormat('dd-MM-yyyy');
   late String date = formatter.format(now);
 
 
@@ -267,6 +268,11 @@ class _CarburanteState extends State<Carburante>{
                       borderRadius: BorderRadius.circular(15),
                     ),
                   ),
+                  onChanged: (value) {
+                    setState(() {
+                      kmVeicolo = double.tryParse(value);
+                    });
+                  },
                 ),
               ),
               //AddButton
@@ -303,11 +309,11 @@ class _CarburanteState extends State<Carburante>{
                                     'year': now.year,
                                     'mese': months[current_month! - 1],
                                     'type': 'Rifornimento carburante',
-                                    'uid': user?.uid
+                                    'uid': user?.uid,
+                                    'litri': labelLitri,
+                                    'costoAlLitro': costoAlLitro,
+                                    'Kilometri veicolo': kmVeicolo
                                   });
-
-
-
 
                                   /*
                                   if(costiChart.docs.isNotEmpty) {
