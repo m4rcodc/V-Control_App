@@ -3,40 +3,40 @@ import 'package:car_control/Page/AddBollo.dart';
 import 'package:car_control/Page/AddTagliando.dart';
 import 'package:car_control/Page/home_page.dart';
 import 'package:car_control/Page/veicolo.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import '../Widgets/BoxScadenza.dart';
 
-
-
 class Scadenze extends StatefulWidget {
   static const routeName = '/scadenze';
 
+  static late List<AnimationWidget> lista = [];
 
-  static List<AnimationWidget> lista = [
-    AnimationWidget(BoxScadenza(
-        "Bollo",
-        "",
-        DateTime(2022,12,14),
-        Icons.wallet,
-        "210",
-        pagamento: (){},
-        modifica: (){}
-    ),
-        false
-    ),
-    AnimationWidget(BoxScadenza(
-        "Assicurazione Auto",
-        "Allianz Direct",
-        DateTime(2021,02,17),
-        Icons.security,
-        "470",
-        pagamento: (){},
-        modifica: (){}
-    ),
-        false
-    )
-  ];
+  static bool resetAnimation = false;
+
+  static Future<List<AnimationWidget>> getScadenze() async{
+    var ref = FirebaseFirestore.instance.collection("scadenze");
+    var query = await ref.get();
+    for (var queryDocumentSnapshot in query.docs) {
+      Map<String, dynamic> data = queryDocumentSnapshot.data();
+      lista.add(
+          AnimationWidget(
+              BoxScadenza(
+                data['titolo'],
+                data['nome'],
+                DateTime.now(),
+                Icons.security,
+                data['prezzo'],
+                pagamento: (){},
+                modifica: (){},
+              ),
+              false)
+      );
+    }
+    return lista;
+  }
 
   static void insert(var info){
     lista.add(
@@ -74,14 +74,30 @@ class Scadenze extends StatefulWidget {
   }
 
   @override
-  _ScadenzeState createState() => _ScadenzeState(lista);
+  _ScadenzeState createState() => _ScadenzeState(lista,resetAnimation);
 }
 
 class _ScadenzeState extends State<Scadenze>{
   late List<AnimationWidget> listaScadenze;
 
-  _ScadenzeState(List<AnimationWidget> lista){
+  _ScadenzeState(lista,resetAnimation) {
     listaScadenze = lista;
+    if(resetAnimation){
+      for(var box in listaScadenze){
+        if(box.box.flagAnimation){
+          box._animation = false;
+          box.box.flagAnimation = false;
+        }
+      }
+      Scadenze.resetAnimation = false;
+    }
+
+    for(var box in listaScadenze){
+      if(box._animation == true){
+        box.box.flagAnimation = true;
+        Scadenze.resetAnimation = true;
+      }
+    }
   }
 
   @override
@@ -133,7 +149,7 @@ class _ScadenzeState extends State<Scadenze>{
                 labelStyle: const TextStyle(fontSize: 18.0, color: Colors.white),
                 labelBackgroundColor: Colors.lightBlue.shade300,
                 label: 'Assicurazione',
-                onTap: () => Navigator.of(context).pushNamed(AddAssicurazione.routeName),
+                onTap: () => Navigator.of(context).popAndPushNamed(AddAssicurazione.routeName),
               ),
             ],
           ),
@@ -141,7 +157,7 @@ class _ScadenzeState extends State<Scadenze>{
         title: Text('Scadenze'),
         centerTitle: true,
         backgroundColor: Colors.transparent,
-        elevation: 0.0,
+        elevation: 8.0,
         toolbarHeight: 55,
         flexibleSpace: Container(
           decoration:const BoxDecoration(

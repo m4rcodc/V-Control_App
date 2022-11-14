@@ -160,7 +160,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
               margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
               child: Form(
                 key: _formKeyPlate,
-                child: TextFormField(
+                  child:
+                TextFormField(
                 decoration: InputDecoration(
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 20,
@@ -171,20 +172,20 @@ class _AddVeicoloState extends State<AddVeicolo> {
                   filled: true,
                   fillColor: Colors.white70,
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(25),
                     borderSide: BorderSide(color: Colors.grey),
                   ),
                   focusedBorder:  OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.indigoAccent),
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(25),
                   ),
                   errorBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.red),
-                    borderRadius: BorderRadius.circular(15.0),
+                    borderRadius: BorderRadius.circular(25),
                   ),
                   focusedErrorBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.red),
-                    borderRadius: BorderRadius.circular(15.0),
+                    borderRadius: BorderRadius.circular(25),
                   ),
                 ),
                 validator: (value){
@@ -203,7 +204,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                   });
                 },
                 ),
-              ),
+                ),
             ),
             //VehicleType
             Container(
@@ -231,21 +232,21 @@ class _AddVeicoloState extends State<AddVeicolo> {
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(25),
                           borderSide: BorderSide(color: Colors.grey),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
                               color: Colors.indigoAccent),
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(25),
                         ),
                         errorBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.red),
-                          borderRadius: BorderRadius.circular(15.0),
+                          borderRadius: BorderRadius.circular(25),
                         ),
                         focusedErrorBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.red),
-                          borderRadius: BorderRadius.circular(15.0),
+                          borderRadius: BorderRadius.circular(25),
                         ),
                         filled: true,
                         fillColor: Colors.white70
@@ -327,13 +328,13 @@ class _AddVeicoloState extends State<AddVeicolo> {
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(25),
                           borderSide: BorderSide(color: Colors.grey),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
                               color: Colors.indigoAccent),
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(25),
                         ),
                         filled: true,
                         fillColor: Colors.white70
@@ -353,7 +354,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                     buttonPadding: const EdgeInsets.only(
                         left: 20, right: 10),
                     dropdownDecoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(25),
                     ),
                     items: snapshot.data.docs.map<DropdownMenuItem<String>>((value) {
                       return DropdownMenuItem<String>(
@@ -403,13 +404,13 @@ class _AddVeicoloState extends State<AddVeicolo> {
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(25),
                           borderSide: BorderSide(color: Colors.grey),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
                               color: Colors.indigoAccent),
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(25),
                         ),
                         filled: true,
                         fillColor: Colors.white70
@@ -429,7 +430,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                     buttonPadding: const EdgeInsets.only(
                         left: 20, right: 10),
                     dropdownDecoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(25),
                     ),
                     items: snapshot.data.docs.map<DropdownMenuItem<String>>((value) {
                       return DropdownMenuItem<String>(
@@ -463,20 +464,20 @@ class _AddVeicoloState extends State<AddVeicolo> {
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(25),
                       borderSide: BorderSide(color: Colors.grey),
                     ),
                     focusedBorder:  OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.indigoAccent),
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(25),
                     ),
                     errorBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.red),
-                      borderRadius: BorderRadius.circular(15.0),
+                      borderRadius: BorderRadius.circular(25),
                     ),
                     focusedErrorBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.red),
-                      borderRadius: BorderRadius.circular(15.0),
+                      borderRadius: BorderRadius.circular(25),
                     ),
                     filled: true,
                     fillColor: Colors.white70
@@ -535,20 +536,20 @@ class _AddVeicoloState extends State<AddVeicolo> {
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(25),
                       borderSide: BorderSide(color: Colors.grey),
                     ),
                     focusedBorder:  OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.indigoAccent),
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(25),
                     ),
                     errorBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.red),
-                      borderRadius: BorderRadius.circular(15.0),
+                      borderRadius: BorderRadius.circular(25),
                     ),
                     focusedErrorBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.red),
-                      borderRadius: BorderRadius.circular(15.0),
+                      borderRadius: BorderRadius.circular(25),
                     ),
                     filled: true,
                     fillColor: Colors.white70
@@ -566,7 +567,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                 buttonHeight: 60,
                 buttonPadding: const EdgeInsets.only(left: 20, right: 10),
                 dropdownDecoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(25),
                 ),
                 items: ChoiceFuel
                     .map((item) =>
@@ -613,20 +614,20 @@ class _AddVeicoloState extends State<AddVeicolo> {
                   filled: true,
                   fillColor: Colors.white70,
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(25),
                     borderSide: BorderSide(color: Colors.grey),
                   ),
                   focusedBorder:  OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.indigoAccent),
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(25),
                   ),
                   errorBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.red),
-                    borderRadius: BorderRadius.circular(15.0),
+                    borderRadius: BorderRadius.circular(25),
                   ),
                   focusedErrorBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.red),
-                    borderRadius: BorderRadius.circular(15.0),
+                    borderRadius: BorderRadius.circular(25),
                   ),
                 ),
                 validator: (value) {
@@ -681,11 +682,13 @@ class _AddVeicoloState extends State<AddVeicolo> {
             'fuel' : fuel,
             });
 
+            /*
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const LoadingScreen()),
             );
-
+            */
+            Navigator.of(context).pushNamed(HomePage.routeName);
             ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Veicolo aggiunto con successo'), backgroundColor: Colors.lightBlue,  )
             );
@@ -696,7 +699,6 @@ class _AddVeicoloState extends State<AddVeicolo> {
                   elevation: 10,
                   backgroundColor: Colors.blue.shade200,
                   shape: const StadiumBorder(),
-
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
@@ -823,7 +825,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
 
 }
 
-
+/*
 class LoadingScreen extends StatelessWidget{
 
   static const routeName = '/splash-screen';
@@ -846,6 +848,7 @@ class LoadingScreen extends StatelessWidget{
   }
 
 }
+*/
 
 
 

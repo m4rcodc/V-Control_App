@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -14,6 +16,7 @@ class Autolavaggio extends StatefulWidget {
 class _AutolavaggioState extends State<Autolavaggio>{
 
   DateTime date = DateTime.now();
+  double? costoAutolavaggio;
 
   @override
   Widget build(BuildContext context) {
@@ -110,8 +113,8 @@ class _AutolavaggioState extends State<Autolavaggio>{
             Container(
               margin: const EdgeInsets.symmetric(vertical: 18.0,horizontal: 15.0),
               child: TextFormField(
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9.,]+')),],
                 decoration: InputDecoration(
                   alignLabelWithHint: true,
                   contentPadding: const EdgeInsets.symmetric(
@@ -137,6 +140,7 @@ class _AutolavaggioState extends State<Autolavaggio>{
                 ),
                 onChanged: (value) {
                   setState(() {
+                    costoAutolavaggio = double.tryParse(value);
                   });
                 },
               ),
@@ -144,7 +148,45 @@ class _AutolavaggioState extends State<Autolavaggio>{
             Container(
               margin: const EdgeInsets.symmetric(vertical: 70.0,horizontal: 90.0),
               child: ElevatedButton(
-                onPressed: () => print("Prova"),
+                onPressed: () => {
+                  /* if(image == null) {
+                      displayCenterMotionToast()
+                    }
+                    else if(!_formKeyPlate.currentState!.validate()){
+                    }
+                    else if(!_formKeyType.currentState!.validate()){
+                      }
+                      else if(!_formKeyEngine.currentState!.validate()){
+                        }
+                        else if(!_formKeyFuel.currentState!.validate()){
+                          }
+                          else if(!_formKeyKm.currentState!.validate()){
+                            }
+                            else{*/
+                  FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+                    //await FirebaseFirestore.instance.collection('users').doc.set({'nome': name, 'cognome': surname, 'email' : email});
+                    CollectionReference costi = await FirebaseFirestore.instance.collection('costi');
+                    //await FirebaseFirestore.instance.collection('vehicle').doc(user?.uid).set({'uid': user?.uid, 'make': carMake, 'model' : carMakeModel, 'plate': plate});
+                    // Call the user's CollectionReference to add a new user
+                    costi.add({
+                      'costo': costoAutolavaggio,
+                      'data': date,
+                      'type': 'Autolavaggio',
+                      'uid': user?.uid, // John Doe
+                    });
+
+                    /*Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const LoadingScreen()),
+                                  );
+                                  */
+                    /*
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Veicolo aggiunto con successo'), backgroundColor: Colors.lightBlue,  )
+                                  );
+                                  */
+                  })
+                },
                 style: ElevatedButton.styleFrom(
                   elevation: 10,
                   backgroundColor: Colors.blue.shade200,

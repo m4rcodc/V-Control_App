@@ -18,13 +18,22 @@ class _VeicoloState extends State<Veicolo>{
 
   String uid = FirebaseAuth.instance.currentUser!.uid;
 
+  bool? checkCar(String uid){
+
+    FirebaseFirestore.instance.collection('vehicle')
+        .where('uid', isEqualTo: uid)
+        .snapshots();
+
+  }
+
+
   Stream<List<Vehicle>> readVehicles() => FirebaseFirestore.instance
       .collection('vehicle')
       .where('uid', isEqualTo: uid)
       .snapshots()
       .map((snapshot) =>
-      snapshot.docs.map((doc) => Vehicle.fromJson(doc.data())).toList()
-  );
+       snapshot.docs.map((doc) => Vehicle.fromJson(doc.data())).toList()
+);
 
   Widget buildVehicle(Vehicle vehicle) => Stack(
     children: [
@@ -43,12 +52,12 @@ class _VeicoloState extends State<Veicolo>{
             ),
             color: Colors.white60,
           ),
-          height: MediaQuery.of(context).size.height,
+          height: MediaQuery.of(context).size.height * 0.80,
           width: MediaQuery.of(context).size.width,
         ),
       ),
       Positioned(
-        top: 30.0,
+        top: MediaQuery.of(context).size.height * 0.02,
         left: (MediaQuery.of(context).size.width /2) - 86.0,
         child:  CircleAvatar(
           radius: 91.0,
@@ -62,9 +71,11 @@ class _VeicoloState extends State<Veicolo>{
         ),
       ),
       Positioned(
-        top: 230,
+        top:  MediaQuery.of(context).size.height * 0.28,
         left: 10,
         right: 10,
+        //height: MediaQuery.of(context).size.height - 120,
+        //width: MediaQuery.of(context).size.width - 80,
         child: Table(
           children:  [
             TableRow(
@@ -183,10 +194,10 @@ class _VeicoloState extends State<Veicolo>{
         ),
 
         child: ListView(
-          physics: NeverScrollableScrollPhysics(),
+          //physics: NeverScrollableScrollPhysics(),
           children: [
          StreamBuilder<List<Vehicle>>(
-            stream: readVehicles(),
+             stream: readVehicles(),
           builder: (context,snapshot) {
             if (snapshot.hasData) {
               final vehicle = snapshot.data!;

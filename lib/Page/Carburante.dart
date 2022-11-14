@@ -1,7 +1,12 @@
 import 'dart:math';
-
+import 'package:car_control/Page/Costi.dart';
+import 'package:car_control/Page/CostiRifornimento.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
+
 
 
 class Carburante extends StatefulWidget {
@@ -17,12 +22,25 @@ class _CarburanteState extends State<Carburante>{
 
   //FocusNode myFocusNode = FocusNode();
 
-  int? costoRifornimento;
+  double? costoRifornimento;
   double? costoAlLitro;
-  num? litri;
+  double? litri;
   String? labelLitri;
+  int? current_month;
+  int? current_year;
+  String? month;
+  String? year;
+  late double totalCost;
 
-  DateTime date = DateTime.now();
+  //DateTime date = DateTime.now();
+  DateTime now = new DateTime.now();
+  var formatter = new DateFormat('yyyy-MM-dd');
+  late String date = formatter.format(now);
+
+
+  List months =
+  ['gen', 'feb', 'mar', 'apr', 'mag','giu','lug','ago','set','ott','nov','dic'];
+
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +79,7 @@ class _CarburanteState extends State<Carburante>{
                 alignment: Alignment.center,
                 child: Image.asset('images/CarFuelImage.png',height: 300,width: 300),
               ),
+              //Data
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 18.0,horizontal: 15.0),
                 child: TextFormField(
@@ -74,7 +93,7 @@ class _CarburanteState extends State<Carburante>{
                     labelStyle: const TextStyle(
                       color: Colors.black54,
                     ),
-                    hintText: '${date.day}/${date.month}/${date.year}',
+                    hintText: date,
                     hintStyle: const TextStyle(fontSize: 14),
                     filled: true,
                     fillColor: Colors.white70,
@@ -90,7 +109,7 @@ class _CarburanteState extends State<Carburante>{
                   onTap: () async {
                    DateTime? newDate = await showDatePicker(
                         context: context,
-                        initialDate: date,
+                        initialDate: now,
                         firstDate: DateTime(1900),
                         lastDate: DateTime(2100),
                         builder: (conext,child) {
@@ -112,15 +131,18 @@ class _CarburanteState extends State<Carburante>{
                         }
                     );
                    if (newDate == null) return;
-                   setState(() => date = newDate);
+                   setState(() =>
+                   now = newDate
+                   );
                   },
                 ),
               ),
+              //Costo
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 18.0,horizontal: 15.0),
                 child: TextFormField(
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9.,]+')),],
                   decoration: InputDecoration(
                     alignLabelWithHint: true,
                     contentPadding: const EdgeInsets.symmetric(
@@ -145,16 +167,17 @@ class _CarburanteState extends State<Carburante>{
                   ),
                   onChanged: (value) {
                     setState(() {
-                      costoRifornimento = int.tryParse(value);
+                      costoRifornimento = double.tryParse(value);
                     });
                   },
                 ),
               ),
+              //Costo al litro
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 18.0,horizontal: 15.0),
                 child: TextFormField(
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9.,]+')),],
                   decoration: InputDecoration(
                     alignLabelWithHint: true,
                     contentPadding: const EdgeInsets.symmetric(
@@ -180,12 +203,6 @@ class _CarburanteState extends State<Carburante>{
                   onChanged: (value) {
                     setState(() {
                       costoAlLitro = double.tryParse(value);
-                      /*if(costoAlLitro != null && costoRifornimento != null) {
-                        labelLitri = (costoRifornimento! ~/ costoAlLitro!).toString();
-                      }
-                      else {
-                        labelLitri = '0';
-                      }*/
                     });
                   },
                 ),
@@ -194,8 +211,6 @@ class _CarburanteState extends State<Carburante>{
                 margin: const EdgeInsets.symmetric(vertical: 18.0,horizontal: 15.0),
                 child: TextField(
                   readOnly: true,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 20,
@@ -223,11 +238,12 @@ class _CarburanteState extends State<Carburante>{
                   ),
                 ),
               ),
+              //Chilometri veicolo
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 18.0,horizontal: 15.0),
                 child: TextFormField(
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9.,]+')),],
                   decoration: InputDecoration(
                     alignLabelWithHint: true,
                     contentPadding: const EdgeInsets.symmetric(
@@ -253,10 +269,63 @@ class _CarburanteState extends State<Carburante>{
                   ),
                 ),
               ),
+              //AddButton
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 70.0,horizontal: 90.0),
                 child: ElevatedButton(
-                  onPressed: () => print("Prova"),
+                  onPressed: () => {
+                   /* if(image == null) {
+                      displayCenterMotionToast()
+                    }
+                    else if(!_formKeyPlate.currentState!.validate()){
+                    }
+                    else if(!_formKeyType.currentState!.validate()){
+                      }
+                      else if(!_formKeyEngine.currentState!.validate()){
+                        }
+                        else if(!_formKeyFuel.currentState!.validate()){
+                          }
+                          else if(!_formKeyKm.currentState!.validate()){
+                            }
+                            else{*/
+                                FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+                                  CollectionReference costi = await FirebaseFirestore.instance.collection('CostiRifornimento');
+                                  //QuerySnapshot costiChart = (FirebaseFirestore.instance.collection('costi').doc('2022').collection('Cost').where('mese', isEqualTo: months[current_month! - 1])) as QuerySnapshot<Object?>;
+                                  current_month = now.month;
+                                  current_year = now.year;
+                                  await FirebaseFirestore.instance.collection('costi').doc('2022').collection('Cost').doc('${months[current_month! - 1]}').update({"costo": FieldValue.increment(costoRifornimento!)});
+                                  //.where('mese', isEqualTo: months[current_month! - 1]);
+                                  //docRef.update({"costo": FieldValue.increment(costoRifornimento!)});
+
+                                  costi.add({
+                                    'costo': costoRifornimento,
+                                    'data': date.toString(),
+                                    'year': now.year,
+                                    'mese': months[current_month! - 1],
+                                    'type': 'Rifornimento carburante',
+                                    'uid': user?.uid
+                                  });
+
+
+
+
+                                  /*
+                                  if(costiChart.docs.isNotEmpty) {
+                                    await costiChart.docs[0].reference.update({'costo': costoRifornimento});
+                                  }
+                                   */
+                                  /*
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                      builder: (context) => Costi(: costoRifornimento, key: null,),
+
+                                  ));
+                                  */
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) => Costi(0)));
+                                })
+                            },
                   style: ElevatedButton.styleFrom(
                     elevation: 10,
                     backgroundColor: Colors.blue.shade200,
@@ -297,11 +366,15 @@ class _CarburanteState extends State<Carburante>{
   }
   String? calcoloLitri(){
 
+    double result;
+
     if(labelLitri == null) {
       labelLitri = '';
     }
     else if(costoAlLitro != null && costoRifornimento != null) {
-      labelLitri = (costoRifornimento! ~/ costoAlLitro!).toString();
+      result = (costoRifornimento! / costoAlLitro!);
+      result = (result * 100).round() / 100;
+      labelLitri = result.toString();
     }
 
     else {

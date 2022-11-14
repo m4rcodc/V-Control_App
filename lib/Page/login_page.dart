@@ -180,261 +180,257 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
 
-      return GestureDetector(
-        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: Scaffold(
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
 
-          resizeToAvoidBottomInset: false,
-          body: Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                alignment: Alignment.topCenter,
-                fit: BoxFit.fill,
-                image: AssetImage(
-                  'images/addtask.jpg',
-                ),
+        resizeToAvoidBottomInset: false,
+        body: Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              alignment: Alignment.topCenter,
+              fit: BoxFit.fill,
+              image: AssetImage(
+                'images/addtask.jpg',
               ),
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Container(
-                  height: 510,
-                  width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(15),
-                        topRight: Radius.circular(15)),
-                  ),
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            const SizedBox(height: 45),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Container(
+                height: 510,
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(15),
+                      topRight: Radius.circular(15)),
+                ),
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(height: 45),
 
 
-                            TextFormField(
-                              autofocus: true,
-                              textInputAction: TextInputAction.next,
+                          TextFormField(
+                            autofocus: true,
+                            textInputAction: TextInputAction.next,
 
-                              decoration: InputDecoration(
-                                filled: true,
-                                hintText: 'Inserisci la tua email',
-                                labelText: 'Email',
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(30)),
-                                prefixIcon: const Icon(Icons.email),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 20,
-                                ),
-
-
+                            decoration: InputDecoration(
+                              filled: true,
+                              hintText: 'Inserisci la tua email',
+                              labelText: 'Email',
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30)),
+                              prefixIcon: const Icon(Icons.email),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 20,
                               ),
 
 
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Il campo "Email" non può essere vuoto.';
-                                }
-                                else
-                                if (!RegExp(emailPattern).hasMatch(value) ||
-                                    value == 'adminadmin') {
-                                  return 'Email non valida.';
-                                }
-                                return null;
-                              },
-
-                              onChanged: (value) {
-                                setState(() {
-                                  if (value.length < 64) {
-                                    email = value;
-                                  }
-                                });
-                              },
                             ),
 
-                            const SizedBox(height: 8.0),
 
-                            TextFormField(
-                              obscureText: true,
-                              autofocus: true,
-                              textInputAction: TextInputAction.next,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Il campo "Email" non può essere vuoto.';
+                              }
+                              else
+                              if (!RegExp(emailPattern).hasMatch(value) ||
+                                  value == 'adminadmin') {
+                                return 'Email non valida.';
+                              }
+                              return null;
+                            },
 
-                              decoration: InputDecoration(
-                                filled: true,
-                                hintText: 'Inserisci la password',
-                                labelText: 'Password',
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(30)),
-                                prefixIcon: const Icon(Icons.lock),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 20,
-                                ),
+                            onChanged: (value) {
+                              setState(() {
+                                if (value.length < 64) {
+                                  email = value;
+                                }
+                              });
+                            },
+                          ),
 
+                          const SizedBox(height: 8.0),
+
+                          TextFormField(
+                            obscureText: true,
+                            autofocus: true,
+                            textInputAction: TextInputAction.next,
+
+                            decoration: InputDecoration(
+                              filled: true,
+                              hintText: 'Inserisci la password',
+                              labelText: 'Password',
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30)),
+                              prefixIcon: const Icon(Icons.lock),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 20,
                               ),
 
-
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Il campo "Password" non può essere vuoto.';
-                                }
-
-                                else
-                                if (value.length < 8 || value.length > 16) {
-                                  return 'Password errata.';
-                                }
-
-                               /*
-                                else if (!RegExp(passPattern).hasMatch(value)) {
-                                  return 'Password errata.';
-                                }
-                              */
-                                return null;
-                              },
-
-                              onChanged: (value) {
-                                setState(() {
-                                  if (value.length < 16) {
-                                    password = value;
-                                  }
-                                });
-                              },
                             ),
 
-                            const SizedBox(height: 8.0),
+
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Il campo "Password" non può essere vuoto.';
+                              }
+
+                              else
+                              if (value.length < 8 || value.length > 16) {
+                                return 'Password errata.';
+                              }
+
+                              else if (!RegExp(passPattern).hasMatch(value)) {
+                                return 'Password errata.';
+                              }
+
+                              return null;
+                            },
+
+                            onChanged: (value) {
+                              setState(() {
+                                if (value.length < 16) {
+                                  password = value;
+                                }
+                              });
+                            },
+                          ),
+
+                          const SizedBox(height: 8.0),
 
 
-                            Container(
+                          Container(
 
-                              height: 55,
-                              // for an exact replicate, remove the padding.
-                              // pour une réplique exact, enlever le padding.
-                              padding:
-                              const EdgeInsets.only(
-                                  top: 5, left: 70, right: 70),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.indigo,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            25))),
-                                onPressed: () {
+                            height: 55,
+                            // for an exact replicate, remove the padding.
+                            // pour une réplique exact, enlever le padding.
+                            padding:
+                            const EdgeInsets.only(
+                                top: 5, left: 70, right: 70),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.indigo,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          25))),
+                              onPressed: () {
 
-                                  //Navigator.of(context).pushNamed(HomePage.routeName);
+                                //Navigator.of(context).pushNamed(HomePage.routeName);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const LoadingScreen()),
+                                );
+                                if (_formKey.currentState!.validate()) {
+                                  try {
+                                    credential = FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password,);
+                                    User? user = FirebaseAuth.instance.currentUser!;
 
-                                  if (_formKey.currentState!.validate()) {
-                                    try {
-                                      credential = FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password,);
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => const LoadingScreen()),
-                                      );
+                                  } on FirebaseAuthException catch (e) {
+                                    if (e.code == 'user-not-found') {
+                                      debugPrint(
+                                          'No user found for that email.');
+
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                           const SnackBar(content: Text(
-                                              'Login effettuato!')));
-                                    } on FirebaseAuthException catch (e) {
-                                      if (e.code == 'user-not-found') {
-                                        debugPrint(
-                                            'No user found for that email.');
-
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                            const SnackBar(content: Text(
-                                                'Utente non trovato!')));
-                                      } else if (e.code == 'wrong-password') {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                            const SnackBar(content: Text(
-                                                'Email o Password errati!')));
-                                      }
-
-
-
-
+                                              'Utente non trovato!')));
+                                    } else if (e.code == 'wrong-password') {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
-                                        const SnackBar(
-                                            content: Text('Login Effettuato!')),
-                                      );
+                                          const SnackBar(content: Text(
+                                              'Email o Password errati!')));
                                     }
+
+
+                                    Navigator.of(context).pushNamed(HomePage.routeName);
+
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(
+                                      const SnackBar(
+                                          content: Text('Login Effettuato!')),
+                                    );
                                   }
-                                },
+                                }
+                              },
 
 
-                                child: const Text(
-                                  'Accedi',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
-                                  ),
+                              child: const Text(
+                                'Accedi',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 20),
-                            const Center(
-                              child: Text('Password dimenticata ?'),),
-                            const SizedBox(height: 20),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 25.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment
-                                    .spaceEvenly,
-                                children: [
-                                  SignInButton(
-                                    Buttons.Google,
-                                    text: "Accedi con Google",
-                                    onPressed: (){},
+                          ),
+                          const SizedBox(height: 20),
+                          const Center(
+                            child: Text('Password dimenticata ?'),),
+                          const SizedBox(height: 20),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 25.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment
+                                  .spaceEvenly,
+                              children: [
+                                SignInButton(
+                                  Buttons.Google,
+                                  text: "Accedi con Google",
+                                  onPressed: (){},
 
 
 
 
-                                  ),
-                                  SignInButton(
-                                    Buttons.Facebook,
-                                    text: 'Accedi con Facebook',
-                                    onPressed: () {},
+                                ),
+                                SignInButton(
+                                  Buttons.Facebook,
+                                  text: 'Accedi con Facebook',
+                                  onPressed: () {},
 
-                                  ),
-                                  SignInButton(
-                                    Buttons.Email,
-                                    text: "Registrati con email",
-                                    onPressed: () {
-                                      Navigator.of(context).pushNamed(
-                                          SignupPage.routeName);
-                                    },
-                                  ),
-                                ],
-                              ),
+                                ),
+                                SignInButton(
+                                  Buttons.Email,
+                                  text: "Registrati con email",
+                                  onPressed: () {
+                                    Navigator.of(context).pushNamed(
+                                        SignupPage.routeName);
+                                  },
+                                ),
+                              ],
                             ),
-                            const Divider(thickness: 0, color: Colors.white),
+                          ),
+                          const Divider(thickness: 0, color: Colors.white),
 
-                          ],
-                        ),
+                        ],
                       ),
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    );
 
 
 
 
-      }
   }
+}
 
 class LoadingScreen extends StatelessWidget{
 

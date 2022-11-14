@@ -1,18 +1,16 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'addVeicolo.dart';
 import 'veicolo.dart';
 import 'Costi.dart';
-import 'Mappa.dart';
+import 'Help.dart';
 import 'Scadenze.dart';
+import 'Community.dart';
 
 
 
 class HomePage extends StatefulWidget {
-
-
 
 
   static const routeName = '/home-page';
@@ -64,11 +62,11 @@ class _HomePageState extends State<HomePage> {
                   color: Colors.lightBlue,
                   activeColor: Colors.white,
                   tabBackgroundColor: Colors.blue.shade300,
-                  gap: 8,
+                  gap: 5,
                   /*onTabChange: (index) {
                       print(index);
                     },*/
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(12),
                   tabs: [
                     GButton(
                       icon: Icons.directions_car,
@@ -80,6 +78,7 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                     GButton(
+                      //gap: 2,
                       icon: Icons.import_contacts,
                       text: 'Scadenze',
                       onPressed: () {
@@ -89,20 +88,29 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                     GButton(
-                      icon: Icons.bar_chart,
-                      text: 'Costi',
+                      icon: Icons.sports_esports,
+                      text: 'Game',
                       onPressed: () {
                         setState(() {
-                          currentPage = Costi();
+                          currentPage = Community();
                         });
                       },
                     ),
                     GButton(
-                      icon: Icons.place,
-                      text: 'Mappa',
+                      icon: Icons.bar_chart,
+                      text: 'Costi',
                       onPressed: () {
                         setState(() {
-                          currentPage = Mappa();
+                          currentPage = Costi(0);
+                        });
+                      },
+                    ),
+                    GButton(
+                      icon: Icons.contact_support,
+                      text: 'Help',
+                      onPressed: () {
+                        setState(() {
+                          currentPage = Help();
                         });
                       },
                     ),

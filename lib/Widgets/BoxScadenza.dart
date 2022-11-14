@@ -12,6 +12,7 @@ class BoxScadenza extends StatelessWidget{
   IconData _icona = Icons.abc_sharp;
   final void Function()? pagamento;
   final void Function()? modifica;
+  bool flagAnimation = false;
 
   BoxScadenza(titolo,nomeAssic,scadenza,icona,String prezzo,{super.key, required this.pagamento, required this.modifica}){ //costruttore assicurazione
     final DateFormat formatter = DateFormat('dd-MM-yyyy');

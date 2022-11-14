@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -20,6 +22,8 @@ class _ManutenzioneState extends State<Manutenzione>{
   ];
 
   String? selectedValue;
+
+  double? costoManutenzione;
 
   DateTime date = DateTime.now();
 
@@ -177,8 +181,8 @@ class _ManutenzioneState extends State<Manutenzione>{
             Container(
               margin: const EdgeInsets.symmetric(vertical: 18.0,horizontal: 15.0),
               child: TextFormField(
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9.,]+')),],
                 decoration: InputDecoration(
                   alignLabelWithHint: true,
                   contentPadding: const EdgeInsets.symmetric(
@@ -204,6 +208,7 @@ class _ManutenzioneState extends State<Manutenzione>{
                 ),
                 onChanged: (value) {
                   setState(() {
+                    costoManutenzione = double.tryParse(value);
                   });
                 },
               ),
@@ -244,7 +249,42 @@ class _ManutenzioneState extends State<Manutenzione>{
             Container(
               margin: const EdgeInsets.symmetric(vertical: 40.0,horizontal: 90.0),
               child: ElevatedButton(
-                onPressed: () => print("Prova"),
+                onPressed: () => {
+                  /* if(image == null) {
+                      displayCenterMotionToast()
+                    }
+                    else if(!_formKeyPlate.currentState!.validate()){
+                    }
+                    else if(!_formKeyType.currentState!.validate()){
+                      }
+                      else if(!_formKeyEngine.currentState!.validate()){
+                        }
+                        else if(!_formKeyFuel.currentState!.validate()){
+                          }
+                          else if(!_formKeyKm.currentState!.validate()){
+                            }
+                            else{*/
+                    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+                    CollectionReference costi = await FirebaseFirestore.instance.collection('costi');
+                    costi.add({
+                      'costo': costoManutenzione,
+                      'data': date,
+                      'type': 'Manutenzione',
+                      'uid': user?.uid, // John Doe
+                    });
+
+                    /*Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const LoadingScreen()),
+                                  );
+                                  */
+                    /*
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Veicolo aggiunto con successo'), backgroundColor: Colors.lightBlue,  )
+                                  );
+                                  */
+                  })
+                },
                 style: ElevatedButton.styleFrom(
                   elevation: 10,
                   backgroundColor: Colors.blue.shade200,
