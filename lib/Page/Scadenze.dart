@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import '../Widgets/BoxScadenza.dart';
 
+
+
 class Scadenze extends StatefulWidget {
   static const routeName = '/scadenze';
 
@@ -16,17 +18,23 @@ class Scadenze extends StatefulWidget {
 
   static bool resetAnimation = false;
 
+  static String uid = FirebaseAuth.instance.currentUser!.uid;
+
   static Future<List<AnimationWidget>> getScadenze() async{
-    var ref = FirebaseFirestore.instance.collection("scadenze");
+    var ref = FirebaseFirestore.instance.collection("scadenze")
+        .where('uid',isEqualTo: uid)
+    ;
     var query = await ref.get();
     for (var queryDocumentSnapshot in query.docs) {
       Map<String, dynamic> data = queryDocumentSnapshot.data();
+      Timestamp timestamp = data['dataScad'];
+      print(data['dataScad']);
       lista.add(
           AnimationWidget(
               BoxScadenza(
                 data['titolo'],
                 data['nome'],
-                DateTime.now(),
+                DateTime.fromMillisecondsSinceEpoch(timestamp.seconds*1000),
                 Icons.security,
                 data['prezzo'],
                 pagamento: (){},
@@ -39,12 +47,18 @@ class Scadenze extends StatefulWidget {
   }
 
   static void insert(var info){
+    IconData icon = Icons.abc;
+    if(info['titolo'] == 'Assicurazione') icon = Icons.security;
+    if(info['titolo'] == 'Bollo') icon = Icons.wallet;
+    if(info['titolo'] == 'Tagliando') icon = Icons.checklist;
+    if(info['titolo'] == 'Revisione') icon = Icons.build;
+
     lista.add(
         AnimationWidget(BoxScadenza(
             info['titolo'],
             info['nome'],
             info['dataScad'],
-            Icons.security,
+            icon,
             info['prezzo'],
             pagamento: (){},
             modifica: (){}
@@ -52,6 +66,21 @@ class Scadenze extends StatefulWidget {
             true
         )
     );
+
+    FirebaseAuth.instance.authStateChanges().listen((User? user) async{
+      CollectionReference scadenze = await FirebaseFirestore.instance.collection('scadenze');
+      scadenze.add({
+        'nome': info['nome'],
+        'titolo': info['titolo'],
+        'dataScad': info['dataScad'],
+        'prezzo': info['prezzo'],
+        'tipoScad': info['tipoScad'],
+        'uid': uid,
+      });
+    });
+
+
+
   }
   static void sortLista(){
     var repeat = true;
@@ -100,10 +129,59 @@ class _ScadenzeState extends State<Scadenze>{
     }
   }
 
+  List<SpeedDialChild> itemsAddScadenze = [];
+
   @override
   Widget build(BuildContext context) {
     HomePage.resetPage();
     Scadenze.sortLista();
+    itemsAddScadenze = [
+      SpeedDialChild(
+        child: const Icon(Icons.build),
+        backgroundColor: Colors.white70,
+        labelStyle: const TextStyle(fontSize: 18.0, color: Colors.white),
+        labelBackgroundColor: Colors.lightBlue.shade300,
+        label: 'Revisione',
+        //onTap: () => Navigator.of(context).pushNamed(),
+      ),
+      SpeedDialChild(
+          child: const Icon(Icons.checklist),
+          backgroundColor: Colors.white70,
+          labelStyle: const TextStyle(fontSize: 18.0, color: Colors.white),
+          labelBackgroundColor: Colors.lightBlue.shade300,
+          label: 'Tagliando',
+          onTap: () => Navigator.of(context).pushNamed(AddTagliando.routeName)
+      ),
+      SpeedDialChild(
+        child: const Icon(Icons.payments),
+        backgroundColor: Colors.white70,
+        labelStyle: const TextStyle(fontSize: 18.0, color: Colors.white),
+        labelBackgroundColor: Colors.lightBlue.shade300,
+        label: 'Bollo',
+        onTap: () => Navigator.of(context).pushNamed(AddBollo.routeName),
+      ),
+      SpeedDialChild(
+        child: const Icon(Icons.security),
+        backgroundColor: Colors.white70,
+        labelStyle: const TextStyle(fontSize: 18.0, color: Colors.white),
+        labelBackgroundColor: Colors.lightBlue.shade300,
+        label: 'Assicurazione',
+        onTap: ()async =>
+        {
+          await AddAssicurazione.getAssic(),
+          Navigator.of(context).pushNamed(AddAssicurazione.routeName)
+        },
+      ),
+    ];
+
+    for(int i=0;i<listaScadenze.length;i++){
+      for(int j=0;j<itemsAddScadenze.length;j++){
+        if(listaScadenze[i].box.title == itemsAddScadenze[j].label){
+          itemsAddScadenze.removeAt(j);
+        }
+      }
+    }
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -118,46 +196,13 @@ class _ScadenzeState extends State<Scadenze>{
             renderOverlay: true,
             elevation: 0,
             shape: CircleBorder(),
-            children: [
-              SpeedDialChild(
-                child: const Icon(Icons.build),
-                backgroundColor: Colors.white70,
-                labelStyle: const TextStyle(fontSize: 18.0, color: Colors.white),
-                labelBackgroundColor: Colors.lightBlue.shade300,
-                label: 'Manutenzione ordinaria',
-                //onTap: () => Navigator.of(context).pushNamed(),
-              ),
-              SpeedDialChild(
-                  child: const Icon(Icons.checklist),
-                  backgroundColor: Colors.white70,
-                  labelStyle: const TextStyle(fontSize: 18.0, color: Colors.white),
-                  labelBackgroundColor: Colors.lightBlue.shade300,
-                  label: 'Tagliando',
-                  onTap: () => Navigator.of(context).pushNamed(AddTagliando.routeName)
-              ),
-              SpeedDialChild(
-                child: const Icon(Icons.payments),
-                backgroundColor: Colors.white70,
-                labelStyle: const TextStyle(fontSize: 18.0, color: Colors.white),
-                labelBackgroundColor: Colors.lightBlue.shade300,
-                label: 'Bollo',
-                onTap: () => Navigator.of(context).pushNamed(AddBollo.routeName),
-              ),
-              SpeedDialChild(
-                child: const Icon(Icons.security),
-                backgroundColor: Colors.white70,
-                labelStyle: const TextStyle(fontSize: 18.0, color: Colors.white),
-                labelBackgroundColor: Colors.lightBlue.shade300,
-                label: 'Assicurazione',
-                onTap: () => Navigator.of(context).popAndPushNamed(AddAssicurazione.routeName),
-              ),
-            ],
+            children: itemsAddScadenze,
           ),
         ],
         title: Text('Scadenze'),
         centerTitle: true,
         backgroundColor: Colors.transparent,
-        elevation: 8.0,
+        elevation: 0.0,
         toolbarHeight: 55,
         flexibleSpace: Container(
           decoration:const BoxDecoration(
@@ -217,13 +262,10 @@ class _AnimationWidgetState extends State<AnimationWidget> with SingleTickerProv
     vsync: this,
   )..forward();
 
-  late final Animation<Offset> _offsetAnimation = Tween<Offset>(
-    begin: const Offset(-1.5, 0.0),
-    end: Offset.zero,
-  ).animate(CurvedAnimation(
+  late final Animation<double> _animazione = CurvedAnimation(
     parent: _controller,
     curve: Curves.bounceInOut,
-  ));
+  );
 
   @override
   void dispose() {
@@ -234,8 +276,8 @@ class _AnimationWidgetState extends State<AnimationWidget> with SingleTickerProv
   @override
   Widget build(BuildContext context) {
     if(_animation){
-      return SlideTransition(
-        position: _offsetAnimation,
+      return ScaleTransition(
+        scale:_animazione,
         child: _boxScadenza,
       );
     }

@@ -6,6 +6,8 @@ class Costs {
   String? uid;
   String? litri;
   String? mese;
+  double? index;
+  String? note;
 
   Costs({
     required this.costo,
@@ -14,6 +16,8 @@ class Costs {
     required this.uid,
     required this.litri,
     required this.mese,
+    required this.index,
+    required this.note
   });
 
   static Costs fromJson(Map<String, dynamic> json) => Costs(
@@ -23,7 +27,9 @@ class Costs {
       type: json['type'],
       uid: json['uid'],
       litri: json['litri'],
-      mese: json['mese']
+      mese: json['mese'],
+      index: json['index'],
+      note: json['note']
 
   );
 

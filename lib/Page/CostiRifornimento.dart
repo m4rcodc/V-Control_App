@@ -1,12 +1,14 @@
 import 'package:accordion/accordion.dart';
 import 'package:accordion/accordion_section.dart';
 import 'package:accordion/controllers.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:d_chart/d_chart.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:car_control/models/costs.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+
 
 
 class CostiRifornimento extends StatefulWidget {
@@ -18,15 +20,15 @@ class CostiRifornimento extends StatefulWidget {
 
 class CostiRifornimentoState extends State<CostiRifornimento> {
 
-  String? year;
+  List months =
+  ['gen', 'feb', 'mar', 'apr', 'mag','giu','lug','ago','set','ott','nov','dic'];
 
-  final List<String> ChoiceYear = [
-    '2022',
-    '2023',
-  ];
-
-  final List<String> items = ['Gennaio','Febbraio','Marzo','Aprile','Maggio'];
   String? selectedValue;
+  DateTime? selectedDate;
+  String? month;
+  String? year;
+  String? fullNameMonth;
+
 
   final _headerStyle = const TextStyle(
       color: Color(0xffffffff), fontSize: 15, fontWeight: FontWeight.bold);
@@ -35,22 +37,24 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
   final _contentStyle = const TextStyle(
       color: Color(0xff999999), fontSize: 14, fontWeight: FontWeight.normal);
 
-  @override
-  final streamChart = FirebaseFirestore.instance.collection('costi')
-      .doc('2022').collection('Cost').orderBy('index', descending: false)
-      .snapshots(includeMetadataChanges: true);
-
   String uid = FirebaseAuth.instance.currentUser!.uid;
+
+  @override
+  final streamChart = FirebaseFirestore.instance.collection('CostiTotali')
+      .doc('2022').collection(FirebaseAuth.instance.currentUser!.uid).orderBy('index', descending: false)
+      .snapshots(includeMetadataChanges: true);
 
 
   Stream<List<Costs>> readCosts() =>
-      FirebaseFirestore.instance
-          .collection('CostiRifornimento')
-          .where('uid', isEqualTo: uid)
-          .snapshots()
-          .map((snapshot) =>
-          snapshot.docs.map((doc) => Costs.fromJson(doc.data())).toList()
-      );
+  FirebaseFirestore.instance
+      .collection('CostiRifornimento')
+      .where('uid', isEqualTo: uid)
+      .where('mese', isEqualTo: month)
+      .where('year', isEqualTo: year)
+      .snapshots()
+      .map((snapshot) =>
+  snapshot.docs.map((doc) => Costs.fromJson(doc.data())).toList()
+  );
 
   DataRow buildTableCosts(Costs cost) =>
       DataRow(
@@ -58,16 +62,36 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
           DataCell(Text('${cost.data}',
               style: _contentStyle,
               textAlign: TextAlign.right)),
-          DataCell(Text('${cost.costo}', style: _contentStyle)),
+          DataCell(Text('${cost.costo}€', style: _contentStyle)),
           DataCell(Text('${cost.litri}',
               style: _contentStyle,
-              textAlign: TextAlign.right))
+              textAlign: TextAlign.right)),
+          DataCell(IconButton(
+              onPressed: () => {
+                  AwesomeDialog(
+                    context: context,
+                    headerAnimationLoop: false,
+                    dialogType: DialogType.noHeader,
+                    title: 'Attenzione!',
+                    desc:
+                    'Sei sicuro di voler procedere con la cancellazione?',
+                    btnOkOnPress: () {
+
+                    },
+                    btnCancelOnPress: () {
+                    },
+                    btnCancelText: 'Cancella',
+                    btnCancelIcon: Icons.cancel_outlined,
+                    btnOkIcon: Icons.check_circle,
+                  ).show()
+                },
+              icon: Icon(Icons.cancel_outlined, color: Colors.grey,))
+          ),
         ],
       );
 
 
   Widget build(BuildContext context) {
-
     return Scaffold(
       body:
       Container(
@@ -92,7 +116,8 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
                       return const Text('Something went wrong');
                     }
                     if (snapshot.data == null) {
-                      return const Text("Empty");
+                      //return const Text("Empty");
+                      return Center(child: CircularProgressIndicator());
                     }
                     List<Map<String, dynamic>> listChart = snapshot.data!.docs
                         .map((e) {
@@ -101,8 +126,6 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
                         'measure': e.data()['costo'],
                       };
                     }).toList();
-                    //listChart.sort();
-                    //listChart.sort((a,b) => a['domain'].compareTo(b['domain']));
                     return AspectRatio(
                       aspectRatio: 16 / 9,
                       child: DChartBar(
@@ -121,164 +144,61 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
               ),
             ),
             Container(
-              margin: const EdgeInsets.symmetric(vertical: 25.0,horizontal: 15.0),
-                child:
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 6.0),
-                      child:
-                      Row(
-                    children : [
-                        Expanded(
-                    child:
-                  DropdownButtonFormField2(
-                  decoration: InputDecoration(
-                    //Add isDense true and zero Padding.
-                    //Add Horizontal padding using buttonPadding and Vertical padding by increasing buttonHeight instead of add Padding here so that The whole TextField Button become clickable, and also the dropdown menu open under The whole TextField Button.
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide(color: Colors.grey),
-                      ),
-                      focusedBorder:  OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.indigoAccent),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.red),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.red),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white70
+              margin: const EdgeInsets.symmetric(vertical: 25.0,horizontal: 25.0),
+              alignment: Alignment.center,
+              child:
+                TextButton.icon(
+                  icon: Icon(Icons.filter_alt_outlined, color: Colors.white,),
+                  label: (month == null && year == null)? Text('Filtra per mese ed anno', style: TextStyle(color: Colors.white),) : Text('$fullNameMonth \t $year', style: TextStyle(color: Colors.white),),
+                  style: TextButton.styleFrom(
+                    elevation: 10.0,
+                  backgroundColor: Colors.lightBlue.shade200,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
                   ),
-                  isExpanded: true,
-                  hint: const Text(
-                    'Filtra per mese',
-                    style: TextStyle(fontSize: 14),
                   ),
-                  icon: const Icon(
-                    Icons.arrow_drop_down,
-                    color: Colors.black45,
-                  ),
-                  iconSize: 30,
-                  buttonHeight: 40,
-                  buttonPadding: const EdgeInsets.only(left: 20, right: 10),
-                  dropdownDecoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  items: items
-                      .map((item) =>
-                      DropdownMenuItem<String>(
-                        value: item,
-                        child: Text(
-                          item,
-                          style: const TextStyle(
-                            fontSize: 14,
-                          ),
-                        ),
-                      ))
-                      .toList(),
-                  validator: (value) {
-                    if(value == null) {
-                      return 'Selezionare una cilindrata';
-                    }
-                  },
-                  onChanged: (value) {
-                    setState(() {
-                      selectedValue = value;
-                    });
-                  },
-                ),
-                  ),
+                  onPressed: () {
+                    DatePicker.showPicker(context, showTitleActions: true,
+                    onChanged: (date) {
+                    }, onConfirm: (date) {
+                      int selectedMonth = date.month;
+                      month = months[selectedMonth - 1];
+                      setState(() {
+                        month = months[selectedMonth - 1];
+                        year = date.year.toString();
+                        fullNameMonth = generateFullNameMonth(month);
+                      });
+                    },
+                        onCancel: (){
+                          setState(() {
+                            month = null;
+                            year = null;
+                          });
+                        },
+                    pickerModel: CustomMonthPicker(
+                        currentTime: DateTime.now(),
+                        minTime: DateTime(2022,1),
+                        maxTime: DateTime(2023,12),
+                        locale: LocaleType.it),
+                    locale: LocaleType.it);
+                    },
+                )
 
-                  Expanded(
-                    child:
-                    DropdownButtonFormField2(
-                      decoration: InputDecoration(
-                        //Add isDense true and zero Padding.
-                        //Add Horizontal padding using buttonPadding and Vertical padding by increasing buttonHeight instead of add Padding here so that The whole TextField Button become clickable, and also the dropdown menu open under The whole TextField Button.
-                          isDense: true,
-                          contentPadding: EdgeInsets.zero,
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25),
-                            borderSide: BorderSide(color: Colors.grey),
-                          ),
-                          focusedBorder:  OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.indigoAccent),
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red),
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red),
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white70
-                      ),
-                      isExpanded: true,
-                      hint: const Text(
-                        'Filtra per mese',
-                        style: TextStyle(fontSize: 14),
-                      ),
-                      icon: const Icon(
-                        Icons.arrow_drop_down,
-                        color: Colors.black45,
-                      ),
-                      iconSize: 30,
-                      buttonHeight: 40,
-                      buttonPadding: const EdgeInsets.only(left: 20, right: 10),
-                      dropdownDecoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      items: items
-                          .map((item) =>
-                          DropdownMenuItem<String>(
-                            value: item,
-                            child: Text(
-                              item,
-                              style: const TextStyle(
-                                fontSize: 14,
-                              ),
-                            ),
-                          ))
-                          .toList(),
-                      validator: (value) {
-                        if(value == null) {
-                          return 'Selezionare una cilindrata';
-                        }
-                      },
-                      onChanged: (value) {
-                        setState(() {
-                          selectedValue = value;
-                        });
-                      },
-                    ),
-                  ),
-                ],
-                ),
-              ),
             ),
             Container(
-              padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+              padding: EdgeInsets.symmetric(vertical: 15, horizontal: 6),
               child: Accordion(
                 maxOpenSections: 2,
                 headerBackgroundColorOpened: Colors.black54,
                 scaleWhenAnimating: true,
                 openAndCloseAnimation: true,
                 headerPadding:
-                const EdgeInsets.symmetric(vertical: 7, horizontal: 15),
+                const EdgeInsets.symmetric(vertical: 7, horizontal: 10),
                 sectionOpeningHapticFeedback: SectionHapticFeedback.heavy,
                 sectionClosingHapticFeedback: SectionHapticFeedback.light,
                 children: [
                   AccordionSection(
-                      isOpen: false,
+                      isOpen: true,
                       leftIcon: const Icon(
                           Icons.local_gas_station, color: Colors.white),
                       header: Text('Storico rifornimenti', style: _headerStyle),
@@ -288,7 +208,13 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             final cost = snapshot.data!;
-                            return DataTable(
+                            return
+                              SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                                child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                              child : DataTable(
+                              columnSpacing: 24,
                               sortAscending: true,
                               sortColumnIndex: 1,
                               dataRowHeight: 40,
@@ -305,12 +231,18 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
                                     label: Text(
                                         'Litri', style: _contentStyleHeader),
                                     numeric: true),
+                                DataColumn(
+                                    label: Text(
+                                        ''),
+                                    numeric: true),
                               ],
                               //shrinkWrap: true,
                               rows:
                               cost.map(buildTableCosts).toList(),
 
-                            );
+                            ),
+                          ),
+                          );
                           }
                           else {
                             return Center(child: CircularProgressIndicator());
@@ -325,5 +257,58 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
         ),
       ),
     );
+  }
+
+  String? generateFullNameMonth(String? month) {
+
+    if(month == 'gen'){
+      return 'Gennaio';
+    }
+    if(month == 'feb'){
+      return 'Febbraio';
+    }
+    if(month == 'mar'){
+      return 'Marzo';
+    }
+    if(month == 'apr'){
+      return 'Aprile';
+    }
+    if(month == 'mag'){
+      return 'Maggio';
+    }
+    if(month == 'giu'){
+      return 'Giugno';
+    }
+    if(month == 'lug'){
+      return 'Luglio';
+    }
+    if(month == 'ago'){
+      return 'Agosto';
+    }
+    if(month == 'set'){
+      return 'Settembre';
+    }
+    if(month == 'ott'){
+      return 'Ottobre';
+    }
+    if(month == 'nov'){
+      return 'Novembre';
+    }
+    if(month == 'dic'){
+      return 'Dicembre';
+    }
+    return null;
+
+  }
+}
+
+class CustomMonthPicker extends DatePickerModel {
+  CustomMonthPicker({required DateTime currentTime, required DateTime minTime, required DateTime maxTime,
+    required LocaleType locale}) : super(locale: locale, minTime: minTime, maxTime:
+  maxTime, currentTime: currentTime);
+
+  @override
+  List<int> layoutProportions() {
+    return [1, 1, 0];
   }
 }

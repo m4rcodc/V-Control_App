@@ -1,8 +1,12 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:car_control/Page/Costi.dart';
+import 'package:car_control/Widgets/DetailsCarCard.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 
 class Manutenzione extends StatefulWidget {
@@ -19,13 +23,25 @@ class _ManutenzioneState extends State<Manutenzione>{
   final List<String> ChoiceManutenzione = [
     'Cambio olio',
     'Cambio gomme',
+    'Autolavaggio'
   ];
 
-  String? selectedValue;
-
+  String? typeManutention = 'Tipo di manutenzione';
   double? costoManutenzione;
+  String? note;
+  int? current_month;
+  String? ruote = 'Cambio ruote';
+  String? olio = 'Cambio olio';
+  String? batteria = 'Cambio batteria';
+  String? motore = 'Motore';
+  String? freni = 'Impianto frenante';
+  String? altro = 'Altro';
 
-  DateTime date = DateTime.now();
+  DateTime now = new DateTime.now();
+  var formatter = new DateFormat('dd-MM-yyyy');
+
+  List months =
+  ['gen', 'feb', 'mar', 'apr', 'mag','giu','lug','ago','set','ott','nov','dic'];
 
   @override
   Widget build(BuildContext context) {
@@ -36,161 +52,393 @@ class _ManutenzioneState extends State<Manutenzione>{
         title:const  Text('Nuova manutenzione'),
         centerTitle: true,
         backgroundColor: Colors.transparent,
-        elevation: 8.0,
-        toolbarHeight: 55,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
-              gradient: LinearGradient(
-                  colors: [Colors.cyan,Colors.lightBlue],
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft
-              )
-          ),
-        ),
+        elevation: 0.0,
+        //toolbarHeight: 55,
       ),
       body: Container(
         decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Colors.lightBlue, Colors.white70],
+              colors: [Colors.lightBlue, Colors.white],
             )
         ),
-        child: ListView(
-          children: [
+        child:
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 15.0),
-              alignment: Alignment.center,
-              child: Image.asset('images/ImageManutenzione.png',height: 300,width: 300,),
+              padding: EdgeInsets.all(20),
+              child:
+              Image.asset(
+                'images/ImageManutenzione.png',
+                height: 410,
+                width: MediaQuery.of(context).size.width,
+                scale: 1.75,
+              ),
             ),
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 18.0,horizontal: 15.0),
-              child: TextFormField(
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 20,
+         ),
+        //Data
+        bottomSheet: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                offset: Offset(0,-3),
+                blurRadius: 6,
+                color: Colors.black54,
+              )
+            ],
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(25),
+              topRight: Radius.circular(25),
+            ),
+          ),
+          height: MediaQuery.of(context).size.height * 0.58,
+          child: ListView(
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            padding: EdgeInsets.all(16),
+            children: [
+          Container(
+              margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
+              child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      elevation: 10,
+                      backgroundColor: Colors.blue,
+                      shape: StadiumBorder()
                   ),
-                  floatingLabelBehavior: FloatingLabelBehavior.always,
-                  labelText: 'Data',
-                  labelStyle: const TextStyle(
-                    color: Colors.black54,
+                  onPressed: () async {
+                    DateTime? newDate = await showDatePicker(
+                        context: context,
+                        initialDate: now,
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime(2100),
+                        builder: (conext,child) {
+                          return Theme(
+                            data: Theme.of(context).copyWith(
+                                colorScheme: const  ColorScheme.light(
+                                  primary: Colors.lightBlue,
+                                  onPrimary: Colors.white,
+                                  onSurface: Colors.blueAccent,
+                                ),
+                                textButtonTheme: TextButtonThemeData(
+                                    style: TextButton.styleFrom(
+                                      backgroundColor: Colors.lightBlue.shade50,
+                                    )
+                                )
+                            ),
+                            child: child!,
+                          );
+                        }
+                    );
+                    if (newDate == null) return;
+                    setState(() => now = newDate);
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8,horizontal: 15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.calendar_month),
+                        Text("Data manutenzione: ${formatter.format(now)}")
+                      ],
+                    ),
+                  )
+              ),
+            ),
+              //Manutenzione
+              Container(
+              margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
+              child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.only(top: 10, bottom: 10),
+                      elevation: 6,
+                      backgroundColor: Colors.white,
+                      shape: StadiumBorder(),
+                      side: BorderSide(color: Colors.grey, width: 1)
                   ),
-                  hintText: '${date.day}/${date.month}/${date.year}',
-                  hintStyle: const TextStyle(fontSize: 14),
-                  filled: true,
-                  fillColor: Colors.white70,
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  focusedBorder:  OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.indigoAccent),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-                onTap: () async {
-                  DateTime? newDate = await showDatePicker(
+                  onPressed: () async {
+                    AwesomeDialog(
                       context: context,
-                      initialDate: date,
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime(2100),
-                      builder: (conext,child) {
-                        return Theme(
-                          data: Theme.of(context).copyWith(
-                              colorScheme: const  ColorScheme.light(
-                                primary: Colors.lightBlue,
-                                onPrimary: Colors.white,
-                                onSurface: Colors.blueAccent,
-                              ),
-                              textButtonTheme: TextButtonThemeData(
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: Colors.lightBlue.shade50,
-                                  )
-                              )
+                      headerAnimationLoop: false,
+                      dialogType: DialogType.noHeader,
+                      padding: EdgeInsets.zero,
+                      dialogBackgroundColor: Colors.blue.shade200,
+                      //isDense: true,
+                      //title: 'Seleziona un tipo di manutenzione',
+                      body:
+                        Table(
+                        children:  [
+                          TableRow(
+                              children: [
+                                Container(
+                              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                 height: 120,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      elevation: 10,
+                                      backgroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          //side: BorderSide(color: Colors.blue,width: 1.5),
+                                      ),
+                                  ),
+                                  onPressed:  () => {
+                                  setState(() => typeManutention = ruote!),
+                                  Navigator.pop(context),
+                                  },
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Align(
+                                          heightFactor: 1.5,
+                                          alignment: Alignment.center,
+                                          child: Image.asset('images/wheel.png',scale: 6),
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
+                                          alignment: Alignment.bottomCenter,
+                                          child: Text('Cambio ruote', style: const TextStyle(
+                                            fontSize: 12.0,
+                                            color: Color(0xFF1A1316),
+
+                                          ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  //child: Text(prova!, style: TextStyle(color: Colors.grey)),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                  height: 120,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        elevation: 10,
+                                        backgroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            //side: BorderSide(color: Colors.blue,width: 1.5),
+                                        )
+                                    ),
+                                    onPressed:  () => {
+                                      setState(() => typeManutention = olio!),
+                                      Navigator.pop(context),
+                                    },
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Align(
+                                          heightFactor: 1.5,
+                                          alignment: Alignment.center,
+                                          child: Image.asset('images/oil.png',scale: 5.5),
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
+                                          alignment: Alignment.bottomCenter,
+                                          child: Text('Cambio olio', style: const TextStyle(
+                                            fontSize: 12.0,
+                                            color: Color(0xFF1A1316),
+
+                                          ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+
+                              ]
                           ),
-                          child: child!,
-                        );
-                      }
-                  );
-                  if (newDate == null) return;
-                  setState(() => date = newDate);
-                },
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
-              child: DropdownButtonFormField2(
-                decoration: InputDecoration(
-                  //Add isDense true and zero Padding.
-                  //Add Horizontal padding using buttonPadding and Vertical padding by increasing buttonHeight instead of add Padding here so that The whole TextField Button become clickable, and also the dropdown menu open under The whole TextField Button.
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder:  OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.indigoAccent),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white70
-                ),
-                isExpanded: true,
-                hint: const Text(
-                  'Tipo di manutenzione',
-                  style: TextStyle(fontSize: 14),
-                ),
-                icon: const Icon(
-                  Icons.arrow_drop_down,
-                  color: Colors.black45,
-                ),
-                iconSize: 30,
-                buttonHeight: 60,
-                buttonPadding: const EdgeInsets.only(left: 20, right: 10),
-                dropdownDecoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                items: ChoiceManutenzione
-                    .map((item) =>
-                    DropdownMenuItem<String>(
-                      value: item,
-                      child: Text(
-                        item,
-                        style: const TextStyle(
-                          fontSize: 14,
+                          TableRow(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                  height: 120,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        elevation: 10,
+                                        backgroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            //side: BorderSide(color: Colors.blue,width: 1.5),
+                                        )
+                                    ),
+                                    onPressed:  () => {
+                                      setState(() => typeManutention = batteria!),
+                                      Navigator.pop(context),
+                                    },
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Align(
+                                          heightFactor: 1.5,
+                                          alignment: Alignment.center,
+                                          child: Image.asset('images/battery.png',scale: 4.6),
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 8),
+                                          alignment: Alignment.bottomCenter,
+                                          child: Text('Cambio batteria', style: const TextStyle(
+                                            fontSize: 12.0,
+                                            color: Color(0xFF1A1316),
+
+                                          ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                  height: 120,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        elevation: 10,
+                                        backgroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            //side: BorderSide(color: Colors.blue,width: 1.5),
+                                        )
+                                    ),
+                                    onPressed:  () => {
+                                      setState(() => typeManutention = motore!),
+                                      Navigator.pop(context),
+                                    },
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Align(
+                                          heightFactor: 1.5,
+                                          alignment: Alignment.center,
+                                          child: Image.asset('images/Engine.png',scale: 4.4),
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 8),
+                                          alignment: Alignment.bottomCenter,
+                                          child: Text('Motore', style: const TextStyle(
+                                            fontSize: 12.0,
+                                            color: Color(0xFF1A1316),
+
+                                          ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ]
+                          ),
+                          TableRow(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                  height: 120,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        elevation: 10,
+                                        backgroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            //side: BorderSide(color: Colors.blue,width: 1.5),
+                                        )
+                                    ),
+                                    onPressed:  () => {
+                                      setState(() => typeManutention = freni!),
+                                      Navigator.pop(context),
+                                    },
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Align(
+                                          heightFactor: 1.5,
+                                          alignment: Alignment.center,
+                                          child: Image.asset('images/Brakes.png',scale: 5.5),
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 4),
+                                          alignment: Alignment.bottomCenter,
+                                          child: Text('Impianto frenante', style: const TextStyle(
+                                            fontSize: 12.0,
+                                            color: Color(0xFF1A1316),
+
+                                          ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                  height: 120,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        elevation: 10,
+                                        backgroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            //side: BorderSide(color: Colors.blue,width: 1.5),
+                                        )
+                                    ),
+                                    onPressed:  () => {
+                                      setState(() => typeManutention = altro!),
+                                      Navigator.pop(context),
+                                    },
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Align(
+                                          heightFactor: 1.5,
+                                          alignment: Alignment.center,
+                                          child: Image.asset('images/OtherMaintenance.png',scale: 5),
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 6),
+                                          alignment: Alignment.bottomCenter,
+                                          child: Text('Altro', style: const TextStyle(
+                                            fontSize: 12.0,
+                                            color: Color(0xFF1A1316),
+
+                                          ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ]
+                          ),
+                        ],
                         ),
-                      ),
-                    ))
-                    .toList(),
-                validator: (value) {
-                  if (value == null) {
-                    return 'Seleziona un veicolo.';
-                  }
-                },
-                onChanged: (value) {
-                  //Do something when changing the item if you want.
-                },
-                onSaved: (value) {
-                  selectedValue = value.toString();
-                },
+                    ).show();
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8,horizontal: 15),
+                    child: Row(
+                      //mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        //Icon(Icons.calendar_month),
+                        Text('$typeManutention', style: TextStyle(color: Colors.black54),)
+                      ],
+                    ),
+                  )
               ),
             ),
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 18.0,horizontal: 15.0),
+              //Costo
+              Container(
+              margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
               child: TextFormField(
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9.,]+')),],
                 decoration: InputDecoration(
                   alignLabelWithHint: true,
                   contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 20,
+                    horizontal: 16,
+                    vertical: 16,
                   ),
                   labelStyle: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     color: Colors.black54,
                   ),
                   labelText: 'Costo manutenzione',
@@ -198,12 +446,12 @@ class _ManutenzioneState extends State<Manutenzione>{
                   filled: true,
                   fillColor: Colors.white70,
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(25),
                     borderSide: BorderSide(color: Colors.grey),
                   ),
                   focusedBorder:  OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.indigoAccent),
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(25),
                   ),
                 ),
                 onChanged: (value) {
@@ -213,18 +461,19 @@ class _ManutenzioneState extends State<Manutenzione>{
                 },
               ),
             ),
-            Container(
+              //Note
+              Container(
               margin: const EdgeInsets.symmetric(vertical: 18.0,horizontal: 15.0),
               child: TextFormField(
-                maxLines: 6,
+                maxLines: 4,
                 decoration: InputDecoration(
                   alignLabelWithHint: true,
                   contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 20,
+                    horizontal: 16,
+                    vertical: 16,
                   ),
                   labelStyle: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     color: Colors.black54,
                   ),
                   labelText: 'Note',
@@ -232,22 +481,23 @@ class _ManutenzioneState extends State<Manutenzione>{
                   filled: true,
                   fillColor: Colors.white70,
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(25),
                     borderSide: BorderSide(color: Colors.grey),
                   ),
                   focusedBorder:  OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.indigoAccent),
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(25),
                   ),
                 ),
                 onChanged: (value) {
                   setState(() {
+                    note = value;
                   });
                 },
               ),
             ),
             Container(
-              margin: const EdgeInsets.symmetric(vertical: 40.0,horizontal: 90.0),
+              margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 100.0),
               child: ElevatedButton(
                 onPressed: () => {
                   /* if(image == null) {
@@ -265,24 +515,82 @@ class _ManutenzioneState extends State<Manutenzione>{
                             }
                             else{*/
                     FirebaseAuth.instance.authStateChanges().listen((User? user) async {
-                    CollectionReference costi = await FirebaseFirestore.instance.collection('costi');
+                    CollectionReference costi = await FirebaseFirestore.instance.collection('CostiManutenzione');
+                    final test = await FirebaseFirestore.instance.collection('CostiTotaliManutenzione').doc('2022').collection(user!.uid).get();
+                    final generalCosts = await FirebaseFirestore.instance.collection('CostiGenerali').doc('2022').collection(user!.uid).get();
+
+                    if(test.docs.isEmpty) {
+                      final docu = await FirebaseFirestore.instance.collection('CostiTotaliManutenzione').doc('2022').collection(user!.uid);
+                      for(int i = 0; i < 12; i++) {
+                        docu.doc(months[i]).set(
+                            {'mese': months[i],
+                              'costo': 0,
+                              'index': i,
+                            }
+                        );
+                      }
+                    }
+                    if(generalCosts.docs.isEmpty){
+                      final docu = await FirebaseFirestore.instance.collection('CostiGenerali').doc('2022').collection(user!.uid);
+                      for(int i = 0; i < 12; i++) {
+                        docu.doc(months[i]).set(
+                            {'mese': months[i],
+                              'costo': 0,
+                              'index': i,
+                            }
+                        );
+                      }
+                    }
+                    /*else {
+                      final docu = await FirebaseFirestore.instance.collection('CostiTotaliManutenzione').doc('2022').collection(user!.uid);
+                      for(int i = 0; i < 12; i++) {
+                        docu.doc(months[i]).set(
+                            {'mese': months[i],
+                              'costo': 0,
+                              'index': i,
+                            }
+                        );
+                      }
+                    }*/
+
+                    current_month = now.month;
+
+                    note ??= '';
+
                     costi.add({
                       'costo': costoManutenzione,
-                      'data': date,
-                      'type': 'Manutenzione',
-                      'uid': user?.uid, // John Doe
+                      'data': formatter.format(now),
+                      'type': typeManutention,
+                      'note': note,
+                      'mese': months[current_month! - 1],
+                      'year': now.year.toString(),
+                      'uid': user?.uid,
                     });
+
+                    final doc = await FirebaseFirestore.instance.collection('CostiManutenzione').where('mese', isEqualTo: months[current_month! - 1]).where('uid', isEqualTo: user?.uid).get();
+                    var docs = doc.docs;
+                    double sum = 0.0;
+                    for(int i=0; i < docs.length; i++){
+                      sum += docs[i]['costo'];
+                    }
+
+                    final doc1 = await FirebaseFirestore.instance.collection('CostiGenerali').doc('2022').collection(user.uid).where('mese', isEqualTo: months[current_month! - 1]).get();
+                    var docs1 = doc1.docs;
+                    double sum1 = 0.0;
+                    sum1 += docs1[0]['costo'];
+
+
+                    await FirebaseFirestore.instance.collection('CostiTotaliManutenzione').doc('2022').collection(user.uid).doc('${months[current_month! - 1]}').update({"costo": sum});
+
+                    await FirebaseFirestore.instance.collection('CostiGenerali').doc('2022').collection(user.uid).doc('${months[current_month! - 1]}').update({"costo": sum1 + sum});
+
 
                     /*Navigator.push(
                                     context,
                                     MaterialPageRoute(builder: (context) => const LoadingScreen()),
                                   );
                                   */
-                    /*
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Veicolo aggiunto con successo'), backgroundColor: Colors.lightBlue,  )
-                                  );
-                                  */
+                        Navigator.pop(context);
                   })
                 },
                 style: ElevatedButton.styleFrom(
@@ -293,8 +601,8 @@ class _ManutenzioneState extends State<Manutenzione>{
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                    vertical: 16,
-                    horizontal: 2,
+                    vertical: 12,
+                    horizontal: 0,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,

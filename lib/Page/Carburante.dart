@@ -1,12 +1,13 @@
 import 'dart:math';
 import 'package:car_control/Page/Costi.dart';
 import 'package:car_control/Page/CostiRifornimento.dart';
+import 'package:car_control/models/userIndexRow.dart';
+import 'package:car_control/models/userIndexRow.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-
 
 
 class Carburante extends StatefulWidget {
@@ -31,13 +32,12 @@ class _CarburanteState extends State<Carburante>{
   String? month;
   String? year;
   double? kmVeicolo;
+  double? index = 1;
   late double totalCost;
 
-  //DateTime date = DateTime.now();
+
   DateTime now = new DateTime.now();
   var formatter = new DateFormat('dd-MM-yyyy');
-  late String date = formatter.format(now);
-
 
   List months =
   ['gen', 'feb', 'mar', 'apr', 'mag','giu','lug','ago','set','ott','nov','dic'];
@@ -52,118 +52,125 @@ class _CarburanteState extends State<Carburante>{
         title:const  Text('Nuovo rifornimento'),
         centerTitle: true,
         backgroundColor: Colors.transparent,
-        elevation: 8.0,
-        toolbarHeight: 55,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
-              gradient: LinearGradient(
-                  colors: [Colors.cyan,Colors.lightBlue],
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft
-              )
-          ),
-        ),
+        elevation: 0.0,
+        //toolbarHeight: 55,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Colors.lightBlue, Colors.white70],
-            )
-        ),
-        child: ListView(
-            children: [
+      body:
+          Container(
+      decoration: const BoxDecoration(
+    gradient: LinearGradient(
+    begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [Colors.lightBlue, Colors.white],
+    )
+    ),
+      child:
               Container(
-                margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
-                alignment: Alignment.center,
-                child: Image.asset('images/CarFuelImage.png',height: 300,width: 300),
+                padding: EdgeInsets.all(20),
+                child:
+              Image.asset(
+              'images/CarFuelImage.png',
+                //fit: BoxFit.cover,
+                height: 402,
+                width: MediaQuery.of(context).size.width,
               ),
-              //Data
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 18.0,horizontal: 15.0),
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 20,
-                    ),
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                    labelText: 'Data',
-                    labelStyle: const TextStyle(
+            ),
+          ),
+            //Data
+              bottomSheet: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      offset: Offset(0,-3),
+                      blurRadius: 6,
                       color: Colors.black54,
-                    ),
-                    hintText: date,
-                    hintStyle: const TextStyle(fontSize: 14),
-                    filled: true,
-                    fillColor: Colors.white70,
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder:  OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.indigoAccent),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
+                    )
+                  ],
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(25),
+                    topRight: Radius.circular(25),
                   ),
-                  onTap: () async {
-                   DateTime? newDate = await showDatePicker(
-                        context: context,
-                        initialDate: now,
-                        firstDate: DateTime(1900),
-                        lastDate: DateTime(2100),
-                        builder: (conext,child) {
-                          return Theme(
+                ),
+                height: MediaQuery.of(context).size.height * 0.58,
+                child: ListView(
+                  physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    padding: EdgeInsets.all(16),
+                    children: [
+                Container(
+                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
+                      child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        elevation: 10,
+                        backgroundColor: Colors.blue,
+                        shape: StadiumBorder()
+                    ),
+                    onPressed: () async {
+                      DateTime? newDate = await showDatePicker(
+                          context: context,
+                          initialDate: now,
+                          firstDate: DateTime(1900),
+                          lastDate: DateTime(2100),
+                          builder: (conext,child) {
+                            return Theme(
                               data: Theme.of(context).copyWith(
-                                colorScheme: const  ColorScheme.light(
-                                  primary: Colors.lightBlue,
-                                  onPrimary: Colors.white,
-                                  onSurface: Colors.blueAccent,
-                                ),
-                                textButtonTheme: TextButtonThemeData(
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: Colors.lightBlue.shade50,
+                                  colorScheme: const  ColorScheme.light(
+                                    primary: Colors.lightBlue,
+                                    onPrimary: Colors.white,
+                                    onSurface: Colors.blueAccent,
+                                  ),
+                                  textButtonTheme: TextButtonThemeData(
+                                      style: TextButton.styleFrom(
+                                        backgroundColor: Colors.lightBlue.shade50,
+                                      )
                                   )
-                                )
                               ),
                               child: child!,
-                          );
-                        }
-                    );
-                   if (newDate == null) return;
-                   setState(() =>
-                   now = newDate
-                   );
-                  },
+                            );
+                          }
+                      );
+                      if (newDate == null) return;
+                      setState(() => now = newDate);
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8,horizontal: 15),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.calendar_month),
+                          Text("Data rifornimento: ${formatter.format(now)}")
+                        ],
+                      ),
+                    )
                 ),
-              ),
+                ),
               //Costo
               Container(
-                margin: const EdgeInsets.symmetric(vertical: 18.0,horizontal: 15.0),
+                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
                 child: TextFormField(
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9.,]+')),],
                   decoration: InputDecoration(
                     alignLabelWithHint: true,
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 20,
+                      horizontal: 16,
+                      vertical: 16,
                     ),
                     labelStyle: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         color: Colors.black54,
                     ),
                     labelText: 'Costo rifornimento',
                     filled: true,
                     fillColor: Colors.white70,
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(25),
                       borderSide: BorderSide(color: Colors.grey),
                     ),
                     focusedBorder:  OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.indigoAccent),
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(25),
                     ),
                   ),
                   onChanged: (value) {
@@ -175,30 +182,30 @@ class _CarburanteState extends State<Carburante>{
               ),
               //Costo al litro
               Container(
-                margin: const EdgeInsets.symmetric(vertical: 18.0,horizontal: 15.0),
+                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
                 child: TextFormField(
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9.,]+')),],
                   decoration: InputDecoration(
                     alignLabelWithHint: true,
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 20,
+                      horizontal: 16,
+                      vertical: 16,
                     ),
                     labelStyle: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         color: Colors.black54,
                     ),
                     labelText: 'Costo al litro',
                     filled: true,
                     fillColor: Colors.white70,
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(25),
                       borderSide: BorderSide(color: Colors.grey),
                     ),
                     focusedBorder:  OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.indigoAccent),
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(25),
                     ),
                   ),
                   onChanged: (value) {
@@ -209,13 +216,13 @@ class _CarburanteState extends State<Carburante>{
                 ),
               ),
               Container(
-                margin: const EdgeInsets.symmetric(vertical: 18.0,horizontal: 15.0),
+                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
                 child: TextField(
                   readOnly: true,
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 20,
+                      horizontal: 16,
+                      vertical: 16,
                     ),
                     hintText: calcoloLitri(),
                     //labelLitri == null ? '' : calcoloLitri(),
@@ -223,36 +230,36 @@ class _CarburanteState extends State<Carburante>{
                     floatingLabelBehavior: FloatingLabelBehavior.always,
                     labelText: 'Litri',
                     labelStyle: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         color: Colors.black54
                     ),
                     filled: true,
                     fillColor: Colors.white70,
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(25),
                       borderSide: BorderSide(color: Colors.grey),
                     ),
                     focusedBorder:  OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.indigoAccent),
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(25),
                     ),
                   ),
                 ),
               ),
               //Chilometri veicolo
               Container(
-                margin: const EdgeInsets.symmetric(vertical: 18.0,horizontal: 15.0),
+                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
                 child: TextFormField(
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9.,]+')),],
                   decoration: InputDecoration(
                     alignLabelWithHint: true,
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 20,
+                      horizontal: 16,
+                      vertical: 16,
                     ),
                     labelStyle: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         color: Colors.black54
                     ),
                     labelText: 'Chilometri veicolo',
@@ -260,12 +267,12 @@ class _CarburanteState extends State<Carburante>{
                     filled: true,
                     fillColor: Colors.white70,
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(25),
                       borderSide: BorderSide(color: Colors.grey),
                     ),
                     focusedBorder:  OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.indigoAccent),
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(25),
                     ),
                   ),
                   onChanged: (value) {
@@ -277,7 +284,7 @@ class _CarburanteState extends State<Carburante>{
               ),
               //AddButton
               Container(
-                margin: const EdgeInsets.symmetric(vertical: 70.0,horizontal: 90.0),
+                margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 100.0),
                 child: ElevatedButton(
                   onPressed: () => {
                    /* if(image == null) {
@@ -296,30 +303,79 @@ class _CarburanteState extends State<Carburante>{
                             else{*/
                                 FirebaseAuth.instance.authStateChanges().listen((User? user) async {
                                   CollectionReference costi = await FirebaseFirestore.instance.collection('CostiRifornimento');
-                                  //QuerySnapshot costiChart = (FirebaseFirestore.instance.collection('costi').doc('2022').collection('Cost').where('mese', isEqualTo: months[current_month! - 1])) as QuerySnapshot<Object?>;
+                                  //CollectionReference costiTot = await FirebaseFirestore.instance.collection('CostiTotali').doc('2022').collection('Cost').doc();
+                                  final test = await FirebaseFirestore.instance.collection('CostiTotali').doc('2022').collection(user!.uid).get();
+                                  final generalCosts = await FirebaseFirestore.instance.collection('CostiGenerali').doc('2022').collection(user!.uid).get();
+
+
+                                  if(test.docs.isEmpty) {
+                                    final docu = await FirebaseFirestore.instance.collection('CostiTotali').doc('2022').collection(user!.uid);
+                                    for(int i = 0; i < 12; i++) {
+                                      docu.doc(months[i]).set(
+                                          {'mese': months[i],
+                                            'costo': 0,
+                                            'index': i,
+                                          }
+                                      );
+                                    }
+                                  }
+
+                                  if(generalCosts.docs.isEmpty) {
+                                    final docu = await FirebaseFirestore
+                                        .instance.collection('CostiGenerali')
+                                        .doc('2022')
+                                        .collection(user!.uid);
+                                    for (int i = 0; i < 12; i++) {
+                                      docu.doc(months[i]).set(
+                                          {'mese': months[i],
+                                            'costo': 0,
+                                            'index': i,
+                                          }
+                                      );
+                                    }
+                                  }
+
                                   current_month = now.month;
                                   current_year = now.year;
-                                  await FirebaseFirestore.instance.collection('costi').doc('2022').collection('Cost').doc('${months[current_month! - 1]}').update({"costo": FieldValue.increment(costoRifornimento!)});
-                                  //.where('mese', isEqualTo: months[current_month! - 1]);
-                                  //docRef.update({"costo": FieldValue.increment(costoRifornimento!)});
 
+                                  /*SaveUserIndexRow.indexingUserRow[user?.uid] = index;
+                                  SaveUserIndexRow.indexingUserRow.forEach((key, value) {
+                                    print('$key \t $value');
+                                  });*/
                                   costi.add({
                                     'costo': costoRifornimento,
-                                    'data': date.toString(),
-                                    'year': now.year,
+                                    'data': formatter.format(now),
+                                    'year': now.year.toString(),
                                     'mese': months[current_month! - 1],
                                     'type': 'Rifornimento carburante',
                                     'uid': user?.uid,
                                     'litri': labelLitri,
                                     'costoAlLitro': costoAlLitro,
-                                    'Kilometri veicolo': kmVeicolo
+                                    'Kilometri veicolo': kmVeicolo,
+                                    'index': index,
+
                                   });
 
-                                  /*
-                                  if(costiChart.docs.isNotEmpty) {
-                                    await costiChart.docs[0].reference.update({'costo': costoRifornimento});
+                                  final doc = await FirebaseFirestore.instance.collection('CostiRifornimento').where('mese', isEqualTo: months[current_month! -1]).where('uid', isEqualTo: user?.uid).get();
+                                  var docs = doc.docs;
+                                  double sum = 0.0;
+                                  for(int i=0; i < docs.length; i++){
+                                    sum += docs[i]['costo'];
                                   }
-                                   */
+
+                                  final doc1 = await FirebaseFirestore.instance.collection('CostiGenerali').doc('2022').collection(user.uid).where('mese', isEqualTo: months[current_month! - 1]).get();
+                                  var docs1 = doc1.docs;
+                                  double sum1 = 0.0;
+                                  sum1 += docs1[0]['costo'];
+
+
+
+                                  await FirebaseFirestore.instance.collection('CostiTotali').doc('2022').collection(user.uid).doc('${months[current_month! - 1]}').update({"costo": sum});
+
+                                  await FirebaseFirestore.instance.collection('CostiGenerali').doc('2022').collection(user.uid).doc('${months[current_month! - 1]}').update({"costo": sum + sum1});
+
+
+
                                   /*
                                   Navigator.push(
                                       context,
@@ -328,9 +384,9 @@ class _CarburanteState extends State<Carburante>{
 
                                   ));
                                   */
-                                  Navigator.push(context,
-                                      MaterialPageRoute(builder: (context) => Costi(0)));
-                                })
+                                  Navigator.pop(context);
+                                }
+                                  )
                             },
                   style: ElevatedButton.styleFrom(
                     elevation: 10,
@@ -340,8 +396,8 @@ class _CarburanteState extends State<Carburante>{
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 2,
+                      vertical: 12,
+                      horizontal: 0,
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -370,6 +426,8 @@ class _CarburanteState extends State<Carburante>{
       ),
     );
   }
+
+
   String? calcoloLitri(){
 
     double result;
@@ -390,5 +448,7 @@ class _CarburanteState extends State<Carburante>{
     return labelLitri;
   }
   }
+
+
 
 

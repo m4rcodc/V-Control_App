@@ -1,5 +1,6 @@
 import 'package:car_control/Page/Scadenze.dart';
 import 'package:car_control/Page/home_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -49,23 +50,64 @@ class _BoxNotificaState extends State<BoxNofitica>{
 class AddAssicurazione extends StatefulWidget{
   static const routeName = '/add-Assicurazione';
 
+  static List<Map<String,dynamic>> assicurazioni = [];
+
+  static Future<Map<String,dynamic>> getAssic() async{
+    if(assicurazioni.length == 0){
+      var ref = FirebaseFirestore.instance.collection("assicurazione");
+      var query = await ref.get();
+      for (var queryDocumentSnapshot in query.docs){
+        Map<String, dynamic> data = queryDocumentSnapshot.data();
+        print(data);
+        assicurazioni.add(data);
+      }
+    }
+    return {};
+  }
+
   @override
-  State<AddAssicurazione> createState() => _AddAssicurazioneState();
+  State<AddAssicurazione> createState() => _AddAssicurazioneState(assicurazioni);
 }
 
 class _AddAssicurazioneState extends State<AddAssicurazione> {
-  String nome ="";
   String prezzo ="";
   String tipoScad ="";
   DateTime date = DateTime.now();
 
+  late List<Map<String,dynamic>> numAssic;
+  List<String> assicurazioni = [];
+  String selectAssic = '';
+  String numero = '';
+  bool blockText = true;
+
   List<BoxNofitica> _notifiche = [];
 
+  _AddAssicurazioneState(List<Map<String,dynamic>> assic){
+    numAssic = assic;
+    for(int i=0;i<assic.length;i++){
+      assicurazioni.add(assic[i]['nome']);
+    }
+  }
+
   void _addNotif(int num,String time){
-    setState(() {
-      _notifiche.add(BoxNofitica(time, num, remove: ()=>setState(() {_notifiche.clear();}))
-      );
-    });
+    bool metti = true;
+    if(num == 1){
+      time == 'ore' ? time = 'ora' : time = time;
+      time == 'giorni' ? time = 'giorno' : time = time;
+      time == 'settimane' ? time = 'settimana' : time = time;
+      time == 'mesi' ? time = 'mese' : time = time;
+    }
+    for(int i=0;i<_notifiche.length;i++){
+      if(_notifiche[i].value == num && _notifiche[i].time == time){
+        metti = false;
+      }
+    }
+    if(metti){
+      setState(() {
+        _notifiche.add(BoxNofitica(time, num, remove: ()=>setState(() {_notifiche.clear();}))
+        );
+      });
+    }
   }
 
   final List<String> choiceScad = [
@@ -75,25 +117,26 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
   ];
 
   final List<String> itemsNotif = [
-    'Ore',
-    'Giorni',
-    'Settimane',
-    'Mesi'
+    'ore',
+    'giorni',
+    'settimane',
+    'mesi'
   ];
 
   final _formKey = GlobalKey<FormState>();
 
   void _submit(){
-    if (true){
+    if (_formKey.currentState!.validate()){
       var info = {
-        'titolo': 'Assicurazione Auto',
-        'nome': nome,
+        'titolo': 'Assicurazione',
+        'nome': selectAssic,
         'prezzo': prezzo,
         'tipoScad': tipoScad,
         'dataScad': date,
+        'tipoScad': tipoScad,
+        'notifiche': _notifiche,
       };
       Scadenze.insert(info);
-      print("object");
       HomePage.setPage(Scadenze(), 1);
       Navigator.of(context).popAndPushNamed(HomePage.routeName);
     }
@@ -133,120 +176,123 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
         onPressed: ()async{
           Navigator.pop(context, true);
           String durata = '';
-          String valueDurata = '';
+          String valueDurata = '1';
           await showDialog(
             context: context,
             builder: (BuildContext context) =>
                 AlertDialog(
                   title: const Text('Notifica personalizzata'),
-                  content: Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(vertical: 5.0,horizontal: 5.0),
-                          child: TextFormField(
-                            initialValue: 1.toString(),
-                            onChanged: (value) {
-                              print(value);
-                              setState(() {
-                                valueDurata = value;
-                              });
-                            },
-                            decoration: InputDecoration(
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 20,
-                              ),
-                              hintStyle: const TextStyle(fontSize: 14),
-                              filled: true,
-                              fillColor: Colors.white70,
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide(color: Colors.grey),
-                              ),
-                              focusedBorder:  OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.indigoAccent),
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                            ),
-                            validator: (String? value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Inserisci un valore';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(
-                          child: DropdownButtonFormField2(
-                            decoration: InputDecoration(
-                              //Add isDense true and zero Padding.
-                              //Add Horizontal padding using buttonPadding and Vertical padding by increasing buttonHeight instead of add Padding here so that The whole TextField Button become clickable, and also the dropdown menu open under The whole TextField Button.
-                                isDense: true,
-                                contentPadding: EdgeInsets.zero,
+                  content: Form(
+                    child:Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(vertical: 5.0,horizontal: 5.0),
+                            child: TextFormField(
+                              initialValue: 1.toString(),
+                              onChanged: (value) {
+                                setState(() {
+                                  valueDurata = value;
+                                  print(valueDurata);
+                                });
+                              },
+                              decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 20,
+                                ),
+                                hintStyle: const TextStyle(fontSize: 14),
+                                filled: true,
+                                fillColor: Colors.white70,
                                 enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(25),
+                                  borderRadius: BorderRadius.circular(15),
                                   borderSide: BorderSide(color: Colors.grey),
                                 ),
                                 focusedBorder:  OutlineInputBorder(
                                   borderSide: BorderSide(color: Colors.indigoAccent),
-                                  borderRadius: BorderRadius.circular(25),
+                                  borderRadius: BorderRadius.circular(15),
                                 ),
-                                filled: true,
-                                fillColor: Colors.white70
+                              ),
+                              validator: (String? value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Inserisci un valore';
+                                }
+                                return null;
+                              },
                             ),
-                            isExpanded: true,
-                            hint: const Text(
-                              'Durata',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            icon: const Icon(
-                              Icons.arrow_drop_down,
-                              color: Colors.black45,
-                            ),
-                            iconSize: 30,
-                            buttonHeight: 60,
-                            buttonPadding: const EdgeInsets.only(left: 20, right: 10),
-                            dropdownDecoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                            items: itemsNotif
-                                .map((item) =>
-                                DropdownMenuItem<String>(
-                                  value: item,
-                                  child: Text(
-                                    item,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ))
-                                .toList(),
-                            validator: (value) {
-                              if (value == null) {
-                                return 'Seleziona durata';
-                              }
-                            },
-                            onChanged: (value) {
-                              durata = value.toString();
-                            },
-                            onSaved: (value) {
-                              durata = value.toString();
-                            },
                           ),
                         ),
-                      )
-                    ],
+                        Expanded(
+                          child: Container(
+                            child: DropdownButtonFormField2(
+                              decoration: InputDecoration(
+                                //Add isDense true and zero Padding.
+                                //Add Horizontal padding using buttonPadding and Vertical padding by increasing buttonHeight instead of add Padding here so that The whole TextField Button become clickable, and also the dropdown menu open under The whole TextField Button.
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                  focusedBorder:  OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.indigoAccent),
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.white70
+                              ),
+                              isExpanded: true,
+                              hint: const Text(
+                                'Durata',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              icon: const Icon(
+                                Icons.arrow_drop_down,
+                                color: Colors.black45,
+                              ),
+                              iconSize: 30,
+                              buttonHeight: 60,
+                              buttonPadding: const EdgeInsets.only(left: 20, right: 10),
+                              dropdownDecoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              items: itemsNotif
+                                  .map((item) =>
+                                  DropdownMenuItem<String>(
+                                    value: item,
+                                    child: Text(
+                                      item,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ))
+                                  .toList(),
+                              validator: (value) {
+                                if (value == null) {
+                                  return 'Seleziona durata';
+                                }
+                              },
+                              onChanged: (value) {
+                                durata = value.toString();
+                              },
+                              onSaved: (value) {
+                                durata = value.toString();
+                              },
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
+
                   actions: <Widget>[
                     TextButton(
                       onPressed: () => Navigator.pop(context, 'Cancel'),
                       child: const Text('Annulla'),
                     ),
                     TextButton(
-                      onPressed: () => {Navigator.pop(context, 'OK'),_addNotif(valueDurata as int, durata)},
+                      onPressed: () => {Navigator.pop(context, 'OK'),_addNotif(int.parse(valueDurata), durata)},
                       child: const Text('Salva'),
                     ),
                   ],
@@ -281,7 +327,7 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
         toolbarHeight: 55,
         flexibleSpace: Container(
           decoration:const BoxDecoration(
-              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(25),bottomRight: Radius.circular(25)),
+              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
               gradient: LinearGradient(
                   colors: [Colors.cyan,Colors.lightBlue],
                   begin: Alignment.topRight,
@@ -309,11 +355,81 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
                 child: Image.asset('images/insurance.png',height: 120,width: 120),
               ),
               Container(
-                margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
+                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
+                child: DropdownButtonFormField2(
+                  decoration: InputDecoration(
+                    //Add isDense true and zero Padding.
+                    //Add Horizontal padding using buttonPadding and Vertical padding by increasing buttonHeight instead of add Padding here so that The whole TextField Button become clickable, and also the dropdown menu open under The whole TextField Button.
+                      isDense: true,
+                      contentPadding: EdgeInsets.zero,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
+                      focusedBorder:  OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.indigoAccent),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white70
+                  ),
+                  isExpanded: true,
+                  hint: const Text(
+                    'Assicurazione',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  icon: const Icon(
+                    Icons.arrow_drop_down,
+                    color: Colors.black45,
+                  ),
+                  iconSize: 30,
+                  buttonHeight: 60,
+                  buttonPadding: const EdgeInsets.only(left: 20, right: 10),
+                  dropdownDecoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  items: assicurazioni
+                      .map((item) =>
+                      DropdownMenuItem<String>(
+                        value: item,
+                        child: Text(
+                          item,
+                          style: const TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
+                      ))
+                      .toList(),
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Seleziona assicurazione';
+                    }
+                  },
+                  onChanged: (value) {
+
+                    selectAssic = value.toString();
+                    for(int i=0;i<numAssic.length;i++){
+                      if(numAssic[i]['nome'] == selectAssic) {
+                        setState(() {
+                          numero = numAssic[i]['numero'];
+                          blockText = false;
+                        });
+                      }
+                    }
+                  },
+                  onSaved: (value) {
+                    selectAssic = value.toString();
+                  },
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
                 child: TextFormField(
+                  enabled: blockText,
+                  controller: TextEditingController(text: numero),
                   onChanged: (value) {
                     setState(() {
-                      nome = value;
+                      numero = value;
                     });
                   },
                   decoration: InputDecoration(
@@ -321,22 +437,22 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
                       horizontal: 20,
                       vertical: 20,
                     ),
-                    hintText: "Inserisci il nome dell'assicurazione",
+                    hintText: "Numero assicurazione",
                     hintStyle: const TextStyle(fontSize: 14),
                     filled: true,
                     fillColor: Colors.white70,
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25),
+                      borderRadius: BorderRadius.circular(15),
                       borderSide: BorderSide(color: Colors.grey),
                     ),
                     focusedBorder:  OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.indigoAccent),
-                      borderRadius: BorderRadius.circular(25),
+                      borderRadius: BorderRadius.circular(15),
                     ),
                   ),
                   validator: (String? value) {
                     if (value == null || value.isEmpty) {
-                      return 'Inserisci il nome';
+                      return "Inserisci il numero dell'assicurazione";
                     }
                     return null;
                   },
@@ -361,12 +477,12 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
                     filled: true,
                     fillColor: Colors.white70,
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25),
+                      borderRadius: BorderRadius.circular(15),
                       borderSide: BorderSide(color: Colors.grey),
                     ),
                     focusedBorder:  OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.indigoAccent),
-                      borderRadius: BorderRadius.circular(25),
+                      borderRadius: BorderRadius.circular(15),
                     ),
                   ),
                   validator: (String? value) {
@@ -386,12 +502,12 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
                       isDense: true,
                       contentPadding: EdgeInsets.zero,
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
+                        borderRadius: BorderRadius.circular(15),
                         borderSide: BorderSide(color: Colors.grey),
                       ),
                       focusedBorder:  OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.indigoAccent),
-                        borderRadius: BorderRadius.circular(25),
+                        borderRadius: BorderRadius.circular(15),
                       ),
                       filled: true,
                       fillColor: Colors.white70
@@ -409,7 +525,7 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
                   buttonHeight: 60,
                   buttonPadding: const EdgeInsets.only(left: 20, right: 10),
                   dropdownDecoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(25),
+                    borderRadius: BorderRadius.circular(15),
                   ),
                   items: choiceScad
                       .map((item) =>
@@ -477,7 +593,7 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.calendar_month),
-                          Text("Data scadenza: ${formatter.format(date)}")
+                          Text(" Data scadenza: ${formatter.format(date)}")
                         ],
                       ),
                     )
@@ -519,7 +635,7 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
                         Icon(Icons.notification_add),
-                        Text("Aggiungi notifiche")
+                        Text(" Aggiungi notifiche")
                       ],
                     ),
                   ),

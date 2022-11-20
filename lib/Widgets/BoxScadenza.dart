@@ -14,6 +14,9 @@ class BoxScadenza extends StatelessWidget{
   final void Function()? modifica;
   bool flagAnimation = false;
 
+
+  String get title => _title;
+
   BoxScadenza(titolo,nomeAssic,scadenza,icona,String prezzo,{super.key, required this.pagamento, required this.modifica}){ //costruttore assicurazione
     final DateFormat formatter = DateFormat('dd-MM-yyyy');
     dataScad = scadenza;

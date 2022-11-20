@@ -35,7 +35,7 @@ class _HomePageState extends State<HomePage> {
   late int currentTab;
   String currentRoute = AddVeicolo.routeName;
 
-
+  static bool first = true;
 
   final PageStorageBucket bucket = PageStorageBucket();
   late Widget currentPage;
@@ -43,6 +43,15 @@ class _HomePageState extends State<HomePage> {
   _HomePageState(Widget paginaIniz, int tabIniz){
     currentPage = paginaIniz;
     currentTab = tabIniz;
+    initScadenze();
+  }
+
+  void initScadenze() async{
+    if(first){
+      print("fetch scadenze");
+      await Scadenze.getScadenze();
+      first = false;
+    }
   }
   @override
   Widget build(BuildContext context) {

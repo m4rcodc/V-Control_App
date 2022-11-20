@@ -26,7 +26,6 @@ class _VeicoloState extends State<Veicolo>{
 
   }
 
-
   Stream<List<Vehicle>> readVehicles() => FirebaseFirestore.instance
       .collection('vehicle')
       .where('uid', isEqualTo: uid)
@@ -50,7 +49,14 @@ class _VeicoloState extends State<Veicolo>{
               topLeft: Radius.circular(45.0),
               topRight: Radius.circular(45.0),
             ),
-            color: Colors.white60,
+            color: Colors.white54,
+            boxShadow: [
+              BoxShadow(
+                offset: Offset(0,-3),
+                blurRadius: 6,
+                color: Colors.black12,
+              )
+            ],
           ),
           height: MediaQuery.of(context).size.height * 0.80,
           width: MediaQuery.of(context).size.width,
@@ -217,4 +223,5 @@ class _VeicoloState extends State<Veicolo>{
     );
   }
 }
+
 
