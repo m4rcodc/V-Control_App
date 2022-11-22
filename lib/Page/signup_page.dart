@@ -1,3 +1,4 @@
+import 'package:car_control/Page/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ class _SignupPageState extends State<SignupPage> {
 
   final _formKey = GlobalKey<FormState>();
   final emailPattern = r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+";
-  //final passPattern = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[*.!@\$%^&(){}[]:;<>,.?/~_+-=|]).{8,32}\$";
+  final passPattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,32}$';
 
   FirebaseAuth auth = FirebaseAuth.instance;
 
@@ -30,7 +31,6 @@ class _SignupPageState extends State<SignupPage> {
   String password='';
   bool emailValid = false;
   bool passValid = false;
-  var credential;
 
   Widget signUpWith(IconData icon) {
     return Container(
@@ -103,8 +103,8 @@ class _SignupPageState extends State<SignupPage> {
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(15),
-                      topRight: Radius.circular(15)),
+                      topLeft: Radius.circular(25),
+                      topRight: Radius.circular(25)),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
@@ -237,7 +237,7 @@ class _SignupPageState extends State<SignupPage> {
                             onChanged: (value) {
                               setState(() {
 
-                                if(value.length < 64){
+                                if(value.length < 128){
                                   email=value;
                                 }
 
@@ -272,19 +272,19 @@ class _SignupPageState extends State<SignupPage> {
                                 return 'Il campo "Password" non può essere vuoto.';
                               }
 
-                              else if(value.length < 8 || value.length > 24){
-                                return 'Immetere una password di 8-24 caratteri.';
+                              else if(value.length < 8 || value.length > 32){
+                                return 'Immetere una password di 8-32 caratteri.';
                               }
-                              /*else if (!RegExp(passPattern).hasMatch(value))
+                              else if (!RegExp(passPattern).hasMatch(value))
                               {
                                 return 'Immetere almeno un carattere maiuscolo,\nminuscolo e speciale.';
-                              }*/
+                              }
                               return null;
                             },
 
                             onChanged: (value) {
                               setState(() {
-                                if(value.length < 16)
+                                if(value.length < 32)
                                 {
                                   password=value;
                                 }
@@ -351,46 +351,31 @@ class _SignupPageState extends State<SignupPage> {
                                   backgroundColor: Colors.indigo,
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(25))),
-                              onPressed: () {
+                              onPressed: () async {
+
 
                                 if (_formKey.currentState!.validate()) {
-                                  try {
-                                    credential = auth.createUserWithEmailAndPassword(
+                                      await auth.createUserWithEmailAndPassword(
                                       email: email,
                                       password: password,
-                                    );
-
-
-                                    /*FirebaseAuth.instance.authStateChanges().listen((User? user) async {
-                                      await FirebaseFirestore.instance.collection('users').doc(user?.uid).set({'nome': name, 'cognome': surname, 'email' : email});
-                                    });*/
-
-                                    FirebaseFirestore.instance.collection('users').doc(auth.currentUser?.uid).set({'nome': name, 'cognome': surname, 'email' : email});
-
-
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content: Text('Registrazione effettuata!')),
-                                    );
-
-                                  } on FirebaseAuthException catch (e) {
-                                    if (e.code == 'weak-password') {
-                                      debugPrint(
-                                          'The password provided is too weak.');
-                                    } else if (e.code == 'email-already-in-use') {
+                                    ).then((value) {
+                                      FirebaseFirestore.instance.collection('users').doc(auth.currentUser?.uid).set({'nome': name, 'cognome': surname, 'email' : email});
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(
-                                            content: Text('Email già utilizzata, registrazione non effettuata')),
+                                            content: Text('Registrazione effettuata!')),
                                       );
-                                    }
-                                  } catch (e) {
-                                    debugPrint(e.toString());
-                                  }
 
+                                      //Fa il route alla homepage ed elimina tutte le pagine precedenti dallo stack di navigation
+                                      Navigator.pushNamedAndRemoveUntil(context, HomePage.routeName, (route) => false);
 
+                                    }).onError((error, stackTrace) {
+                                      debugPrint(error.toString());
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                            content: Text('Email già in uso!')),
+                                      );
+                                    });
                                 }
-
-
                               },
                               /*print(emailController);
                         print(passwordController);

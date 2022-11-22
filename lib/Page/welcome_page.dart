@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:car_control/Page/home_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'login_page.dart';
 import 'signup_page.dart';
@@ -24,15 +26,23 @@ class StartState extends State<WelcomePage> {
   }
 
   startTimer() async {
-    var duration = Duration(seconds: 2);
-    return new Timer(duration, route);
+    var duration = const Duration(seconds: 4);
+    return Timer(duration, route);
   }
 
   route() {
-    Navigator.pushReplacement(context, MaterialPageRoute(
-      builder: (context) => LoginPage()
-      )
-    );
+    if(FirebaseAuth.instance.currentUser != null)
+      {
+        Navigator.pushReplacement(context, MaterialPageRoute(
+            builder: (context) => HomePage()
+        )
+        );
+      }
+    else {
+      Navigator.pushReplacement(context, MaterialPageRoute(
+          builder: (context) => LoginPage()));
+    }
+
   }
 
 

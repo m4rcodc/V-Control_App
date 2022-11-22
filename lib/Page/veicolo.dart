@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import 'login_page.dart';
+
 class Veicolo extends StatefulWidget {
 
   @override
@@ -174,7 +176,15 @@ class _VeicoloState extends State<Veicolo>{
         //toolbarHeight: 55,
         actions: [
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.logout),
+            onPressed: ()  {
+              FirebaseAuth.instance.signOut();
+              Navigator.pushReplacement(context, MaterialPageRoute(
+                  builder: (context) => const LoginPage()));
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.add),
             onPressed: ()  => Navigator.of(context).pushNamed(AddVeicolo.routeName),
           )
         ],
