@@ -15,7 +15,7 @@ class ActivityListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(2, 16, 2, 16),
+      padding: const EdgeInsets.only(top: 10),
       child: GestureDetector(
         onTap: onTab,
         child: Stack(

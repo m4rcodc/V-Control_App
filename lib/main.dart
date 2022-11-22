@@ -3,6 +3,7 @@ import 'package:car_control/Page/AddBollo.dart';
 import 'package:car_control/Page/AddTagliando.dart';
 import 'package:car_control/Page/Autolavaggio.dart';
 import 'package:car_control/Page/Costi.dart';
+import 'package:car_control/Page/CostiRifornimento.dart';
 import 'package:car_control/Page/Manutenzione.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -52,6 +53,7 @@ class MyApp extends StatelessWidget {
         AddTagliando.routeName: (context) => AddTagliando(),
         AddBollo.routeName: (context) => AddBollo(),
         Costi.routeName: (context) => Costi(0),
+        CostiRifornimento.routeName: (context) => CostiRifornimento(),
 
       },
     );

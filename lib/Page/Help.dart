@@ -17,23 +17,13 @@ class _HelpState extends State<Help>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       extendBodyBehindAppBar: true,
         appBar: AppBar(
           title: Text('Help'),
           centerTitle: true,
           backgroundColor: Colors.transparent,
-          elevation: 8.0,
-          toolbarHeight: 55,
-          flexibleSpace: Container(
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
-              gradient: LinearGradient(
-                colors: [Colors.cyan,Colors.lightBlue],
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft
-            )
-            ),
-          ),
+          elevation: 0.0,
         ),
         body: Container(
           decoration:const BoxDecoration(
@@ -43,10 +33,40 @@ class _HelpState extends State<Help>{
               colors: [Colors.lightBlue, Colors.white70],
             )
           ),
-        child: ListView(
-          children: [
+          child:
+          Container(
+            padding: EdgeInsets.all(20),
+            child:
+            Image.asset(
+              'images/HelpImage.png',
+              height: 370,
+              width: MediaQuery.of(context).size.width,
+              scale: 1.75,
+            ),
+          ),
+        ),
+        bottomSheet: Container(
+            decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+            BoxShadow(
+            offset: Offset(0,-3),
+            blurRadius: 6,
+            color: Colors.black54,
+            )
+            ],
+            borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(25),
+            topRight: Radius.circular(25),
+            ),
+            ),
+            height: MediaQuery.of(context).size.height * 0.54,
+          child: ListView(
+            shrinkWrap: true,
+            padding: EdgeInsets.only(top: 0),
+            children: [
             Container(
-              margin: const EdgeInsets.symmetric(vertical: 40.0,horizontal: 22.0),
+              margin: const EdgeInsets.symmetric(vertical: 25.0,horizontal: 22.0),
               decoration: BoxDecoration(
                 color: Colors.white70,
                 border: Border.all(width: 2, color: Colors.white70),
@@ -90,12 +110,7 @@ class _HelpState extends State<Help>{
             ),
             ),
             Container(
-             // margin: const EdgeInsets.symmetric(vertical:0,horizontal: 15),
-              alignment: Alignment.center,
-              child: Image.asset('images/HelpMap.png',height: 150,width: 280),
-            ),
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 35.0,horizontal: 12.0),
+              margin: const EdgeInsets.symmetric(vertical: 20.0,horizontal: 12.0),
               child: Table(
                 children: [
                   TableRow(
@@ -197,7 +212,7 @@ class _HelpState extends State<Help>{
               )
             ),
           ],
-        )
+        ),
         ),
     );
   }

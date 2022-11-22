@@ -582,7 +582,7 @@ class _ManutenzioneState extends State<Manutenzione>{
 
                     await FirebaseFirestore.instance.collection('CostiTotaliManutenzione').doc('2022').collection(user.uid).doc('${months[current_month! - 1]}').update({"costo": sum});
 
-                    await FirebaseFirestore.instance.collection('CostiGenerali').doc('2022').collection(user.uid).doc('${months[current_month! - 1]}').update({"costo": sum1 + sum});
+                    await FirebaseFirestore.instance.collection('CostiGenerali').doc('2022').collection(user.uid).doc('${months[current_month! - 1]}').update({"costo": sum1 + costoManutenzione!});
 
 
                     /*Navigator.push(
@@ -590,7 +590,7 @@ class _ManutenzioneState extends State<Manutenzione>{
                                     MaterialPageRoute(builder: (context) => const LoadingScreen()),
                                   );
                                   */
-                        Navigator.pop(context);
+                    Navigator.of(context,rootNavigator: true).pop();
                   })
                 },
                 style: ElevatedButton.styleFrom(

@@ -75,7 +75,7 @@ class Costi extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: SpeedDial(
+      /*floatingActionButton: SpeedDial(
         spaceBetweenChildren: 15.0,
         icon: Icons.add,
         activeIcon: Icons.reorder,
@@ -109,7 +109,7 @@ class Costi extends StatelessWidget {
               onTap: () => Navigator.of(context).pushNamed(Carburante.routeName)
           ),
         ],
-      ),
+      ),*/
     ),
   );
 

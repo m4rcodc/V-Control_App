@@ -1,5 +1,6 @@
 import 'package:car_control/Page/AddAssicurazione.dart';
 import 'package:car_control/Page/AddBollo.dart';
+import 'package:car_control/Page/AddRevisione.dart';
 import 'package:car_control/Page/AddTagliando.dart';
 import 'package:car_control/Page/home_page.dart';
 import 'package:car_control/Page/veicolo.dart';
@@ -137,12 +138,12 @@ class _ScadenzeState extends State<Scadenze>{
     Scadenze.sortLista();
     itemsAddScadenze = [
       SpeedDialChild(
-        child: const Icon(Icons.build),
-        backgroundColor: Colors.white70,
-        labelStyle: const TextStyle(fontSize: 18.0, color: Colors.white),
-        labelBackgroundColor: Colors.lightBlue.shade300,
-        label: 'Revisione',
-        //onTap: () => Navigator.of(context).pushNamed(),
+          child: const Icon(Icons.build),
+          backgroundColor: Colors.white70,
+          labelStyle: const TextStyle(fontSize: 18.0, color: Colors.white),
+          labelBackgroundColor: Colors.lightBlue.shade300,
+          label: 'Revisione',
+          onTap: () => Navigator.of(context).pushNamed(AddRevisione.routeName)
       ),
       SpeedDialChild(
           child: const Icon(Icons.checklist),

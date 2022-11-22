@@ -57,9 +57,7 @@ class StartState extends State<WelcomePage> {
                   child: Align(
                       alignment: Alignment.topCenter,
                     child:
-                      Image.asset('images/LogoApp.png', scale: 2)
-                      //Text('Car Control', style: TextStyle(fontSize: 55, fontWeight: FontWeight.bold, color: Colors.white),),
-                      //Text('Lorem ipsum dolor sit amet', style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic, color: Colors.white),),
+                      Image.asset('images/LogoApp.png', scale: 3)
                   ),
               ),
               Container(

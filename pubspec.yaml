@@ -63,7 +63,7 @@ dependencies:
   flutter_phone_direct_caller: ^2.1.1
   flutter_datetime_picker: ^1.5.1
   awesome_dialog: ^3.0.2
-  tap_to_expand: ^0.6.1
+  expandable: ^5.0.1
 
 
 

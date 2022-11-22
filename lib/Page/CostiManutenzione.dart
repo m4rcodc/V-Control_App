@@ -1,9 +1,8 @@
-import 'dart:math';
-
 import 'package:accordion/accordion.dart';
 import 'package:accordion/accordion_section.dart';
 import 'package:accordion/controllers.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:car_control/Page/Manutenzione.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:d_chart/d_chart.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -120,6 +119,22 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
           children: [
             Container(
               padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+              decoration: BoxDecoration(
+                //border: Border.all(color: Colors.blueAccent),
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(30.0),
+                  bottomLeft: Radius.circular(30.0),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blueGrey,
+                    blurRadius: 2.0,
+                    spreadRadius: 0.0,
+                    offset: Offset(2.0, 2.0), // shadow direction: bottom right
+                  )
+                ],
+              ),
               child: StreamBuilder(
                   stream: streamChart,
                   builder: (context, AsyncSnapshot<
@@ -149,8 +164,8 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                             'data': listChart,
                           },
                         ],
-                        axisLineColor: Colors.white70,
-                        barColor: (barData, index, id) => Colors.white70,
+                        axisLineColor: Colors.lightBlue,
+                        barColor: (barData, index, id) => Colors.lightBlue,
                         showBarValue: true,
                       ),
                     );
@@ -158,9 +173,12 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
               ),
             ),
             Container(
-                margin: const EdgeInsets.symmetric(vertical: 25.0,horizontal: 25.0),
+                margin: const EdgeInsets.symmetric(vertical: 25.0,horizontal: 5.0),
                 alignment: Alignment.center,
                 child:
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                 children: [
                 TextButton.icon(
                   icon: Icon(Icons.filter_alt_outlined, color: Colors.white,),
                   label: (month == null && year == null)? Text('Filtra per mese ed anno', style: TextStyle(color: Colors.white),) : Text('$fullNameMonth \t $year', style: TextStyle(color: Colors.white),),
@@ -196,11 +214,26 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                             locale: LocaleType.it),
                         locale: LocaleType.it);
                   },
-                )
-
+                ),
+                   TextButton.icon(
+                     icon: Icon(Icons.add, color: Colors.white,),
+                     label: Text('Manutenzione', style: TextStyle(color: Colors.white)),
+                     style: TextButton.styleFrom(
+                       elevation: 10.0,
+                       backgroundColor: Colors.lightBlue.shade200,
+                       shape: RoundedRectangleBorder(
+                         borderRadius: BorderRadius.circular(25),
+                       ),
+                     ),
+                     onPressed: () {
+                       Navigator.of(context).pushNamed(Manutenzione.routeName);
+                     },
+                   )
+                ],
+                ),
             ),
             Container(
-              padding: EdgeInsets.symmetric(vertical: 15, horizontal: 6),
+              padding: EdgeInsets.symmetric(vertical: 6, horizontal: 6),
               child: Accordion(
                 maxOpenSections: 2,
                 headerBackgroundColorOpened: Colors.black54,
