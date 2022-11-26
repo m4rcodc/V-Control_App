@@ -48,7 +48,10 @@ class _CarburanteState extends State<Carburante>{
       extendBody: true,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title:const  Text('Nuovo rifornimento'),
+        iconTheme: IconThemeData(
+          color: Colors.blue.shade300, // <-- SEE HERE
+        ),
+        title: Text('Nuovo rifornimento',style: TextStyle(color: Colors.blue.shade300)),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0.0,
@@ -57,11 +60,7 @@ class _CarburanteState extends State<Carburante>{
       body:
           Container(
       decoration: const BoxDecoration(
-    gradient: LinearGradient(
-    begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      colors: [Colors.lightBlue, Colors.white],
-    ),
+          color: Color(0xFFE3F2FD)
     ),
       child:
               Container(
@@ -78,7 +77,7 @@ class _CarburanteState extends State<Carburante>{
             //Data
               bottomSheet: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Color(0xFF90CAF9),
                   boxShadow: [
                     BoxShadow(
                       offset: Offset(0,-3),
@@ -97,7 +96,9 @@ class _CarburanteState extends State<Carburante>{
                     shrinkWrap: true,
                     padding: EdgeInsets.all(16),
                     children: [
-                Container(
+
+                      //Data
+                      Container(
                 margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
                       child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -152,8 +153,7 @@ class _CarburanteState extends State<Carburante>{
                   key: _formKeyCosto,
                 child:
                 TextFormField(
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                  autofocus: true,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9.,]+')),],
                   decoration: InputDecoration(
@@ -168,7 +168,7 @@ class _CarburanteState extends State<Carburante>{
                     ),
                     labelText: 'Costo rifornimento',
                     filled: true,
-                    fillColor: Colors.white70,
+                    fillColor: Colors.white,
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(25),
                       borderSide: BorderSide(color: Colors.grey),
@@ -224,7 +224,7 @@ class _CarburanteState extends State<Carburante>{
                     ),
                     labelText: 'Costo al litro',
                     filled: true,
-                    fillColor: Colors.white70,
+                    fillColor: Colors.white,
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(25),
                       borderSide: BorderSide(color: Colors.grey),
@@ -277,7 +277,7 @@ class _CarburanteState extends State<Carburante>{
                         color: Colors.black54
                     ),
                     filled: true,
-                    fillColor: Colors.white70,
+                    fillColor: Colors.white,
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(25),
                       borderSide: BorderSide(color: Colors.grey),
@@ -311,7 +311,7 @@ class _CarburanteState extends State<Carburante>{
                     labelText: 'Chilometri veicolo',
                     //hintStyle: const TextStyle(fontSize: 14),
                     filled: true,
-                    fillColor: Colors.white70,
+                    fillColor: Colors.white,
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(25),
                       borderSide: BorderSide(color: Colors.grey),

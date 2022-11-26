@@ -359,7 +359,7 @@ class _SignupPageState extends State<SignupPage> {
                                       email: email,
                                       password: password,
                                     ).then((value) {
-                                      FirebaseFirestore.instance.collection('users').doc(auth.currentUser?.uid).set({'nome': name, 'cognome': surname, 'email' : email});
+                                      FirebaseFirestore.instance.collection('users').doc(auth.currentUser?.uid).set({'nome': name, 'cognome': surname, 'email' : email, 'points' : 0});
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(
                                             content: Text('Registrazione effettuata!')),

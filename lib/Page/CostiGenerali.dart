@@ -32,11 +32,7 @@ class CostiGeneraliState extends State<CostiGenerali>{
       body:
       Container(
         decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Colors.lightBlue, Colors.white],
-            )
+           color: Color(0xFF90CAF9)
         ),
 
         child: ListView(

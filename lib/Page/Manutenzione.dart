@@ -46,10 +46,13 @@ class _ManutenzioneState extends State<Manutenzione>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true,
+      //extendBody: true,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title:const  Text('Nuova manutenzione'),
+        iconTheme: IconThemeData(
+          color: Colors.blue.shade300, // <-- SEE HERE
+        ),
+        title:Text('Nuova manutenzione',style: TextStyle(color: Colors.blue.shade300)),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0.0,
@@ -57,11 +60,7 @@ class _ManutenzioneState extends State<Manutenzione>{
       ),
       body: Container(
         decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Colors.lightBlue, Colors.white],
-            )
+            color: Color(0xFFE3F2FD)
         ),
         child:
             Container(
@@ -78,11 +77,11 @@ class _ManutenzioneState extends State<Manutenzione>{
         //Data
         bottomSheet: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Color(0xFF90CAF9),
             boxShadow: [
               BoxShadow(
                 offset: Offset(0,-3),
-                blurRadius: 6,
+                blurRadius: 8,
                 color: Colors.black54,
               )
             ],
@@ -444,7 +443,7 @@ class _ManutenzioneState extends State<Manutenzione>{
                   labelText: 'Costo manutenzione',
                   //hintStyle: const TextStyle(fontSize: 14),
                   filled: true,
-                  fillColor: Colors.white70,
+                  fillColor: Colors.white,
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
                     borderSide: BorderSide(color: Colors.grey),
@@ -479,7 +478,7 @@ class _ManutenzioneState extends State<Manutenzione>{
                   labelText: 'Note',
                   //hintStyle: const TextStyle(fontSize: 14),
                   filled: true,
-                  fillColor: Colors.white70,
+                  fillColor: Colors.white,
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
                     borderSide: BorderSide(color: Colors.grey),

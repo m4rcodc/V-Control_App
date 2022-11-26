@@ -1,10 +1,11 @@
+import 'package:animated_button/animated_button.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:car_control/Page/addVeicolo.dart';
 import 'package:car_control/Widgets/DetailsCarCard.dart';
 import 'package:car_control/models/vehicle.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import 'login_page.dart';
 
 class Veicolo extends StatefulWidget {
@@ -18,15 +19,33 @@ class _VeicoloState extends State<Veicolo>{
   var make;
 
 
-  String uid = FirebaseAuth.instance.currentUser!.uid;
+  String? uid = FirebaseAuth.instance.currentUser!.uid;
 
-  bool? checkCar(String uid){
+  Future<bool?> checkCar() async {
 
-    FirebaseFirestore.instance.collection('vehicle')
+    final doc =  await FirebaseFirestore.instance
+        .collection('vehicle')
         .where('uid', isEqualTo: uid)
-        .snapshots();
+        .get();
+    if(doc.docs[0].exists){
+      return true;
+    }
+    else {
+      return false;
+    }
 
   }
+  
+  deleteVehicle() async {
+    
+    final doc =  await FirebaseFirestore.instance
+        .collection('vehicle')
+        .where('uid', isEqualTo: uid)
+        .get();
+    doc.docs[0].reference.delete();
+    
+  }
+
 
   Stream<List<Vehicle>> readVehicles() => FirebaseFirestore.instance
       .collection('vehicle')
@@ -44,18 +63,18 @@ class _VeicoloState extends State<Veicolo>{
         color: Colors.transparent,
       ),
       Positioned(
-        top: 75.0,
+        top: 110.0,
         child: Container(
           decoration: const BoxDecoration(
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(45.0),
               topRight: Radius.circular(45.0),
             ),
-            color: Colors.white54,
+            color: Color(0xFF90CAF9),
             boxShadow: [
               BoxShadow(
-                offset: Offset(0,-3),
-                blurRadius: 6,
+                offset: Offset(0,-6),
+                blurRadius: 8,
                 color: Colors.black12,
               )
             ],
@@ -66,12 +85,12 @@ class _VeicoloState extends State<Veicolo>{
       ),
       Positioned(
         top: MediaQuery.of(context).size.height * 0.02,
-        left: (MediaQuery.of(context).size.width /2) - 86.0,
+        left: (MediaQuery.of(context).size.width /2) * 0.45,
         child:  CircleAvatar(
-          radius: 91.0,
-          backgroundColor: Colors.cyan,
+          radius: 110.0,
+          backgroundColor: Colors.blue.shade400,
           child: CircleAvatar(
-              radius: 85.0,
+              radius: 105.0,
               backgroundColor: Colors.white,
               backgroundImage: NetworkImage('${vehicle.image}'),
           )
@@ -79,7 +98,7 @@ class _VeicoloState extends State<Veicolo>{
         ),
       ),
       Positioned(
-        top:  MediaQuery.of(context).size.height * 0.28,
+        top:  MediaQuery.of(context).size.height * 0.32,
         left: 10,
         right: 10,
         //height: MediaQuery.of(context).size.height - 120,
@@ -91,19 +110,23 @@ class _VeicoloState extends State<Veicolo>{
                   DetailsCarCard(
                     firstText: "Marca",
                     secondText: '${vehicle.make}',
-                    icon: Image.asset(
-                      "images/car-search-icon.png",
-                      width: 40,
-                      color: Colors.lightBlue,
+                    icon: vehicle.logoImage == null ? Image.asset('images/car-search-icon.png',width: 80,
+                      color: Colors.lightBlue ,)
+                        :  Image.network(
+                      '${vehicle.logoImage}',
+                      width: 80,
+                      height: 90,
+                      //color: Colors.lightBlue,
                     ),
                   ),
                   DetailsCarCard(
                     firstText: "Modello",
                     secondText: '${vehicle.model}',
                     icon: Image.asset(
-                      "images/modello-auto-icon.png",
-                      width: 40,
-                      color: Colors.lightBlue ,
+                      "images/ModelCarImage.png",
+                      width: 80,
+                      height: 90,
+                      //color: Colors.lightBlue ,
                     ),
                   ),
 
@@ -114,47 +137,24 @@ class _VeicoloState extends State<Veicolo>{
                   DetailsCarCard(
                     firstText: "Alimentazione",
                     secondText: '${vehicle.fuel}',
-                    icon: Image.asset(
-                      "images/fuel-pump-icon.png",
-                      width: 40,
-                      color: Colors.lightBlue ,
+                    icon:
+                    Image.network(
+                      '${vehicle.imageFuelUrl}',
+                      width: 80,
+                      height: 90,
                     ),
                   ),
-                  DetailsCarCard(
-                    firstText: "Cilindrata",
-                    secondText: '${vehicle.engine}',
-                    icon: Image.asset(
-                      "images/engine-auto-icon.png",
-                      width: 40,
-                      color: Colors.lightBlue ,
-                    ),
-                  ),
-
-                ]
-            ),
-            TableRow(
-                children: [
                   DetailsCarCard(
                     firstText: "Km attuali",
                     secondText: '${vehicle.kilometers}',
                     icon: Image.asset(
                       "images/tachimetro-icon.png",
-                      width: 40,
-                      color: Colors.lightBlue ,
-                    ),
-
-                  ),
-                  DetailsCarCard(
-                    firstText: "Targa",
-                    secondText: "${vehicle.plate}",
-                    icon: Image.asset(
-                      "images/license-plate-icon.png",
-                      width: 40,
-                      color: Colors.lightBlue ,
+                      width: 80,
+                      height: 90,
+                      color: Colors.lightBlue.shade300,
                     ),
                   ),
-
-                ]
+                ],
             ),
           ],
         ),
@@ -165,22 +165,50 @@ class _VeicoloState extends State<Veicolo>{
 
   @override
   Widget build(BuildContext context) {
+    if(uid == null)
+    {
+      Navigator.pushReplacement(context, MaterialPageRoute(
+          builder: (context) => const LoginPage()));
+    }
     return Scaffold(
       extendBody: true,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title:const  Text('Veicolo'),
+        iconTheme: IconThemeData(
+          color: Colors.blue.shade400, // <-- SEE HERE
+        ),
+        title: Text('Veicolo', style: TextStyle(color: Colors.blue.shade400)),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0.0,
         //toolbarHeight: 55,
-        actions: [
+        leading:
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: ()  {
               FirebaseAuth.instance.signOut();
               Navigator.pushReplacement(context, MaterialPageRoute(
                   builder: (context) => const LoginPage()));
+            },
+          ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_outline),
+            onPressed: () {
+                  AwesomeDialog(
+                    context: context,
+                    dialogType: DialogType.warning,
+                    headerAnimationLoop: false,
+                    animType: AnimType.topSlide,
+                    title: 'Attenzione!',
+                    desc:
+                    'Sicuro di voler elminare il veicolo?',
+                    btnCancelText: 'Cancella',
+                    btnCancelOnPress: () {},
+                    btnOkOnPress: () {
+                      deleteVehicle();
+                    },
+                  ).show();
             },
           ),
           IconButton(
@@ -202,11 +230,7 @@ class _VeicoloState extends State<Veicolo>{
       body:
       Container(
         decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              colors: [Colors.lightBlue, Colors.white],
-            )
+           color: Color(0xFFE3F2FD)
         ),
 
         child: ListView(

@@ -1,4 +1,8 @@
+
+
 import 'package:car_control/Widgets/DetailsCarCard.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -9,9 +13,22 @@ class Help extends StatefulWidget {
   _HelpState createState() => _HelpState();
 }
 
-
+String? fuel;
+String? distributore;
+String? uid = FirebaseAuth.instance.currentUser?.uid;
 
 class _HelpState extends State<Help>{
+
+  final ref = FirebaseFirestore.instance.collection("vehicle").where("uid", isEqualTo:uid).get().then((value){
+    fuel = value.docs[0].data()['fuel'];
+    if(fuel == 'Elettrica')
+      {
+        distributore = 'Colonnine di ricarica';
+      }
+    else{
+      distributore = 'Distributori di $fuel';
+    }
+  });
 
   final number = '333333333';
   @override
@@ -46,7 +63,7 @@ class _HelpState extends State<Help>{
           ),
         ),
         bottomSheet: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
             color: Colors.white,
             boxShadow: [
             BoxShadow(
@@ -126,7 +143,9 @@ class _HelpState extends State<Help>{
                                 borderRadius: BorderRadius.circular(12)
                               )
                             ),
-                              onPressed: () => {},
+                              onPressed: () {
+                              _launchRiforn();
+                              },
                           child: Padding(
                             padding: const EdgeInsets.only(
                               left: 14.0,
@@ -145,11 +164,14 @@ class _HelpState extends State<Help>{
                                 ),
                                 Container(
                                   padding: EdgeInsets.symmetric(vertical:12,horizontal: 0),
-                                child: Text('Trova la stazione di rifornimento più vicina', style: const TextStyle(
+                                child: Text('Trova la stazione di rifornimento più vicina',
+                                  style: const TextStyle(
                                   fontSize: 18.0,
                                   color: Color(0xFF1A1316),
+
                                 ),
                                 ),
+
                                 ),
                                 Text('Visualizza sulla mappa', style: const TextStyle(
                                   fontSize: 16.0,
@@ -171,7 +193,7 @@ class _HelpState extends State<Help>{
                                     borderRadius: BorderRadius.circular(12)
                                 )
                             ),
-                            onPressed: () => {},
+                            onPressed: () => {_launchOff()},
                             child: Padding(
                               padding: const EdgeInsets.only(
                                 left: 14.0,
@@ -221,4 +243,24 @@ class _HelpState extends State<Help>{
 _callNumber() async{
   const number = '08592119XXXX'; //set the number here
   bool? res = await FlutterPhoneDirectCaller.callNumber(number);
+}
+
+_launchRiforn() async{
+
+
+      var url = "https://www.google.com/maps/search/?api=1&query=${distributore}";
+
+
+      final Uri _url = Uri.parse(url);
+
+      await launchUrl(_url,mode: LaunchMode.externalApplication);
+}
+
+
+_launchOff() async {
+
+  const url = "https://www.google.com/maps/search/?api=1&query=meccanico";
+  final Uri _url = Uri.parse(url);
+
+  await launchUrl(_url,mode: LaunchMode.externalApplication);
 }
