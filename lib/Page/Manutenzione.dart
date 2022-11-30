@@ -1,12 +1,24 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:car_control/Page/Costi.dart';
 import 'package:car_control/Widgets/DetailsCarCard.dart';
+import 'package:car_control/models/userModel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ftoast/ftoast.dart';
 import 'package:intl/intl.dart';
+
+
+const cambioGommePoints = 100;
+const cambioOlioPoints = 50;
+const autolavaggioPoints = 0;
+const cambioBatteriaPoints = 50;
+const motorePoints = 100;
+const impiantoFrenantePoints = 150;
+const altroPoints = 5;
+int sceltaPoints=0;
 
 
 class Manutenzione extends StatefulWidget {
@@ -36,6 +48,7 @@ class _ManutenzioneState extends State<Manutenzione>{
   String? motore = 'Motore';
   String? freni = 'Impianto frenante';
   String? altro = 'Altro';
+  int? userPoints;
 
   DateTime now = new DateTime.now();
   var formatter = new DateFormat('dd-MM-yyyy');
@@ -45,6 +58,13 @@ class _ManutenzioneState extends State<Manutenzione>{
 
   @override
   Widget build(BuildContext context) {
+    final ref = FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser?.uid).withConverter(
+      fromFirestore: UserModel.fromFirestore,
+      toFirestore: (UserModel user, _) => user.toFirestore(),
+    ).get().then((value) {
+      userPoints = value.data()?.points;
+      debugPrint("Userpoints $userPoints");
+    });
     return Scaffold(
       //extendBody: true,
       extendBodyBehindAppBar: true,
@@ -193,7 +213,7 @@ class _ManutenzioneState extends State<Manutenzione>{
                                           child: Image.asset('images/wheel.png',scale: 6),
                                         ),
                                         Container(
-                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
+                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 6),
                                           alignment: Alignment.bottomCenter,
                                           child: Text('Cambio ruote', style: const TextStyle(
                                             fontSize: 12.0,
@@ -232,7 +252,7 @@ class _ManutenzioneState extends State<Manutenzione>{
                                           child: Image.asset('images/oil.png',scale: 5.5),
                                         ),
                                         Container(
-                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
+                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 6),
                                           alignment: Alignment.bottomCenter,
                                           child: Text('Cambio olio', style: const TextStyle(
                                             fontSize: 12.0,
@@ -275,7 +295,7 @@ class _ManutenzioneState extends State<Manutenzione>{
                                           child: Image.asset('images/battery.png',scale: 4.6),
                                         ),
                                         Container(
-                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 8),
+                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 0),
                                           alignment: Alignment.bottomCenter,
                                           child: Text('Cambio batteria', style: const TextStyle(
                                             fontSize: 12.0,
@@ -355,10 +375,10 @@ class _ManutenzioneState extends State<Manutenzione>{
                                           child: Image.asset('images/Brakes.png',scale: 5.5),
                                         ),
                                         Container(
-                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 4),
+                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 0),
                                           alignment: Alignment.bottomCenter,
                                           child: Text('Impianto frenante', style: const TextStyle(
-                                            fontSize: 12.0,
+                                            fontSize: 11.0,
                                             color: Color(0xFF1A1316),
 
                                           ),
@@ -496,7 +516,7 @@ class _ManutenzioneState extends State<Manutenzione>{
               ),
             ),
             Container(
-              margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 100.0),
+              margin: const EdgeInsets.symmetric(vertical: 5.0,horizontal: 100.0),
               child: ElevatedButton(
                 onPressed: () => {
                   /* if(image == null) {
@@ -566,6 +586,52 @@ class _ManutenzioneState extends State<Manutenzione>{
                       'uid': user?.uid,
                     });
 
+                    if(typeManutention == 'Cambio ruote')
+                    {
+                      sceltaPoints = cambioGommePoints;
+                      userPoints = (userPoints! + sceltaPoints)!;
+
+                    }
+                    else if(typeManutention == 'Cambio olio')
+                    {
+                      sceltaPoints = cambioOlioPoints;
+                      userPoints = (userPoints! + cambioOlioPoints)!;
+
+                    }
+                    else if(typeManutention == 'Cambio batteria')
+                    {
+                      sceltaPoints = cambioBatteriaPoints;
+                      userPoints = (userPoints! + cambioBatteriaPoints)!;
+
+                    }
+                    else if(typeManutention == 'Impianto frenante')
+                    {
+                      sceltaPoints = impiantoFrenantePoints;
+                      userPoints = (userPoints! + impiantoFrenantePoints)!;
+
+                    }
+                    else
+                    {
+                      sceltaPoints = altroPoints;
+                      userPoints = (userPoints! + altroPoints)!;
+
+                    }
+
+                    final ref = FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser?.uid);
+                    ref.update({
+                      'points' : userPoints
+                    }).then((value) => debugPrint("Il nuovo userpoint dovrebbe essere $userPoints"));
+
+                    FToast.toast(
+                      context,
+                      msg: "Complimenti!\nHai guadagnato $sceltaPoints punti!",
+                      image: Icon(
+                        Icons.star_border,
+                        color: Colors.yellowAccent,
+                      ),
+                      imageDirection: AxisDirection.left,
+                    );
+
                     final doc = await FirebaseFirestore.instance.collection('CostiManutenzione').where('mese', isEqualTo: months[current_month! - 1]).where('uid', isEqualTo: user?.uid).get();
                     var docs = doc.docs;
                     double sum = 0.0;
@@ -617,7 +683,7 @@ class _ManutenzioneState extends State<Manutenzione>{
                       Text(
                         "Aggiungi",
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 14,
                           color: Colors.white,
                         ),
                       )

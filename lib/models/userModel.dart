@@ -7,6 +7,7 @@ class UserModel{
   String surname;
   String email;
   int points;
+  String uid;
 
 
   UserModel({
@@ -14,6 +15,7 @@ class UserModel{
     required this.surname,
     required this.email,
     required this.points,
+    required this.uid,
 
   });
 
@@ -30,6 +32,7 @@ class UserModel{
       surname: data?['cognome'],
       email: data?['email'],
       points: data?['points'],
+      uid : data?['uid'],
 
     );
   }
@@ -40,21 +43,21 @@ class UserModel{
       if (surname != null) "cognome": surname,
       if (email != null) "email": email,
       if (points != null) "points": points,
+      if (uid != null) "uid": uid,
+
     };
 
 
   }
 
 
-
-
-
-
-
-
-
-
-
+  static UserModel fromJson(Map<String, dynamic> json) => UserModel(
+    name: json['nome'],
+    surname: json['cognome'],
+    email: json['email'],
+    points: json['points'],
+    uid: json['uid'],
+  );
 
 
 /*

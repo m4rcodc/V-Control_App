@@ -436,12 +436,12 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: <Widget>[
                                           Align(
-                                            heightFactor: 1.3,
+                                            heightFactor: 1.4,
                                             alignment: Alignment.center,
-                                            child: Image.network('${snapshot.data.docs[2]['logo']}',scale: 6),
+                                            child: Image.network('${snapshot.data.docs[2]['logo']}',scale: 6.5),
                                           ),
                                           Container(
-                                            padding: EdgeInsets.symmetric(vertical:2,horizontal: 8),
+                                            padding: EdgeInsets.symmetric(vertical:2,horizontal: 2),
                                             alignment: Alignment.bottomCenter,
                                             child: Text('${snapshot.data.docs[2]['name']}', style: const TextStyle(
                                               fontSize: 12.0,
@@ -1261,7 +1261,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
             ),
             //ButtonAddVeicolo
             Container(
-              margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 120.0),
+              margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 100.0),
               child: ElevatedButton(
                 onPressed: () => {
                   if(image == null) {
@@ -1315,6 +1315,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                           ref.update({
                             'points' : userPoints
                           }).then((value) => debugPrint("Il nuovo userpoint dovrebbe essere $userPoints"));
+
 
                           /*
             Navigator.push(

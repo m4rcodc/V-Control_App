@@ -56,20 +56,34 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true,
+        extendBody: true,
         body: PageStorage(
           child: currentPage,
           bucket: bucket,
         ),
         bottomNavigationBar: Container(
-            color: Colors.transparent,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30.0),
+              topRight: Radius.circular(30.0),
+            ),
+            color: Color(0xFFE3F2FD),
+            boxShadow: [
+              BoxShadow(
+                offset: Offset(0,-3),
+                blurRadius: 8,
+                color: Colors.black12,
+              )
+            ],
+          ),
+            //color: Colors.yellow,
             child: Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 15.0, vertical: 15),
+                    horizontal: 15.0, vertical: 10),
                 child: GNav(
                   selectedIndex: currentTab,
                   backgroundColor: Colors.transparent,
-                  color: Colors.white,
+                  color: Colors.blue,
                   activeColor: Colors.white,
                   tabBackgroundColor: Colors.blue.shade300,
                   gap: 5,

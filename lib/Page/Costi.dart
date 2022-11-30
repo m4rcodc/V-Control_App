@@ -1,6 +1,5 @@
 import 'package:car_control/Page/Autolavaggio.dart';
 import 'package:car_control/Page/Carburante.dart';
-import 'package:car_control/Page/CostiAutolavaggio.dart';
 import 'package:car_control/Page/CostiGenerali.dart';
 import 'package:car_control/Page/CostiManutenzione.dart';
 import 'package:car_control/Page/CostiRifornimento.dart';
@@ -36,9 +35,9 @@ class Costi extends StatelessWidget {
           decoration: const BoxDecoration(
             borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
             gradient: LinearGradient(
-              colors: [Colors.cyan, Colors.lightBlue],
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
+              colors: [Colors.cyan,Color(0xFF90CAF9)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
             ),
           ),
         ),

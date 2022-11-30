@@ -100,9 +100,9 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
       Container(
         decoration: const BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.topCenter,
+              begin: Alignment.center,
               end: Alignment.bottomCenter,
-              colors: [Colors.lightBlue, Colors.white],
+              colors: [Color(0xFF90CAF9), Colors.white],
             )
         ),
 
@@ -163,7 +163,7 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
               ),
             ),
             Container(
-              margin: const EdgeInsets.symmetric(vertical: 25.0,horizontal: 5.0),
+              margin: const EdgeInsets.symmetric(vertical: 25.0,horizontal: 0.0),
               alignment: Alignment.center,
               child:
               Row(

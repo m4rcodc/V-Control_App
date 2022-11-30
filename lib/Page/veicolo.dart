@@ -1,6 +1,6 @@
-import 'package:animated_button/animated_button.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:car_control/Page/addVeicolo.dart';
+import 'package:car_control/Page/home_page.dart';
 import 'package:car_control/Widgets/DetailsCarCard.dart';
 import 'package:car_control/models/vehicle.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -18,42 +18,38 @@ class _VeicoloState extends State<Veicolo>{
 
   var make;
 
-
   String? uid = FirebaseAuth.instance.currentUser!.uid;
 
   Future<bool?> checkCar() async {
-
     final doc =  await FirebaseFirestore.instance
         .collection('vehicle')
         .where('uid', isEqualTo: uid)
         .get();
     if(doc.docs[0].exists){
-      return true;
+      return Future<bool>.value(true);
     }
     else {
-      return false;
+      return Future<bool>.value(false);
     }
-
   }
-  
+
   deleteVehicle() async {
-    
     final doc =  await FirebaseFirestore.instance
         .collection('vehicle')
         .where('uid', isEqualTo: uid)
         .get();
     doc.docs[0].reference.delete();
-    
-  }
+    Navigator.pushNamedAndRemoveUntil(context, HomePage.routeName, (route) => false);
 
+  }
 
   Stream<List<Vehicle>> readVehicles() => FirebaseFirestore.instance
       .collection('vehicle')
       .where('uid', isEqualTo: uid)
       .snapshots()
       .map((snapshot) =>
-       snapshot.docs.map((doc) => Vehicle.fromJson(doc.data())).toList()
-);
+      snapshot.docs.map((doc) => Vehicle.fromJson(doc.data())).toList()
+  );
 
   Widget buildVehicle(Vehicle vehicle) => Stack(
     children: [
@@ -63,9 +59,9 @@ class _VeicoloState extends State<Veicolo>{
         color: Colors.transparent,
       ),
       Positioned(
-        top: 110.0,
+        top: 140.0,
         child: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(45.0),
               topRight: Radius.circular(45.0),
@@ -85,18 +81,57 @@ class _VeicoloState extends State<Veicolo>{
       ),
       Positioned(
         top: MediaQuery.of(context).size.height * 0.02,
-        left: (MediaQuery.of(context).size.width /2) * 0.45,
-        child:  CircleAvatar(
-          radius: 110.0,
+        left: (MediaQuery.of(context).size.width /2) * 0,
+        child: Image.asset('images/LogoApp.png', scale: 6),
+      ),
+      vehicle.image != null ?
+      Positioned(
+        top: MediaQuery.of(context).size.height * 0.10,
+        left: (MediaQuery.of(context).size.width /2) * 0.44,
+        child: Container(
+          width: 230,
+          height: 150,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+              topRight: Radius.circular(20.0),
+              bottomLeft: Radius.circular(20.0),
+              topLeft: Radius.circular(20.0),
+              bottomRight: Radius.circular(20.0)
+            ),
+            border: Border.all(color: Colors.blueAccent,width: 2),
+            color: Colors.white,
+            image: DecorationImage(
+                image: NetworkImage('${vehicle.image}',
+            ),
+              fit: BoxFit.cover,
+          ),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black54,
+                    blurRadius: 8.0,
+                    offset: Offset(0,5)
+                ),
+              ]
+        ),
+        /*child:  CircleAvatar(
+          radius: 100.0,
           backgroundColor: Colors.blue.shade400,
           child: CircleAvatar(
-              radius: 105.0,
-              backgroundColor: Colors.white,
-              backgroundImage: NetworkImage('${vehicle.image}'),
-          )
-          ,
-        ),
+            radius: 95.0,
+            backgroundColor: Colors.white,
+            backgroundImage: NetworkImage('${vehicle.image}'),
+          ),
+        ),*/
       ),
+      )
+      : Container(
+            alignment: Alignment.center,
+           // padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.60, horizontal: 20),
+            child: Text(
+              'Prova'
+            )
+          ),
+      vehicle.make != null ?
       Positioned(
         top:  MediaQuery.of(context).size.height * 0.32,
         left: 10,
@@ -133,32 +168,34 @@ class _VeicoloState extends State<Veicolo>{
                 ]
             ),
             TableRow(
-                children: [
-                  DetailsCarCard(
-                    firstText: "Alimentazione",
-                    secondText: '${vehicle.fuel}',
-                    icon:
-                    Image.network(
-                      '${vehicle.imageFuelUrl}',
-                      width: 80,
-                      height: 90,
-                    ),
+              children: [
+                DetailsCarCard(
+                  firstText: "Alimentazione",
+                  secondText: '${vehicle.fuel}',
+                  icon:
+                  Image.network(
+                    '${vehicle.imageFuelUrl}',
+                    width: 80,
+                    height: 90,
                   ),
-                  DetailsCarCard(
-                    firstText: "Km attuali",
-                    secondText: '${vehicle.kilometers}',
-                    icon: Image.asset(
-                      "images/tachimetro-icon.png",
-                      width: 80,
-                      height: 90,
-                      color: Colors.lightBlue.shade300,
-                    ),
+                ),
+                DetailsCarCard(
+                  firstText: "Km attuali",
+                  secondText: '${vehicle.kilometers}',
+                  icon: Image.asset(
+                    "images/tachimetro-icon.png",
+                    width: 80,
+                    height: 90,
+                    color: Colors.lightBlue.shade300,
                   ),
-                ],
+                ),
+              ],
             ),
           ],
         ),
-      ),
+      )
+      :
+      Container(),
     ],
   );
 
@@ -174,88 +211,119 @@ class _VeicoloState extends State<Veicolo>{
       extendBody: true,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        iconTheme: IconThemeData(
-          color: Colors.blue.shade400, // <-- SEE HERE
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.only(bottomLeft: Radius.circular(25),bottomRight: Radius.circular(25)),
+            gradient: LinearGradient(
+              colors: [Colors.cyan,Color(0xFF90CAF9)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
         ),
-        title: Text('Veicolo', style: TextStyle(color: Colors.blue.shade400)),
+        iconTheme: IconThemeData(
+          color: Colors.white, // <-- SEE HERE
+        ),
+        title: Text('Veicolo', style: TextStyle(color: Colors.white)),
         centerTitle: true,
         backgroundColor: Colors.transparent,
-        elevation: 0.0,
-        //toolbarHeight: 55,
+        elevation: 10.0,
+        toolbarHeight: 50,
         leading:
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: ()  {
-              FirebaseAuth.instance.signOut();
-              Navigator.pushReplacement(context, MaterialPageRoute(
-                  builder: (context) => const LoginPage()));
-            },
-          ),
+        IconButton(
+          icon: const Icon(Icons.logout),
+          onPressed: () {
+            AwesomeDialog(
+              context: context,
+              dialogType: DialogType.warning,
+              headerAnimationLoop: false,
+              animType: AnimType.topSlide,
+              title: 'Attenzione!',
+              desc:
+              'Sicuro di voler uscire da questo account?',
+              btnCancelText: 'Cancella',
+              btnCancelOnPress: () {},
+              btnOkOnPress: () {
+                FirebaseAuth.instance.signOut();
+                Navigator.pushReplacement(context, MaterialPageRoute(
+                    builder: (context) => const LoginPage()));
+              },
+            ).show();
+          },
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline),
             onPressed: () {
-                  AwesomeDialog(
-                    context: context,
-                    dialogType: DialogType.warning,
-                    headerAnimationLoop: false,
-                    animType: AnimType.topSlide,
-                    title: 'Attenzione!',
-                    desc:
-                    'Sicuro di voler elminare il veicolo?',
-                    btnCancelText: 'Cancella',
-                    btnCancelOnPress: () {},
-                    btnOkOnPress: () {
-                      deleteVehicle();
-                    },
-                  ).show();
+              AwesomeDialog(
+                context: context,
+                dialogType: DialogType.warning,
+                headerAnimationLoop: false,
+                animType: AnimType.topSlide,
+                title: 'Attenzione!',
+                desc:
+                'Sicuro di voler elminare il veicolo?',
+                btnCancelText: 'Cancella',
+                btnCancelOnPress: () {},
+                btnOkOnPress: () {
+                  deleteVehicle();
+                },
+              ).show();
             },
           ),
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: ()  => Navigator.of(context).pushNamed(AddVeicolo.routeName),
+            onPressed: () {
+              if(checkCar() == true) {
+                Navigator.of(context).pushNamed(AddVeicolo.routeName);
+              }
+              else {
+                AwesomeDialog(
+                  context: context,
+                  dialogType: DialogType.warning,
+                  headerAnimationLoop: false,
+                  animType: AnimType.topSlide,
+                  title: 'Attenzione!',
+                  desc:
+                  'Per aggiungere un secondo veicolo, passa alla funzionalità premium dell\'app!',
+                  btnCancelText: 'Cancella',
+                  btnCancelOnPress: () {},
+                  btnOkOnPress: () {
+                    deleteVehicle();
+                  },
+                ).show();
+              }
+            }
           )
         ],
-        /*flexibleSpace: Container(
-          decoration: const BoxDecoration(
-              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
-              gradient: LinearGradient(
-                  colors: [Colors.cyan,Colors.lightBlue],
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft
-              )
-          ),
-        ),*/
       ),
       body:
       Container(
         decoration: const BoxDecoration(
-           color: Color(0xFFE3F2FD)
+            color: Color(0xFFE3F2FD)
         ),
 
         child: ListView(
           //physics: NeverScrollableScrollPhysics(),
           children: [
-         StreamBuilder<List<Vehicle>>(
-             stream: readVehicles(),
-          builder: (context,snapshot) {
-            if (snapshot.hasData) {
-              final vehicle = snapshot.data!;
-              return ListView(
-                shrinkWrap: true,
-                children: vehicle.map(buildVehicle).toList(),
-              );
-            }
-            else{
-              return Center(child: CircularProgressIndicator());
-            }
-          }
-      ),
-      ],
+            StreamBuilder<List<Vehicle>>(
+                stream: readVehicles(),
+                builder: (context,snapshot) {
+                  if (snapshot.hasData) {
+                    final vehicle = snapshot.data!;
+                    return ListView(
+                      shrinkWrap: true,
+                      children: vehicle.map(buildVehicle).toList(),
+                    );
+                  }
+                  else{
+                    return Center(child: CircularProgressIndicator());
+                  }
+                }
+            ),
+          ],
         ),
       ),
     );
   }
 }
-
-

@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -347,7 +349,7 @@ class _CarburanteState extends State<Carburante>{
               ),
               //AddButton
               Container(
-                margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 100.0),
+                margin: const EdgeInsets.symmetric(vertical: 8.0,horizontal: 90.0),
                 child: ElevatedButton(
                   onPressed:
                     () => {
@@ -375,7 +377,6 @@ class _CarburanteState extends State<Carburante>{
                               .collection(user!.uid)
                               .get();
 
-
                           if (test.docs.isEmpty) {
                             final docu = await FirebaseFirestore.instance
                                 .collection('CostiTotali')
@@ -386,11 +387,11 @@ class _CarburanteState extends State<Carburante>{
                                   {'mese': months[i],
                                     'costo': 0,
                                     'index': i,
+                                    'totaleLitri': 0
                                   }
                               );
                             }
                           }
-
                           if (generalCosts.docs.isEmpty) {
                             final docu = await FirebaseFirestore
                                 .instance.collection('CostiGenerali')
@@ -401,6 +402,7 @@ class _CarburanteState extends State<Carburante>{
                                   {'mese': months[i],
                                     'costo': 0,
                                     'index': i,
+                                    'totaleLitri': 0
                                   }
                               );
                             }
@@ -420,7 +422,7 @@ class _CarburanteState extends State<Carburante>{
                             'mese': months[current_month! - 1],
                             'type': 'Rifornimento carburante',
                             'uid': user?.uid,
-                            'litri': labelLitri,
+                            'litri': double.tryParse(labelLitri!),
                             'costoAlLitro': costoAlLitro,
                             'Kilometri veicolo': kmVeicolo,
                             'index': index,
@@ -435,8 +437,14 @@ class _CarburanteState extends State<Carburante>{
                               .get();
                           var docs = doc.docs;
                           double sum = 0.0;
+                          double sumLitri = 0.0;
                           for (int i = 0; i < docs.length; i++) {
                             sum += docs[i]['costo'];
+                            print('costo $sum');
+                          }
+                          for (int i = 0; i < docs.length; i++) {
+                            sumLitri += docs[i]['litri'];
+                            print('litri $sumLitri');
                           }
 
                           final doc1 = await FirebaseFirestore.instance
@@ -447,7 +455,6 @@ class _CarburanteState extends State<Carburante>{
                           var docs1 = doc1.docs;
                           double sum1 = 0.0;
                           sum1 += docs1[0]['costo'];
-
 
                           await FirebaseFirestore.instance.collection(
                               'CostiTotali').doc('2022')
@@ -460,6 +467,13 @@ class _CarburanteState extends State<Carburante>{
                               .collection(user.uid)
                               .doc('${months[current_month! - 1]}')
                               .update({"costo": costoRifornimento! + sum1});
+
+                          await FirebaseFirestore.instance.collection(
+                              'CostiGenerali').doc('2022')
+                              .collection(user.uid)
+                              .doc('${months[current_month! - 1]}')
+                              .update({"totaleLitri": sumLitri});
+
 
 
                           /*

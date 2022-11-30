@@ -4,7 +4,7 @@ class Costs {
   String? data;
   String? type;
   String? uid;
-  String? litri;
+  double? litri;
   String? mese;
   double? index;
   String? note;

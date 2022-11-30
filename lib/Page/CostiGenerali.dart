@@ -1,4 +1,5 @@
 import 'package:car_control/Widgets/Tile.dart';
+import 'package:car_control/models/recapCosti.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -13,12 +14,15 @@ class CostiGenerali extends StatefulWidget{
 
 class CostiGeneraliState extends State<CostiGenerali>{
 
-  String uid = FirebaseAuth.instance.currentUser!.uid;
+  //String uid = FirebaseAuth.instance.currentUser!.uid;
 
-  List months =
+  static List months =
   ['gen', 'feb', 'mar', 'apr', 'mag','giu','lug','ago','set','ott','nov','dic'];
 
-  String? month;
+  static var now = DateTime.now();
+  //var current_month = now.month;
+
+  String? month = months[now.month - 1]; //Il mese iniziale di visualizzazione dei recap è quello corrente
   String? year;
   String? fullNameMonth;
 
@@ -27,12 +31,49 @@ class CostiGeneraliState extends State<CostiGenerali>{
       .doc('2022').collection(FirebaseAuth.instance.currentUser!.uid).orderBy('index', descending: false)
       .snapshots(includeMetadataChanges: true);
 
+  Stream<List<RecapCosti>> readRecap() => FirebaseFirestore.instance
+      .collection('CostiGenerali')
+      .doc('2022')
+      .collection(FirebaseAuth.instance.currentUser!.uid)
+      .where('mese', isEqualTo: month)
+      .snapshots()
+      .map((snapshot) =>
+      snapshot.docs.map((doc) => RecapCosti.fromJson(doc.data())).toList()
+  );
+
+
+  Widget buildCardRecap(RecapCosti recapCosti) => Column(
+      children: [
+      ActivityListTile(
+      title: 'Recap rifornimenti',
+      subtitle: 'Totale spese: ${recapCosti.costo} €',
+      subtitle2: 'Totale litri: ${recapCosti.totaleLitri}',
+      trailingImage:
+      Image.asset('images/CarFuelImage.png', height: 110),
+      color: Colors.white,
+      onTab: () {}
+       ),
+      ActivityListTile(
+      title: 'Recap manutenzioni',
+      subtitle: 'Totale spese: 250 €',
+      subtitle2: '',
+      trailingImage:
+      Image.asset('images/ImageManutenzione2.png', height: 110),
+      color: Colors.white,
+      onTab: () {}
+       ),
+     ]
+  );
   Widget build(BuildContext context) {
     return Scaffold(
       body:
       Container(
         decoration: const BoxDecoration(
-           color: Color(0xFF90CAF9)
+            gradient: LinearGradient(
+              begin: Alignment.center,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF90CAF9), Colors.white],
+            )
         ),
 
         child: ListView(
@@ -97,7 +138,7 @@ class CostiGeneraliState extends State<CostiGenerali>{
                 child:
                 TextButton.icon(
                   icon: Icon(Icons.filter_alt_outlined, color: Colors.white,),
-                  label: (month == null && year == null)? Text('Filtra per mese ed anno', style: TextStyle(color: Colors.white),) : Text('$fullNameMonth \t $year', style: TextStyle(color: Colors.white),),
+                  label: (month != null && year == null)? Text('Filtra per mese ed anno', style: TextStyle(color: Colors.white),) : Text('$fullNameMonth \t $year', style: TextStyle(color: Colors.white),),
                   style: TextButton.styleFrom(
                     elevation: 10.0,
                     backgroundColor: Colors.lightBlue.shade200,
@@ -115,13 +156,14 @@ class CostiGeneraliState extends State<CostiGenerali>{
                             month = months[selectedMonth - 1];
                             year = date.year.toString();
                             fullNameMonth = generateFullNameMonth(month);
+                            print(month);
                           });
                         },
                         onCancel: (){
-                          setState(() {
+                          /*setState(() {
                             month = null;
                             year = null;
-                          });
+                          });*/
                         },
                         pickerModel: CustomMonthPicker(
                             currentTime: DateTime.now(),
@@ -134,33 +176,46 @@ class CostiGeneraliState extends State<CostiGenerali>{
             ),
             Container(
               padding: EdgeInsets.symmetric(vertical: 0, horizontal: 15),
-              child: Column(
-                children: [
-                  ActivityListTile(
-                      title: 'Recap rifornimenti',
-                      subtitle: 'Totale spese: 150 €',
-                      subtitle2: 'Totale litri: 250',
-                      trailingImage:
-                      Image.asset('images/CarFuelImage.png', height: 110),
-                      color: Colors.white,
-                      onTab: () {}
-
+              child:
+                  StreamBuilder<List<RecapCosti>>(
+                  stream: readRecap(),
+                  builder: (context,snapshot) {
+                    if (snapshot.hasData) {
+                      final cost = snapshot.data!;
+                      return ListView(
+                          padding: EdgeInsets.symmetric(vertical:0),
+                          shrinkWrap: true,
+                          children: cost.map(buildCardRecap).toList()
+                      );
+                    }
+                    else {
+                      //return Center(child: CircularProgressIndicator());
+                      return Column(
+                          children: [
+                            ActivityListTile(
+                                title: 'Recap rifornimenti',
+                                subtitle: 'Totale spese: 0 €',
+                                subtitle2: 'Totale litri: 0',
+                                trailingImage:
+                                Image.asset('images/CarFuelImage.png', height: 110),
+                                color: Colors.white,
+                                onTab: () {}
+                            ),
+                            ActivityListTile(
+                                title: 'Recap manutenzioni',
+                                subtitle: 'Totale spese: 250 €',
+                                subtitle2: '',
+                                trailingImage:
+                                Image.asset('images/ImageManutenzione2.png', height: 110),
+                                color: Colors.white,
+                                onTab: () {}
+                            ),
+                          ]
+                      );
+                    }
+                  }
                   ),
-                  ActivityListTile(
-                      title: 'Recap manutenzioni',
-                      subtitle: 'Totale spese: 250 €',
-                      subtitle2: '',
-                      trailingImage:
-                      Image.asset('images/ImageManutenzione2.png', height: 110),
-                      color: Colors.white,
-                      onTab: () {}
-
-                  )
-                ],
               )
-
-
-            )
           ],
         ),
       ),

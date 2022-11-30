@@ -203,27 +203,25 @@ class _ScadenzeState extends State<Scadenze>{
         title: Text('Scadenze'),
         centerTitle: true,
         backgroundColor: Colors.transparent,
-        elevation: 0.0,
-        toolbarHeight: 55,
+        elevation: 10.0,
+        toolbarHeight: 50,
         flexibleSpace: Container(
-          decoration:const BoxDecoration(
-              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
-              gradient: LinearGradient(
-                colors: [Colors.cyan,Colors.lightBlue],
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
-              )
-          ),
-        ),
-      ), /*child:const Center(
-            child: Text('Scadenze Screen', style: TextStyle(fontSize: 40)),
-          )*/
-      body: Container(
-        decoration:const BoxDecoration(
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.only(bottomLeft: Radius.circular(25),bottomRight: Radius.circular(25)),
             gradient: LinearGradient(
+              colors: [Colors.cyan,Color(0xFF90CAF9)],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Colors.lightBlue, Colors.white70],
+            ),
+          ),
+        ),
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.center,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF90CAF9), Colors.white],
             )
         ),
         child: Center(

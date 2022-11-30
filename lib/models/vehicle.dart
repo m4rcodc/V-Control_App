@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Vehicle {
 
   String? make;
@@ -8,6 +10,7 @@ class Vehicle {
   String? fuel;
   String? logoImage;
   String? imageFuelUrl;
+  int? numberDocument;
 
   Vehicle({
     required this.make,
@@ -31,5 +34,6 @@ class Vehicle {
     logoImage: json['logoImage'],
     imageFuelUrl: json['imageFuelUrl']
   );
+
 
 }

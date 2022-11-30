@@ -19,7 +19,11 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
 
-  final _formKey = GlobalKey<FormState>();
+  final _nameKey = GlobalKey<FormState>();
+  final _surnameKey = GlobalKey<FormState>();
+  final _emailKey = GlobalKey<FormState>();
+  final _passwordKey = GlobalKey<FormState>();
+  final _confermaPasswordKey = GlobalKey<FormState>();
   final emailPattern = r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+";
   final passPattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,32}$';
 
@@ -83,52 +87,65 @@ class _SignupPageState extends State<SignupPage> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        resizeToAvoidBottomInset: false,
+        resizeToAvoidBottomInset: true,
         body: Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              alignment: Alignment.topCenter,
-              fit: BoxFit.fill,
-              image: AssetImage(
-                'images/addtask.jpg',
+          decoration:const BoxDecoration(
+            color: Color(0xFFE3F2FD)
+      ),
+      child:
+      Container(
+        padding: EdgeInsets.all(20),
+        child:
+        Image.asset(
+          'images/RegistrationImage.png',
+          width: MediaQuery.of(context).size.width,
+          scale: 1.75,
+        ),
+      ),
+          ),
+          bottomSheet: Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFFBBDEFB),
+              boxShadow: [
+                BoxShadow(
+                  offset: Offset(0,-3),
+                  blurRadius: 6,
+                  color: Colors.black54,
+                )
+              ],
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(25),
+                topRight: Radius.circular(25),
               ),
             ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
+            height: MediaQuery.of(context).size.height * 0.615,
+            //mainAxisAlignment: MainAxisAlignment.end,
+            child: ListView(
+              shrinkWrap: true,
+              padding: EdgeInsets.only(top: 15),
+              children: [
               Container(
-                height: 510,
-                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 25),
                 decoration: const BoxDecoration(
-                  color: Colors.white,
                   borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(25),
                       topRight: Radius.circular(25)),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: SingleChildScrollView(
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const SizedBox(height: 45),
+                child: Form(
+                      key: _nameKey,
+                        child:
                           TextFormField(
-                            autofocus: true,
                             textInputAction: TextInputAction.next,
-
                             decoration: InputDecoration(
                               filled: true,
+                              fillColor: Colors.white,
                               hintText: 'Inserisci il tuo nome',
                               labelText: 'Nome',
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
                               prefixIcon: const Icon(Icons.person),
                               contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 20,
+                                horizontal: 16,
+                                vertical: 16,
                               ),
                             ),
 
@@ -136,8 +153,6 @@ class _SignupPageState extends State<SignupPage> {
                               FilteringTextInputFormatter.allow(
                                 RegExp(r"[a-zA-Z]+|\s"),
                               ),],
-
-
                             validator: (value) {
                               if (value==null || value.isEmpty) {
                                 return 'Il campo "Nome" non può essere vuoto';
@@ -154,26 +169,33 @@ class _SignupPageState extends State<SignupPage> {
                               });
                             },
                           ),
+                ),
+              ),
 
-                          const SizedBox(height: 8.0),
-
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(25),
+                topRight: Radius.circular(25)),
+          ),
+          child: Form(
+            key: _surnameKey,
+            child:
                           TextFormField(
-                            autofocus: true,
                             textInputAction: TextInputAction.next,
-
                             decoration: InputDecoration(
                               filled: true,
+                              fillColor: Colors.white,
                               hintText: 'Inserisci il tuo cognome',
                               labelText: 'Cognome',
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
                               prefixIcon: const Icon(Icons.person),
                               contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 20,
+                                horizontal: 16,
+                                vertical: 16,
                               ),
-
                             ),
-
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(
                                 RegExp(r"[a-zA-Z]+|\s"),
@@ -196,33 +218,32 @@ class _SignupPageState extends State<SignupPage> {
                               });
                             },
                           ),
-
-                          const SizedBox(height: 8.0),
-
-                          TextFormField(
-                            autofocus: true,
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(25),
+                topRight: Radius.circular(25)),
+          ),
+          child: Form(
+            key: _emailKey,
+            child:
+            TextFormField(
                             textInputAction: TextInputAction.next,
-
                             decoration: InputDecoration(
                               filled: true,
+                              fillColor: Colors.white,
                               hintText: 'Inserisci la tua email',
                               labelText: 'Email',
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
                               prefixIcon: const Icon(Icons.email),
                               contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 20,
+                                horizontal: 16,
+                                vertical: 16,
                               ),
-
-
-
-
                             ),
-
-
-
-
-
                             validator: (value) {
                               if (value==null || value.isEmpty) {
                                 return 'Il campo "Email" non può essere vuoto.';
@@ -244,29 +265,34 @@ class _SignupPageState extends State<SignupPage> {
                               });
                             },
                           ),
-
-                          const SizedBox(height: 8.0),
-
-                          TextFormField(
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(25),
+                topRight: Radius.circular(25)),
+          ),
+          child: Form(
+            key: _passwordKey,
+            child:
+            TextFormField(
                             obscureText: true,
-                            autofocus: true,
                             textInputAction: TextInputAction.next,
-
                             decoration: InputDecoration(
                               filled: true,
+                              fillColor: Colors.white,
                               hintText: 'Inserisci la password',
                               labelText: 'Password',
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
                               prefixIcon: const Icon(Icons.lock),
                               contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 20,
+                                horizontal: 16,
+                                vertical: 16,
                               ),
 
                             ),
-
-
-
                             validator: (value) {
                               if (value==null || value.isEmpty) {
                                 return 'Il campo "Password" non può essere vuoto.';
@@ -281,7 +307,6 @@ class _SignupPageState extends State<SignupPage> {
                               }
                               return null;
                             },
-
                             onChanged: (value) {
                               setState(() {
                                 if(value.length < 32)
@@ -292,28 +317,34 @@ class _SignupPageState extends State<SignupPage> {
                               });
                             },
                           ),
-
-                          const SizedBox(height: 8.0),
-
-                          TextFormField(
+                     ),
+                 ),
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(25),
+                topRight: Radius.circular(25)),
+          ),
+          child: Form(
+            key: _confermaPasswordKey,
+            child:
+            TextFormField(
                             obscureText: true,
-                            autofocus: true,
                             textInputAction: TextInputAction.next,
-
                             decoration: InputDecoration(
                               filled: true,
+                              fillColor: Colors.white,
                               hintText: 'Reinserisci la tua password',
                               labelText: 'Conferma Password',
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
                               prefixIcon: const Icon(Icons.lock),
                               contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 20,
+                                horizontal: 16,
+                                vertical: 16,
                               ),
 
                             ),
-
-
 
                             validator: (value) {
                               if (value==null || value.isEmpty) {
@@ -336,74 +367,74 @@ class _SignupPageState extends State<SignupPage> {
                               });
                             },
                           ),
+                    ),
+              ),
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 120.0),
+                child: ElevatedButton(
+                  onPressed: () async => {
+                          if(!_nameKey.currentState!.validate()){
 
-                          const SizedBox(height: 8.0),
+                          }
+                          else if(!_surnameKey.currentState!.validate()){
 
+                          }
+                          else if(!_emailKey.currentState!.validate()){
 
-                          Container(
-                            height: 55,
-                            // for an exact replicate, remove the padding.
-                            // pour une réplique exact, enlever le padding.
-                            padding:
-                            const EdgeInsets.only(top: 5, left: 70, right: 70),
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.indigo,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(25))),
-                              onPressed: () async {
+                          }
+                          else if(!_passwordKey.currentState!.validate()){
 
+                          }
+                          else if(!_confermaPasswordKey.currentState!.validate()){
 
-                                if (_formKey.currentState!.validate()) {
-                                      await auth.createUserWithEmailAndPassword(
-                                      email: email,
-                                      password: password,
-                                    ).then((value) {
-                                      FirebaseFirestore.instance.collection('users').doc(auth.currentUser?.uid).set({'nome': name, 'cognome': surname, 'email' : email, 'points' : 0});
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                            content: Text('Registrazione effettuata!')),
-                                      );
-
-                                      //Fa il route alla homepage ed elimina tutte le pagine precedenti dallo stack di navigation
-                                      Navigator.pushNamedAndRemoveUntil(context, HomePage.routeName, (route) => false);
-
-                                    }).onError((error, stackTrace) {
+                          }
+                          else {
+                                  await auth.createUserWithEmailAndPassword(
+                                  email: email,
+                                  password: password,
+                                ).then((value) {
+                                  FirebaseFirestore.instance.collection('users').doc(auth.currentUser?.uid).set({'nome': name, 'cognome': surname, 'email' : email, 'points' : 0, 'uid' : auth.currentUser?.uid});
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text('Registrazione effettuata!')),
+                                  );
+                                  //Fa il route alla homepage ed elimina tutte le pagine precedenti dallo stack di navigation
+                                  Navigator.pushNamedAndRemoveUntil(context, HomePage.routeName, (route) => false);
+                                  }).onError((error, stackTrace) {
                                       debugPrint(error.toString());
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(
                                             content: Text('Email già in uso!')),
                                       );
-                                    });
-                                }
-                              },
-                              /*print(emailController);
-                        print(passwordController);
-                        Provider.of<Auth>(context, listen: false).signup(emailController.text, passwordController.text);
-                        Navigator.of(context.push(MaterialPageRoute(builder: (ctx) => SuccessfulScreen()));*/
-                              child: const Text(
-                                'Registrati',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-
-                          ),
-
-
-                        ],
-                      ),
+                                    })
+                               },
+                           //Navigator.of(context).pushNamed(HomePage.routeName);
+                          },
+                  style: ElevatedButton.styleFrom(
+                    elevation: 10,
+                    backgroundColor: Colors.blue.shade200,
+                    shape: const StadiumBorder(),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 0,
+                    ),
+                    child:
+                        Text(
+                          "Registrati",
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.white,
+                        )
+                        ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+        ],
+                      ),
+                    ),
+                    ),
+                );
+            }
+        }
