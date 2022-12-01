@@ -274,7 +274,8 @@ class _VeicoloState extends State<Veicolo>{
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
-              if(checkCar() == true) {
+              Navigator.of(context).pushNamed(AddVeicolo.routeName);
+             /* if(checkCar() == true) {
                 Navigator.of(context).pushNamed(AddVeicolo.routeName);
               }
               else {
@@ -292,7 +293,7 @@ class _VeicoloState extends State<Veicolo>{
                     deleteVehicle();
                   },
                 ).show();
-              }
+              }*/
             }
           )
         ],

@@ -550,12 +550,16 @@ class _ManutenzioneState extends State<Manutenzione>{
                       }
                     }
                     if(generalCosts.docs.isEmpty){
+                      print('sono qui manutenzione');
                       final docu = await FirebaseFirestore.instance.collection('CostiGenerali').doc('2022').collection(user!.uid);
                       for(int i = 0; i < 12; i++) {
                         docu.doc(months[i]).set(
                             {'mese': months[i],
                               'costo': 0,
                               'index': i,
+                              'totaleLitri': 0,
+                              'manutenzioni': 0,
+                              'rifornimento': 0,
                             }
                         );
                       }
@@ -647,7 +651,7 @@ class _ManutenzioneState extends State<Manutenzione>{
 
                     await FirebaseFirestore.instance.collection('CostiTotaliManutenzione').doc('2022').collection(user.uid).doc('${months[current_month! - 1]}').update({"costo": sum});
 
-                    await FirebaseFirestore.instance.collection('CostiGenerali').doc('2022').collection(user.uid).doc('${months[current_month! - 1]}').update({"costo": sum1 + costoManutenzione!});
+                    await FirebaseFirestore.instance.collection('CostiGenerali').doc('2022').collection(user.uid).doc('${months[current_month! - 1]}').update({"costo": sum1 + costoManutenzione!, "manutenzione": sum});
 
 
                     /*Navigator.push(

@@ -46,7 +46,7 @@ class CostiGeneraliState extends State<CostiGenerali>{
       children: [
       ActivityListTile(
       title: 'Recap rifornimenti',
-      subtitle: 'Totale spese: ${recapCosti.costo} €',
+      subtitle: 'Totale spese: ${recapCosti.rifornimento} €',
       subtitle2: 'Totale litri: ${recapCosti.totaleLitri}',
       trailingImage:
       Image.asset('images/CarFuelImage.png', height: 110),
@@ -55,7 +55,7 @@ class CostiGeneraliState extends State<CostiGenerali>{
        ),
       ActivityListTile(
       title: 'Recap manutenzioni',
-      subtitle: 'Totale spese: 250 €',
+      subtitle: 'Totale spese: ${recapCosti.manutenzione} €',
       subtitle2: '',
       trailingImage:
       Image.asset('images/ImageManutenzione2.png', height: 110),
@@ -177,10 +177,11 @@ class CostiGeneraliState extends State<CostiGenerali>{
             Container(
               padding: EdgeInsets.symmetric(vertical: 0, horizontal: 15),
               child:
-                  StreamBuilder<List<RecapCosti>>(
+                  StreamBuilder<List<RecapCosti>> (
                   stream: readRecap(),
                   builder: (context,snapshot) {
                     if (snapshot.hasData) {
+                      print('la query è andata a buon fine');
                       final cost = snapshot.data!;
                       return ListView(
                           padding: EdgeInsets.symmetric(vertical:0),
@@ -189,13 +190,14 @@ class CostiGeneraliState extends State<CostiGenerali>{
                       );
                     }
                     else {
+                      print('query fallita');
                       //return Center(child: CircularProgressIndicator());
                       return Column(
                           children: [
                             ActivityListTile(
                                 title: 'Recap rifornimenti',
-                                subtitle: 'Totale spese: 0 €',
-                                subtitle2: 'Totale litri: 0',
+                                subtitle: 'Totale spese:  €',
+                                subtitle2: 'Totale litri: ',
                                 trailingImage:
                                 Image.asset('images/CarFuelImage.png', height: 110),
                                 color: Colors.white,
@@ -203,7 +205,7 @@ class CostiGeneraliState extends State<CostiGenerali>{
                             ),
                             ActivityListTile(
                                 title: 'Recap manutenzioni',
-                                subtitle: 'Totale spese: 250 €',
+                                subtitle: 'Totale spese:  €',
                                 subtitle2: '',
                                 trailingImage:
                                 Image.asset('images/ImageManutenzione2.png', height: 110),

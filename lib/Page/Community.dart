@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -204,7 +205,168 @@ class _CommunityState extends State<Community>{
                   ),
                 ],
               ),
+              Stack(
+                children:[
+                  Container(
+                      margin: EdgeInsets.only(left: 300),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(20.0),
+                            bottomLeft: Radius.circular(20.0),
+                            topLeft: Radius.circular(20.0),
+                            bottomRight: Radius.circular(20.0)
+                        ),
+                        //border: Border.all(color: Colors.blueAccent,width: 2),
+                        color: Colors.cyan.shade400,
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.black54,
+                                blurRadius: 4.0,
+                                offset: Offset(0,3)
+                            ),
+                          ]
+                      ),
+                      child: IconButton(
+                          onPressed: () {
+                            AwesomeDialog(
+                              context: context,
+                              headerAnimationLoop: false,
+                              dialogType: DialogType.noHeader,
+                              padding: EdgeInsets.zero,
+                              dialogBackgroundColor: Colors.blue.shade200,
+                              body:
+                              ListView(
+                                shrinkWrap: true,
+                                padding: EdgeInsets.symmetric(vertical: 2,horizontal:12),
+                                children: [
+                                  Container(
+                                    //padding: EdgeInsets.symmetric(vertical:10, horizontal:10),
+                                      alignment: Alignment.topCenter,
+                                      child: Text('Classifica', style: TextStyle(fontSize: 20),)
+                                  ),
+                                  Container(
+                                    height: 400, //margin: EdgeInsets.all(20),
+                                    child: ListView.separated(
+                                        padding: const EdgeInsets.only(
+                                            top: 12, left: 12, right: 12),
+                                        shrinkWrap: true,
+                                        itemBuilder: (context, index) {
+                                          return ListTile(
+                                            title: Row(
+                                              children: const [
+                                                CircleAvatar(
+                                                  backgroundImage: NetworkImage(
+                                                      "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=580&q=80"),
+                                                ),
+                                                SizedBox(
+                                                  width: 3,
+                                                ),
+                                                Text("Prova")
+                                              ],
+                                            ),
+                                            leading: Text("${index + 1}.",
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.bold),),
+                                            trailing:
+                                            Text(
+                                                (200000 / (index + 1)).toString().substring(
+                                                    0, 5), style: const TextStyle(
+                                                fontWeight: FontWeight.bold)),
+                                          );
+                                        },
+                                        separatorBuilder: (context, index) => const Divider(
+                                          thickness: 2.5,
+                                          color: Colors.white,
+                                          indent: 10,
+                                          endIndent: 10,),
+                                        itemCount: 12),
+                                  ),
+                                ],
+                              ),
+                            ).show();
+                          },
+                          color: Colors.white,
+                          icon: const Icon(
+                              Icons.search
+                          ))
+                  ),
               Container(
+                //padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+                margin: EdgeInsets.only(left: 50, top: 55),
+                child:
+                Column(
+                  children:[
+                CircleAvatar(
+                  backgroundImage: NetworkImage(
+                      "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=580&q=80"),
+                ),
+                    Container(
+                      padding: EdgeInsets.only(top: 6),
+                      child:
+                        Text('Nome 2')
+                    ),
+                    Container(
+                        padding: EdgeInsets.only(top: 4),
+                        child:
+                        Text('1000')
+                    )
+                ],
+                ),
+              ),
+                  Container(
+                    //padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+                    margin: EdgeInsets.only(left: 156, top: 25),
+                    child:
+                    Column(
+                      children:[
+                        CircleAvatar(
+                          backgroundImage: NetworkImage(
+                              "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=580&q=80"),
+                        ),
+                        Container(
+                            padding: EdgeInsets.only(top: 6),
+                            child:
+                            Text('Nome 1')
+                        ),
+                        Container(
+                            padding: EdgeInsets.only(top: 4),
+                            child:
+                            Text('1200')
+                        )
+                      ],
+                    ),
+                  ),
+                  Container(
+                    //padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+                    margin: EdgeInsets.only(left: 255, top: 65),
+                    child:
+                    Column(
+                      children:[
+                        CircleAvatar(
+                          backgroundImage: NetworkImage(
+                              "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=580&q=80"),
+                        ),
+                        Container(
+                            padding: EdgeInsets.only(top: 6),
+                            child:
+                            Text('Nome 3')
+                        ),
+                        Container(
+                            padding: EdgeInsets.only(top: 4),
+                            child:
+                            Text('900')
+                        )
+                      ],
+                    ),
+                  ),
+              Container(
+                //padding: EdgeInsets.symmetric(vertical: 0),
+                margin: EdgeInsets.only(top: 75),
+                child: Image.asset('images/PodiumImage.png', scale: 1.5)
+              )
+            ],
+              ),
+              /*Container(
                 height: 280, //margin: EdgeInsets.all(20),
                 child: ListView.separated(
                     padding: const EdgeInsets.only(
@@ -240,13 +402,12 @@ class _CommunityState extends State<Community>{
                       indent: 10,
                       endIndent: 10,),
                     itemCount: 12),
-              ),
+              ),*/
             ],
           ),
         ],
       ),
     );
-
   }
 
 
