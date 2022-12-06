@@ -1,6 +1,5 @@
 import 'package:car_control/Page/AddAssicurazione.dart';
 import 'package:car_control/Page/AddBollo.dart';
-import 'package:car_control/Page/AddRevisione.dart';
 import 'package:car_control/Page/AddTagliando.dart';
 import 'package:car_control/Page/home_page.dart';
 import 'package:car_control/Page/veicolo.dart';
@@ -9,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import '../Widgets/BoxScadenza.dart';
+import 'AddRevisione.dart';
 
 
 
@@ -19,27 +19,55 @@ class Scadenze extends StatefulWidget {
 
   static bool resetAnimation = false;
 
+  static void modifica(String titolo,String nome,String prezzo, Timestamp data,String tipoScad,String notif){
+    var info= {
+      'nome': nome,
+      'titolo': titolo,
+      'prezzo': prezzo,
+      'data': data,
+      'tipoScad': tipoScad,
+      'notifiche': notif
+    };
+    String route = '';
+    if(titolo == 'Assicurazione') {
+      route = AddAssicurazione.routeName;
+      AddAssicurazione.info = info;
+    }
+    if(titolo == 'Bollo') {
+      route = AddBollo.routeName;
+      AddBollo.info = info;
+    }
+    if(titolo == 'Tagliando') {
+      route = AddTagliando.routeName;
+      AddTagliando.info = info;
+    }
+    if(titolo == 'Revisione') {
+      route = AddRevisione.routeName;
+      AddRevisione.info = info;
+    }
+    Navigator.of(_ScadenzeState.contextScad).pushNamed(route);
+  }
+
   static String uid = FirebaseAuth.instance.currentUser!.uid;
 
   static Future<List<AnimationWidget>> getScadenze() async{
     var ref = FirebaseFirestore.instance.collection("scadenze")
-        .where('uid',isEqualTo: uid)
-    ;
+        .where('uid',isEqualTo: uid);
     var query = await ref.get();
     for (var queryDocumentSnapshot in query.docs) {
       Map<String, dynamic> data = queryDocumentSnapshot.data();
       Timestamp timestamp = data['dataScad'];
-      print(data['dataScad']);
       lista.add(
           AnimationWidget(
               BoxScadenza(
                 data['titolo'],
                 data['nome'],
                 DateTime.fromMillisecondsSinceEpoch(timestamp.seconds*1000),
-                Icons.security,
+                getIcon(data['titolo']),
                 data['prezzo'],
                 pagamento: (){},
-                modifica: (){},
+                modifica: () => modifica(data['titolo'],data['nome'],data['prezzo'],timestamp,data['tipoScad'],data['notifiche']),
+                delete: () => delete(data['titolo']),
               ),
               false)
       );
@@ -47,22 +75,28 @@ class Scadenze extends StatefulWidget {
     return lista;
   }
 
-  static void insert(var info){
+  static IconData getIcon(String titolo){
     IconData icon = Icons.abc;
-    if(info['titolo'] == 'Assicurazione') icon = Icons.security;
-    if(info['titolo'] == 'Bollo') icon = Icons.wallet;
-    if(info['titolo'] == 'Tagliando') icon = Icons.checklist;
-    if(info['titolo'] == 'Revisione') icon = Icons.build;
+    if(titolo == 'Assicurazione') icon = Icons.security;
+    if(titolo == 'Bollo') icon = Icons.wallet;
+    if(titolo == 'Tagliando') icon = Icons.checklist;
+    if(titolo == 'Revisione') icon = Icons.build;
 
+    return icon;
+  }
+
+  static void insert(var info,bool mod){
+    Timestamp timestamp = Timestamp.fromDate(info['dataScad']);
     lista.add(
         AnimationWidget(BoxScadenza(
-            info['titolo'],
-            info['nome'],
-            info['dataScad'],
-            icon,
-            info['prezzo'],
-            pagamento: (){},
-            modifica: (){}
+          info['titolo'],
+          info['nome'],
+          info['dataScad'],
+          getIcon(info['titolo']),
+          info['prezzo'],
+          pagamento: (){},
+          modifica: () => modifica(info['titolo'],info['nome'],info['prezzo'],timestamp,info['tipoScad'],info['notifiche']),
+          delete: () => delete(info['titolo']),
         ),
             true
         )
@@ -70,19 +104,78 @@ class Scadenze extends StatefulWidget {
 
     FirebaseAuth.instance.authStateChanges().listen((User? user) async{
       CollectionReference scadenze = await FirebaseFirestore.instance.collection('scadenze');
-      scadenze.add({
-        'nome': info['nome'],
-        'titolo': info['titolo'],
-        'dataScad': info['dataScad'],
-        'prezzo': info['prezzo'],
-        'tipoScad': info['tipoScad'],
-        'uid': uid,
-      });
+      if(mod){
+        var ref = scadenze.where('uid',isEqualTo: uid).where('titolo',isEqualTo: info['titolo']);
+        var query = await ref.get();
+        for (var doc in query.docs) {
+          await doc.reference.update({
+            'nome': info['nome'],
+            'titolo': info['titolo'],
+            'dataScad': info['dataScad'],
+            'prezzo': info['prezzo'],
+            'tipoScad': info['tipoScad'],
+            'notifiche': info['notifiche'],
+            'uid': uid,
+          });
+        }
+      }
+      else {
+        scadenze.add({
+          'nome': info['nome'],
+          'titolo': info['titolo'],
+          'dataScad': info['dataScad'],
+          'prezzo': info['prezzo'],
+          'tipoScad': info['tipoScad'],
+          'notifiche': info['notifiche'],
+          'uid': uid,
+        });
+      }
     });
-
-
-
   }
+
+  static void update(var info,String old) async{
+    AnimationWidget? oldScad = search(old);
+    if(oldScad != null){
+      lista.remove(oldScad);
+      insert(info,true);
+    }
+  }
+
+  static AnimationWidget? search(String titolo){
+    for(int i=0;i<lista.length;i++){
+      if(lista[i].box.title == titolo) {
+        return lista[i];
+      }
+    }
+    return null;
+  }
+
+  static void delete(String titolo){
+    if(titolo == 'Assicurazione') AddAssicurazione.info = null;
+    if(titolo == 'Bollo') AddBollo.info = null;
+    if(titolo == 'Revisione') AddRevisione.info = null;
+    if(titolo == 'Tagliando') AddTagliando.info = null;
+
+    AnimationWidget? deleted = search(titolo);
+    if(deleted != null){
+      lista.remove(deleted);
+      HomePage.setPage(Scadenze(), 1);
+      Navigator.pushReplacement(
+          _ScadenzeState.contextScad,
+          MaterialPageRoute(
+              builder: (BuildContext context) => HomePage()));
+    }
+
+    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+      CollectionReference scadenze = await FirebaseFirestore.instance.collection('scadenze');
+      var ref = scadenze.where('uid',isEqualTo: uid).where('titolo',isEqualTo: titolo);
+      var query = await ref.get();
+      for(var doc in query.docs){
+        doc.reference.delete();
+      }
+    });
+  }
+
   static void sortLista(){
     var repeat = true;
     var temp;
@@ -108,6 +201,8 @@ class Scadenze extends StatefulWidget {
 }
 
 class _ScadenzeState extends State<Scadenze>{
+  static late BuildContext contextScad;
+
   late List<AnimationWidget> listaScadenze;
 
   _ScadenzeState(lista,resetAnimation) {
@@ -134,16 +229,17 @@ class _ScadenzeState extends State<Scadenze>{
 
   @override
   Widget build(BuildContext context) {
+    contextScad = context;
     HomePage.resetPage();
     Scadenze.sortLista();
     itemsAddScadenze = [
       SpeedDialChild(
-          child: const Icon(Icons.build),
-          backgroundColor: Colors.white70,
-          labelStyle: const TextStyle(fontSize: 18.0, color: Colors.white),
-          labelBackgroundColor: Colors.lightBlue.shade300,
-          label: 'Revisione',
-          onTap: () => Navigator.of(context).pushNamed(AddRevisione.routeName)
+        child: const Icon(Icons.build),
+        backgroundColor: Colors.white70,
+        labelStyle: const TextStyle(fontSize: 18.0, color: Colors.white),
+        labelBackgroundColor: Colors.lightBlue.shade300,
+        label: 'Revisione',
+        onTap: () => Navigator.of(context).pushNamed(AddRevisione.routeName),
       ),
       SpeedDialChild(
           child: const Icon(Icons.checklist),
@@ -203,25 +299,27 @@ class _ScadenzeState extends State<Scadenze>{
         title: Text('Scadenze'),
         centerTitle: true,
         backgroundColor: Colors.transparent,
-        elevation: 10.0,
-        toolbarHeight: 50,
+        elevation: 0.0,
+        toolbarHeight: 55,
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.only(bottomLeft: Radius.circular(25),bottomRight: Radius.circular(25)),
-            gradient: LinearGradient(
-              colors: [Colors.cyan,Color(0xFF90CAF9)],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
+          decoration:const BoxDecoration(
+              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
+              gradient: LinearGradient(
+                colors: [Colors.cyan,Colors.lightBlue],
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+              )
           ),
         ),
-      ),
+      ), /*child:const Center(
+            child: Text('Scadenze Screen', style: TextStyle(fontSize: 40)),
+          )*/
       body: Container(
-        decoration: const BoxDecoration(
+        decoration:const BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.center,
+              begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFF90CAF9), Colors.white],
+              colors: [Colors.lightBlue, Colors.white70],
             )
         ),
         child: Center(

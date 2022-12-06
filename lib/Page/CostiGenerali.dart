@@ -31,39 +31,48 @@ class CostiGeneraliState extends State<CostiGenerali>{
       .doc('2022').collection(FirebaseAuth.instance.currentUser!.uid).orderBy('index', descending: false)
       .snapshots(includeMetadataChanges: true);
 
-  Stream<List<RecapCosti>> readRecap() => FirebaseFirestore.instance
-      .collection('CostiGenerali')
-      .doc('2022')
-      .collection(FirebaseAuth.instance.currentUser!.uid)
-      .where('mese', isEqualTo: month)
-      .snapshots()
-      .map((snapshot) =>
-      snapshot.docs.map((doc) => RecapCosti.fromJson(doc.data())).toList()
-  );
+  Stream<List<RecapCosti>> readRecapRifornimenti() =>
+      FirebaseFirestore.instance
+          .collection('CostiTotali')
+          .doc('2022')
+          .collection(FirebaseAuth.instance.currentUser!.uid)
+          .where('mese', isEqualTo: month)
+          .snapshots()
+          .map((snapshot) =>
+          snapshot.docs.map((doc) => RecapCosti.fromJson(doc.data())).toList()
+      );
 
+  Stream<List<RecapCosti>> readRecapManutenzioni() =>
+      FirebaseFirestore.instance
+          .collection('CostiTotaliManutenzione')
+          .doc('2022')
+          .collection(FirebaseAuth.instance.currentUser!.uid)
+          .where('mese', isEqualTo: month)
+          .snapshots()
+          .map((snapshot) =>
+          snapshot.docs.map((doc) => RecapCosti.fromJson(doc.data())).toList()
+      );
 
-  Widget buildCardRecap(RecapCosti recapCosti) => Column(
-      children: [
-      ActivityListTile(
+  ActivityListTile buildCardRecapRifornimenti(RecapCosti recapCosti) => ActivityListTile(
       title: 'Recap rifornimenti',
-      subtitle: 'Totale spese: ${recapCosti.rifornimento} €',
-      subtitle2: 'Totale litri: ${recapCosti.totaleLitri}',
+      subtitle:'Totale spese: ${recapCosti.rifornimento} €',
+      subtitle2: 'Totale litri: ${recapCosti.litri}',
       trailingImage:
       Image.asset('images/CarFuelImage.png', height: 110),
       color: Colors.white,
       onTab: () {}
-       ),
-      ActivityListTile(
+  );
+
+  ActivityListTile buildCardRecapManutenzioni(RecapCosti recapCosti) => ActivityListTile(
       title: 'Recap manutenzioni',
-      subtitle: 'Totale spese: ${recapCosti.manutenzione} €',
+      subtitle: 'Totale spese: ${recapCosti.manutenzione}  €',
       subtitle2: '',
       trailingImage:
       Image.asset('images/ImageManutenzione2.png', height: 110),
       color: Colors.white,
       onTab: () {}
-       ),
-     ]
   );
+
   Widget build(BuildContext context) {
     return Scaffold(
       body:
@@ -177,17 +186,44 @@ class CostiGeneraliState extends State<CostiGenerali>{
             Container(
               padding: EdgeInsets.symmetric(vertical: 0, horizontal: 15),
               child:
+                  Column(
+                  children: [
+                    //Rifornimenti
                   StreamBuilder<List<RecapCosti>> (
-                  stream: readRecap(),
+                  stream: readRecapRifornimenti(),
                   builder: (context,snapshot) {
                     if (snapshot.hasData) {
                       print('la query è andata a buon fine');
-                      final cost = snapshot.data!;
-                      return ListView(
-                          padding: EdgeInsets.symmetric(vertical:0),
-                          shrinkWrap: true,
-                          children: cost.map(buildCardRecap).toList()
-                      );
+                      final recap = snapshot.data!;
+                      if(recap.isNotEmpty) {
+                        return ListView(
+                            padding: EdgeInsets.symmetric(vertical: 0),
+                            shrinkWrap: true,
+                            children: recap.map(buildCardRecapRifornimenti).toList()
+                        );
+                      }
+                      else {
+                        return Column(
+                            children: [
+                              ActivityListTile(
+                                  title: 'Recap rifornimenti',
+                                  subtitle: 'Totale spese:  €',
+                                  subtitle2: 'Totale litri: ',
+                                  trailingImage:
+                                  Image.asset('images/CarFuelImage.png', height: 110),
+                                  color: Colors.white,
+                                  onTab: () async {
+                                    final test = await FirebaseFirestore.instance.collection('CostiRecap').doc('2022').collection(FirebaseAuth.instance.currentUser!.uid).where('mese', isEqualTo: month).get();
+                                    var docs = test.docs;
+                                    double sum1 = 0.0;
+                                    sum1 += docs[0]['rifornimento'];
+                                    print(sum1);
+                                  }
+                              ),
+
+                            ]
+                        );
+                      }
                     }
                     else {
                       print('query fallita');
@@ -201,23 +237,73 @@ class CostiGeneraliState extends State<CostiGenerali>{
                                 trailingImage:
                                 Image.asset('images/CarFuelImage.png', height: 110),
                                 color: Colors.white,
-                                onTab: () {}
+                                onTab: () async {
+                                  final test = await FirebaseFirestore.instance.collection('CostiRecap').doc('2022').collection(FirebaseAuth.instance.currentUser!.uid).where('mese', isEqualTo: month).get();
+                                  var docs = test.docs;
+                                  double sum1 = 0.0;
+                                  sum1 += docs[0]['rifornimento'];
+                                  print(sum1);
+                                }
                             ),
-                            ActivityListTile(
-                                title: 'Recap manutenzioni',
-                                subtitle: 'Totale spese:  €',
-                                subtitle2: '',
-                                trailingImage:
-                                Image.asset('images/ImageManutenzione2.png', height: 110),
-                                color: Colors.white,
-                                onTab: () {}
-                            ),
+
                           ]
-                      );
+                      ); 
                     }
                   }
                   ),
-              )
+                    //Manutenzioni
+                  StreamBuilder<List<RecapCosti>> (
+                        stream: readRecapManutenzioni(),
+                        builder: (context,snapshot) {
+                          if (snapshot.hasData) {
+                            print('la query è andata a buon fine');
+                            final recap = snapshot.data!;
+                            if(recap.isNotEmpty) {
+                              return ListView(
+                                  padding: EdgeInsets.symmetric(vertical: 0),
+                                  shrinkWrap: true,
+                                  children: recap.map(buildCardRecapManutenzioni).toList()
+                              );
+                            }
+                            else {
+                              return Column(
+                                  children: [
+                                    ActivityListTile(
+                                        title: 'Recap manutenzioni',
+                                        subtitle: 'Totale spese:  €',
+                                        subtitle2: '',
+                                        trailingImage:
+                                        Image.asset('images/ImageManutenzione2.png', height: 110),
+                                        color: Colors.white,
+                                        onTab: () {}
+                                    ),
+                                  ]
+                              );
+                            }
+                          }
+                          else {
+                            print('query fallita');
+                            //return Center(child: CircularProgressIndicator());
+                            return Column(
+                                children: [
+                                  ActivityListTile(
+                                      title: 'Recap manutenzioni',
+                                      subtitle: 'Totale spese:  €',
+                                      subtitle2: '',
+                                      trailingImage:
+                                      Image.asset('images/ImageManutenzione2.png', height: 110),
+                                      color: Colors.white,
+                                      onTab: () {}
+                                  ),
+                                ]
+                            );
+                          }
+                        }
+                    ),
+
+              ],
+              ),
+            ),
           ],
         ),
       ),

@@ -150,7 +150,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                         .map((e) {
                       return {
                         'domain': e.data()['mese'],
-                        'measure': e.data()['costo'],
+                        'measure': e.data()['costoManutenzione'],
                       };
                     }).toList();
                     //listChart.sort();

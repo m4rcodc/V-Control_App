@@ -1,29 +1,32 @@
 class RecapCosti {
 
   String? mese;
-  double? costo;
-  double? totaleLitri;
+  double? litri;
   double? manutenzione;
   double? rifornimento;
+  double? costo;
+  String? year;
 
 
   RecapCosti({
 
     required this.mese,
-    required this.costo,
-    required this.totaleLitri,
+    required this.litri,
     required this.manutenzione,
-    required this.rifornimento
+    required this.rifornimento,
+    required this.costo,
+    required this.year
 
   });
 
   static RecapCosti fromJson(Map<String, dynamic> json) => RecapCosti(
 
       mese: json['mese'],
+      litri: json['totaleLitri'],
+      manutenzione: json['costoManutenzione'],
+      rifornimento: json['costoRifornimento'],
       costo: json['costo'],
-      totaleLitri: json['totaleLitri'],
-      manutenzione: json['manutenzione'],
-      rifornimento: json['rifornimento']
+      year: json['year']
   );
 
 

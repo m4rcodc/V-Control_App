@@ -1,9 +1,8 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:car_control/models/communityModel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../models/userModel.dart';
-
 
 class Community extends StatefulWidget {
 
@@ -13,16 +12,18 @@ class Community extends StatefulWidget {
 
 class _CommunityState extends State<Community>{
 
-  Stream<List<UserModel>> readUserPoints() => FirebaseFirestore.instance
-      .collection('users')
+
+  Stream<List<CommunityModel>> readCommunityPoints() => FirebaseFirestore.instance
+      .collection('community')
       .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
       .snapshots()
       .map((snapshot) =>
-      snapshot.docs.map((doc) => UserModel.fromJson(doc.data())).toList()
+      snapshot.docs.map((doc) => CommunityModel.fromJson(doc.data())).toList()
   );
 
 
-  Widget buildCommunity(UserModel user) {
+
+  Widget buildCommunity(CommunityModel comm) {
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -62,10 +63,9 @@ class _CommunityState extends State<Community>{
                       width: 105,
                     ),
                     Stack(
-                      children: const [
+                      children: [
                         CircleAvatar(
-                          backgroundImage: NetworkImage(
-                              "https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1331&q=80"),
+                          backgroundImage: NetworkImage(comm.image!),
                           radius: 50,
                         ),
                       ],
@@ -81,7 +81,7 @@ class _CommunityState extends State<Community>{
                   height: 10,
                 ),
                 Text(
-                  '${user.name} ${user.surname}',
+                  '${comm.name}',
                   style: const TextStyle(
                       fontSize: 22,
                       color: Colors.white,
@@ -120,7 +120,7 @@ class _CommunityState extends State<Community>{
                               width: 3,
                             ),
                             Text(
-                              "${user.points}",
+                              "${comm.points}",
                               style: TextStyle(
                                   fontSize: 40,
                                   fontWeight: FontWeight.w300,
@@ -210,14 +210,14 @@ class _CommunityState extends State<Community>{
                   Container(
                       margin: EdgeInsets.only(left: 300),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(20.0),
-                            bottomLeft: Radius.circular(20.0),
-                            topLeft: Radius.circular(20.0),
-                            bottomRight: Radius.circular(20.0)
-                        ),
-                        //border: Border.all(color: Colors.blueAccent,width: 2),
-                        color: Colors.cyan.shade400,
+                          borderRadius: BorderRadius.only(
+                              topRight: Radius.circular(20.0),
+                              bottomLeft: Radius.circular(20.0),
+                              topLeft: Radius.circular(20.0),
+                              bottomRight: Radius.circular(20.0)
+                          ),
+                          //border: Border.all(color: Colors.blueAccent,width: 2),
+                          color: Colors.cyan.shade400,
                           boxShadow: [
                             BoxShadow(
                                 color: Colors.black54,
@@ -290,29 +290,29 @@ class _CommunityState extends State<Community>{
                               Icons.search
                           ))
                   ),
-              Container(
-                //padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
-                margin: EdgeInsets.only(left: 50, top: 55),
-                child:
-                Column(
-                  children:[
-                CircleAvatar(
-                  backgroundImage: NetworkImage(
-                      "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=580&q=80"),
-                ),
-                    Container(
-                      padding: EdgeInsets.only(top: 6),
-                      child:
-                        Text('Nome 2')
+                  Container(
+                    //padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+                    margin: EdgeInsets.only(left: 50, top: 55),
+                    child:
+                    Column(
+                      children:[
+                        CircleAvatar(
+                          backgroundImage: NetworkImage(
+                              "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=580&q=80"),
+                        ),
+                        Container(
+                            padding: EdgeInsets.only(top: 6),
+                            child:
+                            Text('Nome 2')
+                        ),
+                        Container(
+                            padding: EdgeInsets.only(top: 4),
+                            child:
+                            Text('1000')
+                        )
+                      ],
                     ),
-                    Container(
-                        padding: EdgeInsets.only(top: 4),
-                        child:
-                        Text('1000')
-                    )
-                ],
-                ),
-              ),
+                  ),
                   Container(
                     //padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
                     margin: EdgeInsets.only(left: 156, top: 25),
@@ -359,56 +359,20 @@ class _CommunityState extends State<Community>{
                       ],
                     ),
                   ),
-              Container(
-                //padding: EdgeInsets.symmetric(vertical: 0),
-                margin: EdgeInsets.only(top: 75),
-                child: Image.asset('images/PodiumImage.png', scale: 1.5)
-              )
-            ],
+                  Container(
+                    //padding: EdgeInsets.symmetric(vertical: 0),
+                      margin: EdgeInsets.only(top: 75),
+                      child: Image.asset('images/PodiumImage.png', scale: 1.5)
+                  )
+                ],
               ),
-              /*Container(
-                height: 280, //margin: EdgeInsets.all(20),
-                child: ListView.separated(
-                    padding: const EdgeInsets.only(
-                        top: 12, left: 12, right: 12),
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Row(
-                          children: const [
-                            CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                  "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=580&q=80"),
-                            ),
-                            SizedBox(
-                              width: 3,
-                            ),
-                            Text("Prova")
-                          ],
-                        ),
-                        leading: Text("${index + 1}.",
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold),),
-                        trailing:
-                        Text(
-                            (200000 / (index + 1)).toString().substring(
-                                0, 5), style: const TextStyle(
-                            fontWeight: FontWeight.bold)),
-                      );
-                    },
-                    separatorBuilder: (context, index) => const Divider(
-                      thickness: 2.5,
-                      color: Colors.white,
-                      indent: 10,
-                      endIndent: 10,),
-                    itemCount: 12),
-              ),*/
             ],
           ),
         ],
       ),
     );
   }
+
 
 
 
@@ -433,7 +397,7 @@ class _CommunityState extends State<Community>{
         ],
         flexibleSpace: Container(
           decoration: const BoxDecoration(
-              color: Colors.cyan,
+            color: Colors.cyan,
           ),
         ),
       ),
@@ -449,14 +413,14 @@ class _CommunityState extends State<Community>{
         child: ListView(
           //physics: NeverScrollableScrollPhysics(),
           children: [
-            StreamBuilder<List<UserModel>>(
-                stream: readUserPoints(),
+            StreamBuilder<List<CommunityModel>>(
+                stream: readCommunityPoints(),
                 builder: (context,snapshot) {
                   if (snapshot.hasData) {
-                    final user = snapshot.data!;
+                    final comm = snapshot.data!;
                     return ListView(
                       shrinkWrap: true,
-                      children: user.map(buildCommunity).toList(),
+                      children: comm.map(buildCommunity).toList(),
                     );
                   }
                   else{

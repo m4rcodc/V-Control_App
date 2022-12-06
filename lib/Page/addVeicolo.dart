@@ -104,1270 +104,1270 @@ class _AddVeicoloState extends State<AddVeicolo> {
         ),
         child: ListView(
           children: [
-        Stack(
-        children: [
-        Container(
-        height: MediaQuery.of(context).size.height - 80.0,
-        width: MediaQuery.of(context).size.width,
-        color: Colors.transparent,
-      ),
-          Positioned(
-            top: 1.5,
-            left: (MediaQuery.of(context).size.width /2) * 0,
-            child: Image.asset('images/AddMoto.png', scale: 2.5),
-          ),
-      Positioned(
-        top: 125.0,
-        child: Container(
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(45.0),
-              topRight: Radius.circular(45.0),
-            ),
-            color: Color(0xFF90CAF9),
-            boxShadow: [
-              BoxShadow(
-                offset: Offset(0,-4),
-                blurRadius: 8,
-                color: Colors.black12,
-              )
-            ],
-          ),
-          height: MediaQuery.of(context).size.height * 0.80,
-          width: MediaQuery.of(context).size.width,
-        ),
-      ),
-      Positioned(
-        top: MediaQuery.of(context).size.height * 0,
-        left: (MediaQuery.of(context).size.width /2) * 0.38,
-        child: Image.asset('images/AddCar.png'),
-      ),
-      Positioned(
-        top: MediaQuery.of(context).size.height * 0.02,
-        left: (MediaQuery.of(context).size.width /2) * 0.48,
-       child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
-              child: CircleAvatar(
-                  radius: 81.0,
-                  backgroundColor: Colors.blue.shade100,
-                  child: CircleAvatar(
-                    radius: 75.0,
-                    backgroundColor: Colors.white70,
-                    backgroundImage: image == null ? null : FileImage(File(image!.path)),
-                    child: image == null
-                        ? Icon(
-                      Icons.add_photo_alternate,
-                      color:Colors.grey,
-                      size: MediaQuery.of(context).size.width * 0.22,
-                    ) : null,
-                  )
-              ),
-            ),
-            Positioned(
-              top: 120,
-              left: 100,
-              child: RawMaterialButton(
-                elevation: 10,
-                fillColor: Colors.white70,
-                child: Icon(Icons.add_a_photo),
-                padding: EdgeInsets.all(14.0),
-                shape: CircleBorder(),
-                onPressed: () {
-                  //pickMedia(ImageSource.camera);
-                  showSelectPhotoOptions(context);
-                },
-              ),
-            ),
-          ],
-      ),
-      ),
-      Positioned(
-        top:  MediaQuery.of(context).size.height * 0.30,
-        left: 10,
-        right: 10,
-        //height: MediaQuery.of(context).size.height - 120,
-        //width: MediaQuery.of(context).size.width - 80,
-        child: ListView(
-          shrinkWrap: true,
-          children:  [
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 12.0,horizontal: 15.0),
-              child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('vehicleType')
-                    .orderBy('type')
-                    .snapshots(),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (!snapshot.hasData) {
-                    return Container();
-                  }
-                  if (setDefaultType) {
-                  }
-                  return Form(
-                    key: _formKeyType,
-                    child: DropdownButtonFormField2(
-                      decoration: InputDecoration(
-                          isDense: true,
-                          contentPadding: EdgeInsets.zero,
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25),
-                            borderSide: BorderSide(color: Colors.grey),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Colors.indigoAccent),
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red),
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red),
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white70
-                      ),
-                      isExpanded: true,
-                      value: type,
-                      hint: const Text(
-                        'Seleziona tipo di veicolo',
-                        style: TextStyle(fontSize: 14),
-                      ),
-                      icon: const Icon(
-                        Icons.arrow_drop_down,
-                        color: Colors.black45,
-                      ),
-                      iconSize: 30,
-                      buttonHeight: 50,
-                      buttonPadding: const EdgeInsets.only(
-                          left: 20, right: 10),
-                      dropdownDecoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      items: snapshot.data.docs.map<DropdownMenuItem<String>>((value) {
-                        return DropdownMenuItem<String>(
-                          value: value.get('type'),
-                          child: Text(
-                            '${value.get('type')}',
-                            style: const TextStyle(
-                              fontSize: 14,
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                      validator: (value) {
-                        if(value == null) {
-                          return 'Seleziona un tipo di veicolo';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        debugPrint('selected onchange: $value');
-                        setState(() {
-                          debugPrint('make selected: $value');
-                          type = value;
-                          setDefaultType = false;
-                          setDefaultMake = true;
-                          setDefaultModel = true;
-                        });
-                      },
-                      /*onSaved: (value) {
-                  selectedValue = value.toString();
-                },*/
-                    ),
-                  );
-                },
-              ),
-            ),
-            //Make
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
-              child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('Make')
-                    .where('type', isEqualTo: type)
-                    .orderBy('name')
-                    .snapshots(),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (!snapshot.hasData) {
-                    return Container();
-                  }
-                  if (setDefaultMake) {
-                    //make = snapshot.data.docs[0].get('nome');
-                    debugPrint('setDefault make: $make');
-                  }
-
-                  return ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.only(top: 10, bottom: 10),
-                        elevation: 3,
-                        backgroundColor: Colors.white70,
-                        shadowColor: Colors.blue.withOpacity(0.09),
-                        shape: StadiumBorder(),
-                        side: BorderSide(color: Colors.grey, width: 1)
-                    ),
-                    onPressed: () async {
-                      AwesomeDialog(
-                        context: context,
-                        headerAnimationLoop: false,
-                        dialogType: DialogType.noHeader,
-                        padding: EdgeInsets.zero,
-                        dialogBackgroundColor: Colors.blue.shade200,
-                        body:
-                        Table(
-                          children:  [
-                            TableRow(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                                    height: 120,
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        elevation: 10,
-                                        backgroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          //side: BorderSide(color: Colors.blue,width: 1.5),
-                                        ),
-                                      ),
-                                      onPressed:  () => {
-                                        setState(() {
-                                          make = snapshot.data.docs[0]['name'];
-                                          url = snapshot.data.docs[0]['logo'];
-                                        }
-                                        ),
-                                        Navigator.pop(context),
-                                      },
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          Align(
-                                            heightFactor: 1.3,
-                                            alignment: Alignment.center,
-                                            child: Image.network('${snapshot.data.docs[0]['logo']}',scale: 8),
-                                          ),
-                                          Container(
-                                            padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
-                                            alignment: Alignment.bottomCenter,
-                                            child: Text('${snapshot.data.docs[0]['name']}', style: const TextStyle(
-                                              fontSize: 12.0,
-                                              color: Color(0xFF1A1316),
-                                            ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    //child: Text(prova!, style: TextStyle(color: Colors.grey)),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                                    height: 120,
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                          elevation: 10,
-                                          backgroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                            //side: BorderSide(color: Colors.blue,width: 1.5),
-                                          )
-                                      ),
-                                      onPressed:  () => {
-                                        setState(() {
-                                          make = snapshot.data.docs[1]['name'];
-                                          url = snapshot.data.docs[1]['logo'];
-                                        }
-                                        ),
-                                        Navigator.pop(context),
-                                      },
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          Align(
-                                            heightFactor: 2.5,
-                                            alignment: Alignment.center,
-                                            child: Image.network('${snapshot.data.docs[1]['logo']}',scale: 8.5),
-                                          ),
-                                          Container(
-                                            padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
-                                            alignment: Alignment.bottomCenter,
-                                            child: Text('${snapshot.data.docs[1]['name']}', style: const TextStyle(
-                                              fontSize: 12.0,
-                                              color: Color(0xFF1A1316),
-
-                                            ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-
-                                ]
-                            ),
-                            TableRow(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                                    height: 120,
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                          elevation: 10,
-                                          backgroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                            //side: BorderSide(color: Colors.blue,width: 1.5),
-                                          )
-                                      ),
-                                      onPressed:  () => {
-                                        setState(() {
-                                          make = snapshot.data.docs[2]['name'];
-                                          url = snapshot.data.docs[2]['logo'];
-                                        }
-                                        ),
-                                        Navigator.pop(context),
-                                      },
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          Align(
-                                            heightFactor: 1.4,
-                                            alignment: Alignment.center,
-                                            child: Image.network('${snapshot.data.docs[2]['logo']}',scale: 6.5),
-                                          ),
-                                          Container(
-                                            padding: EdgeInsets.symmetric(vertical:2,horizontal: 2),
-                                            alignment: Alignment.bottomCenter,
-                                            child: Text('${snapshot.data.docs[2]['name']}', style: const TextStyle(
-                                              fontSize: 12.0,
-                                              color: Color(0xFF1A1316),
-
-                                            ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                                    height: 120,
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                          elevation: 10,
-                                          backgroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                            //side: BorderSide(color: Colors.blue,width: 1.5),
-                                          )
-                                      ),
-                                      onPressed:  () => {
-                                        setState(() {
-                                          make = snapshot.data.docs[3]['name'];
-                                          url = snapshot.data.docs[3]['logo'];
-                                        }
-                                        ),
-                                        Navigator.pop(context),
-                                      },
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          Align(
-                                            heightFactor: 1.3,
-                                            alignment: Alignment.center,
-                                            child: Image.network('${snapshot.data.docs[3]['logo']}',scale: 7),
-                                          ),
-                                          Container(
-                                            padding: EdgeInsets.symmetric(vertical:2,horizontal: 8),
-                                            alignment: Alignment.bottomCenter,
-                                            child: Text('${snapshot.data.docs[3]['name']}', style: const TextStyle(
-                                              fontSize: 12.0,
-                                              color: Color(0xFF1A1316),
-
-                                            ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ]
-                            ),
-                            TableRow(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                                    height: 120,
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                          elevation: 10,
-                                          backgroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                            //side: BorderSide(color: Colors.blue,width: 1.5),
-                                          )
-                                      ),
-                                      onPressed:  () => {
-                                        setState(() {
-                                          make = snapshot.data.docs[4]['name'];
-                                          url = snapshot.data.docs[4]['logo'];
-                                        }
-                                        ),
-                                        Navigator.pop(context),
-                                      },
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          Align(
-                                            heightFactor: 1.3,
-                                            alignment: Alignment.center,
-                                            child: Image.network('${snapshot.data.docs[4]['logo']}',scale: 7.8),
-                                          ),
-                                          Container(
-                                            padding: EdgeInsets.symmetric(vertical:2,horizontal: 4),
-                                            alignment: Alignment.bottomCenter,
-                                            child: Text('${snapshot.data.docs[4]['name']}', style: const TextStyle(
-                                              fontSize: 12.0,
-                                              color: Color(0xFF1A1316),
-
-                                            ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                                    height: 120,
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                          elevation: 10,
-                                          backgroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                            //side: BorderSide(color: Colors.blue,width: 1.5),
-                                          )
-                                      ),
-                                      onPressed:  () => {
-                                        showDialog(
-                                            context: context,
-                                            builder: (context) => AlertDialog(
-                                                shape: RoundedRectangleBorder(
-                                                    borderRadius: BorderRadius.all(Radius.circular(32.0))),
-                                                title: Text('Inserisci la marca del tuo veicolo'),
-                                                content: TextFormField(
-                                                  autofocus: true,
-                                                  decoration: InputDecoration(hintText: 'Inserisci qui'),
-                                                  onChanged: (value) {
-                                                    setState(() {
-                                                      make = value;
-                                                      url = null;
-                                                    });
-                                                  },
-                                                ),
-                                                actions: [
-                                                  TextButton(
-                                                    child: Text('Inserisci'),
-                                                    onPressed: () {
-                                                      var nav =  Navigator.of(context);
-                                                      nav.pop();
-                                                      nav.pop();
-                                                    },
-                                                  )
-                                                ]
-                                            )
-                                        ),
-                                        //Navigator.pop(context),
-                                      },
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          Align(
-                                            heightFactor: 1.4,
-                                            alignment: Alignment.center,
-                                            child: Image.asset('images/AddCar.png',scale: 8),
-                                          ),
-                                          Container(
-                                            padding: EdgeInsets.symmetric(vertical:2,horizontal: 6),
-                                            alignment: Alignment.bottomCenter,
-                                            child: Text('Altro', style: const TextStyle(
-                                              fontSize: 12.0,
-                                              color: Color(0xFF1A1316),
-
-                                            ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ]
-                            ),
-                          ],
-                        ),
-                      ).show();
-                    },
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8,horizontal: 15),
-                      child: Row(
-                        //mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          //Icon(Icons.calendar_month),
-                          Text('$make', style: TextStyle(color: Colors.black54),)
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            //Model
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
-              child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('Model')
-                    .where('make', isEqualTo: make)
-                    .orderBy('model')
-                    .snapshots(),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (!snapshot.hasData) {
-                    debugPrint('snapshot status: ${snapshot.error}');
-                    return Container(
-                      child:
-                      Text(
-                          'snapshot empty make: $make makeModel: $model'),
-                    );
-                  }
-                  if (setDefaultModel) {
-                    //carMake = snapshot.data.docs[0].get('makeModel');
-                  }
-                  return ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.only(top: 10, bottom: 10),
-                        elevation: 3,
-                        backgroundColor: Colors.white70,
-                        shadowColor: Colors.blue.withOpacity(0.09),
-                        shape: StadiumBorder(),
-                        side: BorderSide(color: Colors.grey, width: 1)
-                    ),
-                    onPressed: () async {
-                      url == null ?
-                      showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(32.0))),
-                              title: Text('Inserisci il modello del tuo veicolo'),
-                              content: TextFormField(
-                                autofocus: true,
-                                decoration: InputDecoration(hintText: 'Inserisci qui'),
-                                onChanged: (value) {
-                                  setState(() {
-                                    model = value;
-                                    url = null;
-                                  });
-                                },
-                              ),
-                              actions: [
-                                TextButton(
-                                  child: Text('Inserisci'),
-                                  onPressed: () {
-                                    var nav =  Navigator.of(context);
-                                    nav.pop();
-                                  },
-                                )
-                              ]
-                          )
-                      )
-                          :
-                      AwesomeDialog(
-                        context: context,
-                        headerAnimationLoop: false,
-                        dialogType: DialogType.noHeader,
-                        padding: EdgeInsets.zero,
-                        dialogBackgroundColor: Colors.blue.shade200,
-                        body:
-                        ListView(
-                          shrinkWrap: true,
-                          padding: EdgeInsets.symmetric(vertical: 2,horizontal:12),
-                          children: [
-                            Container(
-                              //padding: EdgeInsets.symmetric(vertical:10, horizontal:10),
-                                alignment: Alignment.topCenter,
-                                child: Image.network('$url', scale: 7)
-                            ),
-                            Container(
-                                padding: EdgeInsets.symmetric(vertical: 6),
-                                child: Table(
-                                    children: [
-                                      TableRow(
-                                          children: [
-                                            Container(
-                                                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-                                                height: 80,
-                                                child: ElevatedButton(
-                                                  style: ElevatedButton.styleFrom(
-                                                    elevation: 10,
-                                                    backgroundColor: Colors.white,
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(12),
-                                                      //side: BorderSide(color: Colors.blue,width: 1.5),
-                                                    ),
-                                                  ),
-                                                  onPressed:  () => {
-                                                    setState(() => model = snapshot.data.docs[0]['model']),
-                                                    Navigator.pop(context),
-                                                  },
-                                                  child:
-                                                  Text('${snapshot.data.docs[0]['model']}', style: TextStyle(
-                                                      fontSize: 20,
-                                                      color: Color(0xFF1A1316)
-                                                  )),
-
-                                                )
-                                            ),
-                                            Container(
-                                                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                                                height: 80,
-                                                child: ElevatedButton(
-                                                  style: ElevatedButton.styleFrom(
-                                                    elevation: 10,
-                                                    backgroundColor: Colors.white,
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(12),
-                                                      //side: BorderSide(color: Colors.blue,width: 1.5),
-                                                    ),
-                                                  ),
-                                                  onPressed:  () => {
-                                                    setState(() => model = snapshot.data.docs[1]['model']),
-                                                    Navigator.pop(context),
-                                                  },
-                                                  child: Container(
-                                                    child: Text('${snapshot.data.docs[1]['model']}', style: TextStyle(
-                                                        fontSize: 20,
-                                                        color: Color(0xFF1A1316)
-                                                    )),
-                                                  ),
-                                                )
-                                            )
-                                          ]
-                                      ),
-                                      TableRow(
-                                          children: [
-                                            Container(
-                                                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-                                                height: 80,
-                                                child: ElevatedButton(
-                                                  style: ElevatedButton.styleFrom(
-                                                    elevation: 10,
-                                                    backgroundColor: Colors.white,
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(12),
-                                                      //side: BorderSide(color: Colors.blue,width: 1.5),
-                                                    ),
-                                                  ),
-                                                  onPressed:  () => {
-                                                    setState(() => model = snapshot.data.docs[2]['model']),
-                                                    Navigator.pop(context),
-                                                  },
-                                                  child:
-                                                  Text('${snapshot.data.docs[2]['model']}', style: TextStyle(
-                                                      fontSize: 20,
-                                                      color: Color(0xFF1A1316)
-                                                  )),
-
-                                                )
-                                            ),
-                                            Container(
-                                                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                                                height: 80,
-                                                child: ElevatedButton(
-                                                  style: ElevatedButton.styleFrom(
-                                                    elevation: 10,
-                                                    backgroundColor: Colors.white,
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(12),
-                                                      //side: BorderSide(color: Colors.blue,width: 1.5),
-                                                    ),
-                                                  ),
-                                                  onPressed:  () => {
-                                                    setState(() => model = snapshot.data.docs[3]['model']),
-                                                    Navigator.pop(context),
-                                                  },
-                                                  child:Text('${snapshot.data.docs[3]['model']}', style: TextStyle(
-                                                      fontSize: 20,
-                                                      color: Color(0xFF1A1316)
-                                                  )),
-                                                )
-                                            )
-                                          ]
-                                      ),
-                                      TableRow(
-                                          children: [
-                                            Container(
-                                                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-                                                height: 80,
-                                                child: ElevatedButton(
-                                                  style: ElevatedButton.styleFrom(
-                                                    elevation: 10,
-                                                    backgroundColor: Colors.white,
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(12),
-                                                      //side: BorderSide(color: Colors.blue,width: 1.5),
-                                                    ),
-                                                  ),
-                                                  onPressed:  () => {
-                                                    setState(() => model = snapshot.data.docs[4]['model']),
-                                                    Navigator.pop(context),
-                                                  },
-                                                  child:
-                                                  Text('${snapshot.data.docs[4]['model']}', style: TextStyle(
-                                                      fontSize: 20,
-                                                      color: Color(0xFF1A1316)
-                                                  )),
-
-                                                )
-                                            ),
-                                            Container(
-                                                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                                                height: 80,
-                                                child: ElevatedButton(
-                                                  style: ElevatedButton.styleFrom(
-                                                    elevation: 10,
-                                                    backgroundColor: Colors.white,
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(12),
-                                                    ),
-                                                  ),
-                                                  onPressed:  () => {
-                                                    showDialog(
-                                                        context: context,
-                                                        builder: (context) => AlertDialog(
-                                                            shape: RoundedRectangleBorder(
-                                                                borderRadius: BorderRadius.all(Radius.circular(32.0))),
-                                                            title: Text('Inserisci il modello del tuo veicolo'),
-                                                            content: TextFormField(
-                                                              autofocus: true,
-                                                              decoration: InputDecoration(hintText: 'Inserisci qui'),
-                                                              onChanged: (value) {
-                                                                setState(() {
-                                                                  model = value;
-                                                                });
-                                                              },
-                                                            ),
-                                                            actions: [
-                                                              TextButton(
-                                                                child: Text('Inserisci'),
-                                                                onPressed: () {
-                                                                  var nav =  Navigator.of(context);
-                                                                  nav.pop();
-                                                                  nav.pop();
-                                                                },
-                                                              )
-                                                            ]
-                                                        )
-                                                    )
-                                                  },
-                                                  child: Container(
-                                                    child: Text('Altro' , style: TextStyle(
-                                                        fontSize: 20,
-                                                        color: Color(0xFF1A1316)
-                                                    )),
-                                                  ),
-                                                )
-                                            )
-                                          ]
-                                      )
-                                    ]
-                                )
-                            )
-                          ],
-                        ),
-                      ).show();
-                    },
-                    child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8,horizontal: 15),
-                        child: Row(
-                            children: [
-                              Text('$model', style: TextStyle(color: Colors.black54),)
-                            ]
-                        )
-                    ),
-                  );
-                },
-              ),
-            ),
-            //Alimentazione
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.only(top: 10, bottom: 10),
-                    elevation: 3,
-                    backgroundColor: Colors.white70,
-                    shadowColor: Colors.blue.withOpacity(0.09),
-                    shape: StadiumBorder(),
-                    side: BorderSide(color: Colors.grey, width: 1)
+            Stack(
+              children: [
+                Container(
+                  height: MediaQuery.of(context).size.height - 80.0,
+                  width: MediaQuery.of(context).size.width,
+                  color: Colors.transparent,
                 ),
-                onPressed: () async {
-                  AwesomeDialog(
-                    context: context,
-                    headerAnimationLoop: false,
-                    dialogType: DialogType.noHeader,
-                    padding: EdgeInsets.zero,
-                    dialogBackgroundColor: Colors.blue.shade200,
-                    body:
-                    Table(
-                      children:  [
-                        TableRow(
-                            children: [
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                                height: 120,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    elevation: 10,
-                                    backgroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      //side: BorderSide(color: Colors.blue,width: 1.5),
-                                    ),
-                                  ),
-                                  onPressed:  () => {
-                                    setState(() {
-                                      fuel = 'Benzina';
-                                      imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FBenzina.png?alt=media&token=c846afd4-5011-4e78-ab0a-8eea3011b9f6';
-                                    }
-                                    ),
-                                    Navigator.pop(context),
-                                  },
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Align(
-                                        heightFactor: 1.3,
-                                        alignment: Alignment.center,
-                                        child: Image.asset('images/Benzina.png',scale: 3),
-                                      ),
-                                      Container(
-                                        padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
-                                        alignment: Alignment.bottomCenter,
-                                        child: Text('Benzina', style: const TextStyle(
-                                          fontSize: 15.0,
-                                          color: Color(0xFF1A1316),
-                                        ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                //child: Text(prova!, style: TextStyle(color: Colors.grey)),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                                height: 120,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      elevation: 10,
-                                      backgroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      )
-                                  ),
-                                  onPressed:  () => {
-                                    setState(() {
-                                      fuel = 'Diesel';
-                                      imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FDiesel.png?alt=media&token=0dd1ea68-8ed5-46d0-a112-00bba2a138b8';
-                                    }
-                                    ),
-                                    Navigator.pop(context),
-                                  },
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Align(
-                                        heightFactor: 1.4,
-                                        alignment: Alignment.center,
-                                        child: Image.asset('images/Diesel.png',scale: 3.1),
-                                      ),
-                                      Container(
-                                        padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
-                                        alignment: Alignment.bottomCenter,
-                                        child: Text('Diesel', style: const TextStyle(
-                                          fontSize: 15.0,
-                                          color: Color(0xFF1A1316),
-
-                                        ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-
-                            ]
-                        ),
-                        TableRow(
-                            children: [
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                                height: 120,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      elevation: 10,
-                                      backgroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        //side: BorderSide(color: Colors.blue,width: 1.5),
-                                      )
-                                  ),
-                                  onPressed:  () => {
-                                    setState(() {
-                                      fuel = 'Gas';
-                                      imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FGasMetano.png?alt=media&token=cfcb9719-5ea6-4755-be38-d2c7c17bea00';
-                                    }
-                                    ),
-                                    Navigator.pop(context),
-                                  },
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Align(
-                                        heightFactor: 1.2,
-                                        alignment: Alignment.center,
-                                        child: Image.asset('images/GasMetano.png',scale: 3.2),
-                                      ),
-                                      Container(
-                                        padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
-                                        alignment: Alignment.bottomCenter,
-                                        child: Text('Gas', style: const TextStyle(
-                                          fontSize: 15.0,
-                                          color: Color(0xFF1A1316),
-
-                                        ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                                height: 120,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      elevation: 10,
-                                      backgroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        //side: BorderSide(color: Colors.blue,width: 1.5),
-                                      )
-                                  ),
-                                  onPressed:  () => {
-                                    setState(() {
-                                      fuel = 'Metano';
-                                      imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FGasMetano.png?alt=media&token=cfcb9719-5ea6-4755-be38-d2c7c17bea00';
-
-                                    }
-                                    ),
-                                    Navigator.pop(context),
-                                  },
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Align(
-                                        heightFactor: 1.2,
-                                        alignment: Alignment.center,
-                                        child: Image.asset('images/GasMetano.png',scale: 3.2),
-                                      ),
-                                      Container(
-                                        padding: EdgeInsets.symmetric(vertical:2,horizontal: 8),
-                                        alignment: Alignment.bottomCenter,
-                                        child: Text('Metano', style: const TextStyle(
-                                          fontSize: 15.0,
-                                          color: Color(0xFF1A1316),
-
-                                        ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ]
-                        ),
-                        TableRow(
-                            children: [
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                                height: 120,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      elevation: 10,
-                                      backgroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        //side: BorderSide(color: Colors.blue,width: 1.5),
-                                      )
-                                  ),
-                                  onPressed:  () => {
-                                    setState(() {
-                                      fuel = 'Elettrica';
-                                      imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FElettrica.png?alt=media&token=3d76e48f-26f5-4a7c-882c-ea593f809ba2';
-                                    }
-                                    ),
-                                    Navigator.pop(context),
-                                  },
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Align(
-                                        heightFactor: 1.4,
-                                        alignment: Alignment.center,
-                                        child: Image.asset('images/Elettrica.png',scale: 3),
-                                      ),
-                                      Container(
-                                        padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
-                                        alignment: Alignment.bottomCenter,
-                                        child: Text('Elettrica', style: const TextStyle(
-                                          fontSize: 15.0,
-                                          color: Color(0xFF1A1316),
-
-                                        ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                                height: 120,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      elevation: 10,
-                                      backgroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        //side: BorderSide(color: Colors.blue,width: 1.5),
-                                      )
-                                  ),
-                                  onPressed:  () => {
-                                    setState(() {
-                                      fuel = 'Ibrida';
-                                      imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FIbrida.png?alt=media&token=91494a2c-2e3b-4270-a79f-a553fef1c408';
-                                    }
-                                    ),
-                                    Navigator.pop(context),
-                                  },
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Align(
-                                        heightFactor: 1.4,
-                                        alignment: Alignment.center,
-                                        child: Image.asset('images/Ibrida.png',scale: 3),
-                                      ),
-                                      Container(
-                                        padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
-                                        alignment: Alignment.bottomCenter,
-                                        child: Text('Ibrida', style: const TextStyle(
-                                          fontSize: 15.0,
-                                          color: Color(0xFF1A1316),
-
-                                        ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ]
-                        ),
+                Positioned(
+                  top: 1.5,
+                  left: (MediaQuery.of(context).size.width /2) * 0,
+                  child: Image.asset('images/AddMoto.png', scale: 2.5),
+                ),
+                Positioned(
+                  top: 125.0,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(45.0),
+                        topRight: Radius.circular(45.0),
+                      ),
+                      color: Color(0xFF90CAF9),
+                      boxShadow: [
+                        BoxShadow(
+                          offset: Offset(0,-4),
+                          blurRadius: 8,
+                          color: Colors.black12,
+                        )
                       ],
                     ),
-                  ).show();
-                },
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8,horizontal: 15),
-                  child: Row(
-                    //mainAxisAlignment: MainAxisAlignment.center,
+                    height: MediaQuery.of(context).size.height * 0.80,
+                    width: MediaQuery.of(context).size.width,
+                  ),
+                ),
+                Positioned(
+                  top: MediaQuery.of(context).size.height * 0,
+                  left: (MediaQuery.of(context).size.width /2) * 0.38,
+                  child: Image.asset('images/AddCar.png'),
+                ),
+                Positioned(
+                  top: MediaQuery.of(context).size.height * 0.02,
+                  left: (MediaQuery.of(context).size.width /2) * 0.48,
+                  child: Stack(
+                    alignment: Alignment.center,
                     children: [
-                      //Icon(Icons.calendar_month),
-                      Text('$fuel', style: TextStyle(color: Colors.black54),)
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
+                        child: CircleAvatar(
+                            radius: 81.0,
+                            backgroundColor: Colors.blue.shade100,
+                            child: CircleAvatar(
+                              radius: 75.0,
+                              backgroundColor: Colors.white70,
+                              backgroundImage: image == null ? null : FileImage(File(image!.path)),
+                              child: image == null
+                                  ? Icon(
+                                Icons.add_photo_alternate,
+                                color:Colors.grey,
+                                size: MediaQuery.of(context).size.width * 0.22,
+                              ) : null,
+                            )
+                        ),
+                      ),
+                      Positioned(
+                        top: 120,
+                        left: 100,
+                        child: RawMaterialButton(
+                          elevation: 10,
+                          fillColor: Colors.white70,
+                          child: Icon(Icons.add_a_photo),
+                          padding: EdgeInsets.all(14.0),
+                          shape: CircleBorder(),
+                          onPressed: () {
+                            //pickMedia(ImageSource.camera);
+                            showSelectPhotoOptions(context);
+                          },
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ),
-            ),
-            //Kilometri
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
-              child:
-              Form(
-                key: _formKeyKm,
-                child:
-                TextFormField(
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
-                    hintText: 'Inserisci i kilometri attuali del veicolo',
-                    hintStyle: const TextStyle(fontSize: 14),
-                    filled: true,
-                    fillColor: Colors.white70,
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25),
-                      borderSide: BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder:  OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.indigoAccent),
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.red),
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.red),
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                  ),
-                  validator: (value) {
-                    if(value == null || value.isEmpty){
-                      return 'Inserisci i kilometri attuali del veicolo';
-                    }
-                    else {
-                      return null;
-                    }
-                  },
-                  onChanged: (value) {
-                    setState(() {
-                      kilometers = value;
-                    });
-                  },
-                ),
-              ),
-            ),
-            //ButtonAddVeicolo
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 100.0),
-              child: ElevatedButton(
-                onPressed: () => {
-                  if(image == null) {
-                    displayCenterMotionToast()
-                  }
-                  else if(!_formKeyType.currentState!.validate()){
-                  }
-                  else if(!_formKeyKm.currentState!.validate()){
-                    }
-                    else{
-                        FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+                Positioned(
+                  top:  MediaQuery.of(context).size.height * 0.30,
+                  left: 10,
+                  right: 10,
+                  //height: MediaQuery.of(context).size.height - 120,
+                  //width: MediaQuery.of(context).size.width - 80,
+                  child: ListView(
+                    shrinkWrap: true,
+                    children:  [
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 12.0,horizontal: 15.0),
+                        child: StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('vehicleType')
+                              .orderBy('type')
+                              .snapshots(),
+                          builder: (BuildContext context, AsyncSnapshot snapshot) {
+                            if (!snapshot.hasData) {
+                              return Container();
+                            }
+                            if (setDefaultType) {
+                            }
+                            return Form(
+                              key: _formKeyType,
+                              child: DropdownButtonFormField2(
+                                decoration: InputDecoration(
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(25),
+                                      borderSide: BorderSide(color: Colors.grey),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.indigoAccent),
+                                      borderRadius: BorderRadius.circular(25),
+                                    ),
+                                    errorBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.red),
+                                      borderRadius: BorderRadius.circular(25),
+                                    ),
+                                    focusedErrorBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.red),
+                                      borderRadius: BorderRadius.circular(25),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.white70
+                                ),
+                                isExpanded: true,
+                                value: type,
+                                hint: const Text(
+                                  'Seleziona tipo di veicolo',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                icon: const Icon(
+                                  Icons.arrow_drop_down,
+                                  color: Colors.black45,
+                                ),
+                                iconSize: 30,
+                                buttonHeight: 50,
+                                buttonPadding: const EdgeInsets.only(
+                                    left: 20, right: 10),
+                                dropdownDecoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                items: snapshot.data.docs.map<DropdownMenuItem<String>>((value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value.get('type'),
+                                    child: Text(
+                                      '${value.get('type')}',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                validator: (value) {
+                                  if(value == null) {
+                                    return 'Seleziona un tipo di veicolo';
+                                  }
+                                  return null;
+                                },
+                                onChanged: (value) {
+                                  debugPrint('selected onchange: $value');
+                                  setState(() {
+                                    debugPrint('make selected: $value');
+                                    type = value;
+                                    setDefaultType = false;
+                                    setDefaultMake = true;
+                                    setDefaultModel = true;
+                                  });
+                                },
+                                /*onSaved: (value) {
+                  selectedValue = value.toString();
+                },*/
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      //Make
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
+                        child: StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('Make')
+                              .where('type', isEqualTo: type)
+                              .orderBy('name')
+                              .snapshots(),
+                          builder: (BuildContext context, AsyncSnapshot snapshot) {
+                            if (!snapshot.hasData) {
+                              return Container();
+                            }
+                            if (setDefaultMake) {
+                              //make = snapshot.data.docs[0].get('nome');
+                              debugPrint('setDefault make: $make');
+                            }
 
-                          CollectionReference vehicle = await FirebaseFirestore.instance.collection('vehicle');
+                            return ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  padding: EdgeInsets.only(top: 10, bottom: 10),
+                                  elevation: 3,
+                                  backgroundColor: Colors.white70,
+                                  shadowColor: Colors.blue.withOpacity(0.09),
+                                  shape: StadiumBorder(),
+                                  side: BorderSide(color: Colors.grey, width: 1)
+                              ),
+                              onPressed: () async {
+                                AwesomeDialog(
+                                  context: context,
+                                  headerAnimationLoop: false,
+                                  dialogType: DialogType.noHeader,
+                                  padding: EdgeInsets.zero,
+                                  dialogBackgroundColor: Colors.blue.shade200,
+                                  body:
+                                  Table(
+                                    children:  [
+                                      TableRow(
+                                          children: [
+                                            Container(
+                                              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                              height: 120,
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  elevation: 10,
+                                                  backgroundColor: Colors.white,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(12),
+                                                    //side: BorderSide(color: Colors.blue,width: 1.5),
+                                                  ),
+                                                ),
+                                                onPressed:  () => {
+                                                  setState(() {
+                                                    make = snapshot.data.docs[0]['name'];
+                                                    url = snapshot.data.docs[0]['logo'];
+                                                  }
+                                                  ),
+                                                  Navigator.pop(context),
+                                                },
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: <Widget>[
+                                                    Align(
+                                                      heightFactor: 1.3,
+                                                      alignment: Alignment.center,
+                                                      child: Image.network('${snapshot.data.docs[0]['logo']}',scale: 8),
+                                                    ),
+                                                    Container(
+                                                      padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
+                                                      alignment: Alignment.bottomCenter,
+                                                      child: Text('${snapshot.data.docs[0]['name']}', style: const TextStyle(
+                                                        fontSize: 12.0,
+                                                        color: Color(0xFF1A1316),
+                                                      ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              //child: Text(prova!, style: TextStyle(color: Colors.grey)),
+                                            ),
+                                            Container(
+                                              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                              height: 120,
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                    elevation: 10,
+                                                    backgroundColor: Colors.white,
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.circular(12),
+                                                      //side: BorderSide(color: Colors.blue,width: 1.5),
+                                                    )
+                                                ),
+                                                onPressed:  () => {
+                                                  setState(() {
+                                                    make = snapshot.data.docs[1]['name'];
+                                                    url = snapshot.data.docs[1]['logo'];
+                                                  }
+                                                  ),
+                                                  Navigator.pop(context),
+                                                },
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: <Widget>[
+                                                    Align(
+                                                      heightFactor: 2.5,
+                                                      alignment: Alignment.center,
+                                                      child: Image.network('${snapshot.data.docs[1]['logo']}',scale: 8.5),
+                                                    ),
+                                                    Container(
+                                                      padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
+                                                      alignment: Alignment.bottomCenter,
+                                                      child: Text('${snapshot.data.docs[1]['name']}', style: const TextStyle(
+                                                        fontSize: 12.0,
+                                                        color: Color(0xFF1A1316),
 
-                          vehicle.add({
-                            'uid': user?.uid,
-                            'make': make,
-                            'model': model,
-                            'kilometers' : kilometers,
-                            'image' : imageUrl,
-                            'logoImage': url,
-                            'fuel' : fuel,
-                            'imageFuelUrl' : imageFuelUrl
-                          });
+                                                      ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
 
-                          if(fuel == 'Metano')
-                          {
-                            userPoints = (userPoints! + metanPoints)!;
-                          }
-                          else if(fuel == 'Elettrica')
-                          {
-                            userPoints = (userPoints! + electricPoints)!;
-                          }
-                          else if(fuel == 'Gas')
-                          {
-                            userPoints = (userPoints! + gplPoints)!;
-                          }
-                          else if(fuel == 'Benzina')
-                          {
-                            userPoints = (userPoints! + benzPoints)!;
-                          }
-                          else if(fuel == 'Diesel')
-                          {
-                            userPoints = (userPoints! + dieselPoints)!;
-                          }
-                          else
-                          {
-                            userPoints = (userPoints! + ibridPoints)!;
-                          }
-                          final ref = FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser?.uid);
-                          ref.update({
-                            'points' : userPoints
-                          }).then((value) => debugPrint("Il nuovo userpoint dovrebbe essere $userPoints"));
+                                          ]
+                                      ),
+                                      TableRow(
+                                          children: [
+                                            Container(
+                                              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                              height: 120,
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                    elevation: 10,
+                                                    backgroundColor: Colors.white,
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.circular(12),
+                                                      //side: BorderSide(color: Colors.blue,width: 1.5),
+                                                    )
+                                                ),
+                                                onPressed:  () => {
+                                                  setState(() {
+                                                    make = snapshot.data.docs[2]['name'];
+                                                    url = snapshot.data.docs[2]['logo'];
+                                                  }
+                                                  ),
+                                                  Navigator.pop(context),
+                                                },
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: <Widget>[
+                                                    Align(
+                                                      heightFactor: 1.4,
+                                                      alignment: Alignment.center,
+                                                      child: Image.network('${snapshot.data.docs[2]['logo']}',scale: 6.5),
+                                                    ),
+                                                    Container(
+                                                      padding: EdgeInsets.symmetric(vertical:2,horizontal: 2),
+                                                      alignment: Alignment.bottomCenter,
+                                                      child: Text('${snapshot.data.docs[2]['name']}', style: const TextStyle(
+                                                        fontSize: 12.0,
+                                                        color: Color(0xFF1A1316),
+
+                                                      ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                              height: 120,
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                    elevation: 10,
+                                                    backgroundColor: Colors.white,
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.circular(12),
+                                                      //side: BorderSide(color: Colors.blue,width: 1.5),
+                                                    )
+                                                ),
+                                                onPressed:  () => {
+                                                  setState(() {
+                                                    make = snapshot.data.docs[3]['name'];
+                                                    url = snapshot.data.docs[3]['logo'];
+                                                  }
+                                                  ),
+                                                  Navigator.pop(context),
+                                                },
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: <Widget>[
+                                                    Align(
+                                                      heightFactor: 1.3,
+                                                      alignment: Alignment.center,
+                                                      child: Image.network('${snapshot.data.docs[3]['logo']}',scale: 7),
+                                                    ),
+                                                    Container(
+                                                      padding: EdgeInsets.symmetric(vertical:2,horizontal: 8),
+                                                      alignment: Alignment.bottomCenter,
+                                                      child: Text('${snapshot.data.docs[3]['name']}', style: const TextStyle(
+                                                        fontSize: 12.0,
+                                                        color: Color(0xFF1A1316),
+
+                                                      ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ]
+                                      ),
+                                      TableRow(
+                                          children: [
+                                            Container(
+                                              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                              height: 120,
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                    elevation: 10,
+                                                    backgroundColor: Colors.white,
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.circular(12),
+                                                      //side: BorderSide(color: Colors.blue,width: 1.5),
+                                                    )
+                                                ),
+                                                onPressed:  () => {
+                                                  setState(() {
+                                                    make = snapshot.data.docs[4]['name'];
+                                                    url = snapshot.data.docs[4]['logo'];
+                                                  }
+                                                  ),
+                                                  Navigator.pop(context),
+                                                },
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: <Widget>[
+                                                    Align(
+                                                      heightFactor: 1.3,
+                                                      alignment: Alignment.center,
+                                                      child: Image.network('${snapshot.data.docs[4]['logo']}',scale: 7.8),
+                                                    ),
+                                                    Container(
+                                                      padding: EdgeInsets.symmetric(vertical:2,horizontal: 4),
+                                                      alignment: Alignment.bottomCenter,
+                                                      child: Text('${snapshot.data.docs[4]['name']}', style: const TextStyle(
+                                                        fontSize: 12.0,
+                                                        color: Color(0xFF1A1316),
+
+                                                      ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                              height: 120,
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                    elevation: 10,
+                                                    backgroundColor: Colors.white,
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.circular(12),
+                                                      //side: BorderSide(color: Colors.blue,width: 1.5),
+                                                    )
+                                                ),
+                                                onPressed:  () => {
+                                                  showDialog(
+                                                      context: context,
+                                                      builder: (context) => AlertDialog(
+                                                          shape: RoundedRectangleBorder(
+                                                              borderRadius: BorderRadius.all(Radius.circular(32.0))),
+                                                          title: Text('Inserisci la marca del tuo veicolo'),
+                                                          content: TextFormField(
+                                                            autofocus: true,
+                                                            decoration: InputDecoration(hintText: 'Inserisci qui'),
+                                                            onChanged: (value) {
+                                                              setState(() {
+                                                                make = value;
+                                                                url = null;
+                                                              });
+                                                            },
+                                                          ),
+                                                          actions: [
+                                                            TextButton(
+                                                              child: Text('Inserisci'),
+                                                              onPressed: () {
+                                                                var nav =  Navigator.of(context);
+                                                                nav.pop();
+                                                                nav.pop();
+                                                              },
+                                                            )
+                                                          ]
+                                                      )
+                                                  ),
+                                                  //Navigator.pop(context),
+                                                },
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: <Widget>[
+                                                    Align(
+                                                      heightFactor: 1.4,
+                                                      alignment: Alignment.center,
+                                                      child: Image.asset('images/AddCar.png',scale: 8),
+                                                    ),
+                                                    Container(
+                                                      padding: EdgeInsets.symmetric(vertical:2,horizontal: 6),
+                                                      alignment: Alignment.bottomCenter,
+                                                      child: Text('Altro', style: const TextStyle(
+                                                        fontSize: 12.0,
+                                                        color: Color(0xFF1A1316),
+
+                                                      ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ]
+                                      ),
+                                    ],
+                                  ),
+                                ).show();
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8,horizontal: 15),
+                                child: Row(
+                                  //mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    //Icon(Icons.calendar_month),
+                                    Text('$make', style: TextStyle(color: Colors.black54),)
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      //Model
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
+                        child: StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('Model')
+                              .where('make', isEqualTo: make)
+                              .orderBy('model')
+                              .snapshots(),
+                          builder: (BuildContext context, AsyncSnapshot snapshot) {
+                            if (!snapshot.hasData) {
+                              debugPrint('snapshot status: ${snapshot.error}');
+                              return Container(
+                                child:
+                                Text(
+                                    'snapshot empty make: $make makeModel: $model'),
+                              );
+                            }
+                            if (setDefaultModel) {
+                              //carMake = snapshot.data.docs[0].get('makeModel');
+                            }
+                            return ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  padding: EdgeInsets.only(top: 10, bottom: 10),
+                                  elevation: 3,
+                                  backgroundColor: Colors.white70,
+                                  shadowColor: Colors.blue.withOpacity(0.09),
+                                  shape: StadiumBorder(),
+                                  side: BorderSide(color: Colors.grey, width: 1)
+                              ),
+                              onPressed: () async {
+                                url == null ?
+                                showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(32.0))),
+                                        title: Text('Inserisci il modello del tuo veicolo'),
+                                        content: TextFormField(
+                                          autofocus: true,
+                                          decoration: InputDecoration(hintText: 'Inserisci qui'),
+                                          onChanged: (value) {
+                                            setState(() {
+                                              model = value;
+                                              url = null;
+                                            });
+                                          },
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            child: Text('Inserisci'),
+                                            onPressed: () {
+                                              var nav =  Navigator.of(context);
+                                              nav.pop();
+                                            },
+                                          )
+                                        ]
+                                    )
+                                )
+                                    :
+                                AwesomeDialog(
+                                  context: context,
+                                  headerAnimationLoop: false,
+                                  dialogType: DialogType.noHeader,
+                                  padding: EdgeInsets.zero,
+                                  dialogBackgroundColor: Colors.blue.shade200,
+                                  body:
+                                  ListView(
+                                    shrinkWrap: true,
+                                    padding: EdgeInsets.symmetric(vertical: 2,horizontal:12),
+                                    children: [
+                                      Container(
+                                        //padding: EdgeInsets.symmetric(vertical:10, horizontal:10),
+                                          alignment: Alignment.topCenter,
+                                          child: Image.network('$url', scale: 7)
+                                      ),
+                                      Container(
+                                          padding: EdgeInsets.symmetric(vertical: 6),
+                                          child: Table(
+                                              children: [
+                                                TableRow(
+                                                    children: [
+                                                      Container(
+                                                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+                                                          height: 80,
+                                                          child: ElevatedButton(
+                                                            style: ElevatedButton.styleFrom(
+                                                              elevation: 10,
+                                                              backgroundColor: Colors.white,
+                                                              shape: RoundedRectangleBorder(
+                                                                borderRadius: BorderRadius.circular(12),
+                                                                //side: BorderSide(color: Colors.blue,width: 1.5),
+                                                              ),
+                                                            ),
+                                                            onPressed:  () => {
+                                                              setState(() => model = snapshot.data.docs[0]['model']),
+                                                              Navigator.pop(context),
+                                                            },
+                                                            child:
+                                                            Text('${snapshot.data.docs[0]['model']}', style: TextStyle(
+                                                                fontSize: 20,
+                                                                color: Color(0xFF1A1316)
+                                                            )),
+
+                                                          )
+                                                      ),
+                                                      Container(
+                                                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                                          height: 80,
+                                                          child: ElevatedButton(
+                                                            style: ElevatedButton.styleFrom(
+                                                              elevation: 10,
+                                                              backgroundColor: Colors.white,
+                                                              shape: RoundedRectangleBorder(
+                                                                borderRadius: BorderRadius.circular(12),
+                                                                //side: BorderSide(color: Colors.blue,width: 1.5),
+                                                              ),
+                                                            ),
+                                                            onPressed:  () => {
+                                                              setState(() => model = snapshot.data.docs[1]['model']),
+                                                              Navigator.pop(context),
+                                                            },
+                                                            child: Container(
+                                                              child: Text('${snapshot.data.docs[1]['model']}', style: TextStyle(
+                                                                  fontSize: 20,
+                                                                  color: Color(0xFF1A1316)
+                                                              )),
+                                                            ),
+                                                          )
+                                                      )
+                                                    ]
+                                                ),
+                                                TableRow(
+                                                    children: [
+                                                      Container(
+                                                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+                                                          height: 80,
+                                                          child: ElevatedButton(
+                                                            style: ElevatedButton.styleFrom(
+                                                              elevation: 10,
+                                                              backgroundColor: Colors.white,
+                                                              shape: RoundedRectangleBorder(
+                                                                borderRadius: BorderRadius.circular(12),
+                                                                //side: BorderSide(color: Colors.blue,width: 1.5),
+                                                              ),
+                                                            ),
+                                                            onPressed:  () => {
+                                                              setState(() => model = snapshot.data.docs[2]['model']),
+                                                              Navigator.pop(context),
+                                                            },
+                                                            child:
+                                                            Text('${snapshot.data.docs[2]['model']}', style: TextStyle(
+                                                                fontSize: 20,
+                                                                color: Color(0xFF1A1316)
+                                                            )),
+
+                                                          )
+                                                      ),
+                                                      Container(
+                                                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                                          height: 80,
+                                                          child: ElevatedButton(
+                                                            style: ElevatedButton.styleFrom(
+                                                              elevation: 10,
+                                                              backgroundColor: Colors.white,
+                                                              shape: RoundedRectangleBorder(
+                                                                borderRadius: BorderRadius.circular(12),
+                                                                //side: BorderSide(color: Colors.blue,width: 1.5),
+                                                              ),
+                                                            ),
+                                                            onPressed:  () => {
+                                                              setState(() => model = snapshot.data.docs[3]['model']),
+                                                              Navigator.pop(context),
+                                                            },
+                                                            child:Text('${snapshot.data.docs[3]['model']}', style: TextStyle(
+                                                                fontSize: 20,
+                                                                color: Color(0xFF1A1316)
+                                                            )),
+                                                          )
+                                                      )
+                                                    ]
+                                                ),
+                                                TableRow(
+                                                    children: [
+                                                      Container(
+                                                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+                                                          height: 80,
+                                                          child: ElevatedButton(
+                                                            style: ElevatedButton.styleFrom(
+                                                              elevation: 10,
+                                                              backgroundColor: Colors.white,
+                                                              shape: RoundedRectangleBorder(
+                                                                borderRadius: BorderRadius.circular(12),
+                                                                //side: BorderSide(color: Colors.blue,width: 1.5),
+                                                              ),
+                                                            ),
+                                                            onPressed:  () => {
+                                                              setState(() => model = snapshot.data.docs[4]['model']),
+                                                              Navigator.pop(context),
+                                                            },
+                                                            child:
+                                                            Text('${snapshot.data.docs[4]['model']}', style: TextStyle(
+                                                                fontSize: 20,
+                                                                color: Color(0xFF1A1316)
+                                                            )),
+
+                                                          )
+                                                      ),
+                                                      Container(
+                                                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                                          height: 80,
+                                                          child: ElevatedButton(
+                                                            style: ElevatedButton.styleFrom(
+                                                              elevation: 10,
+                                                              backgroundColor: Colors.white,
+                                                              shape: RoundedRectangleBorder(
+                                                                borderRadius: BorderRadius.circular(12),
+                                                              ),
+                                                            ),
+                                                            onPressed:  () => {
+                                                              showDialog(
+                                                                  context: context,
+                                                                  builder: (context) => AlertDialog(
+                                                                      shape: RoundedRectangleBorder(
+                                                                          borderRadius: BorderRadius.all(Radius.circular(32.0))),
+                                                                      title: Text('Inserisci il modello del tuo veicolo'),
+                                                                      content: TextFormField(
+                                                                        autofocus: true,
+                                                                        decoration: InputDecoration(hintText: 'Inserisci qui'),
+                                                                        onChanged: (value) {
+                                                                          setState(() {
+                                                                            model = value;
+                                                                          });
+                                                                        },
+                                                                      ),
+                                                                      actions: [
+                                                                        TextButton(
+                                                                          child: Text('Inserisci'),
+                                                                          onPressed: () {
+                                                                            var nav =  Navigator.of(context);
+                                                                            nav.pop();
+                                                                            nav.pop();
+                                                                          },
+                                                                        )
+                                                                      ]
+                                                                  )
+                                                              )
+                                                            },
+                                                            child: Container(
+                                                              child: Text('Altro' , style: TextStyle(
+                                                                  fontSize: 20,
+                                                                  color: Color(0xFF1A1316)
+                                                              )),
+                                                            ),
+                                                          )
+                                                      )
+                                                    ]
+                                                )
+                                              ]
+                                          )
+                                      )
+                                    ],
+                                  ),
+                                ).show();
+                              },
+                              child: Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 8,horizontal: 15),
+                                  child: Row(
+                                      children: [
+                                        Text('$model', style: TextStyle(color: Colors.black54),)
+                                      ]
+                                  )
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      //Alimentazione
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.only(top: 10, bottom: 10),
+                              elevation: 3,
+                              backgroundColor: Colors.white70,
+                              shadowColor: Colors.blue.withOpacity(0.09),
+                              shape: StadiumBorder(),
+                              side: BorderSide(color: Colors.grey, width: 1)
+                          ),
+                          onPressed: () async {
+                            AwesomeDialog(
+                              context: context,
+                              headerAnimationLoop: false,
+                              dialogType: DialogType.noHeader,
+                              padding: EdgeInsets.zero,
+                              dialogBackgroundColor: Colors.blue.shade200,
+                              body:
+                              Table(
+                                children:  [
+                                  TableRow(
+                                      children: [
+                                        Container(
+                                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                          height: 120,
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              elevation: 10,
+                                              backgroundColor: Colors.white,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(12),
+                                                //side: BorderSide(color: Colors.blue,width: 1.5),
+                                              ),
+                                            ),
+                                            onPressed:  () => {
+                                              setState(() {
+                                                fuel = 'Benzina';
+                                                imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FBenzina.png?alt=media&token=c846afd4-5011-4e78-ab0a-8eea3011b9f6';
+                                              }
+                                              ),
+                                              Navigator.pop(context),
+                                            },
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Align(
+                                                  heightFactor: 1.3,
+                                                  alignment: Alignment.center,
+                                                  child: Image.asset('images/Benzina.png',scale: 3),
+                                                ),
+                                                Container(
+                                                  padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
+                                                  alignment: Alignment.bottomCenter,
+                                                  child: Text('Benzina', style: const TextStyle(
+                                                    fontSize: 15.0,
+                                                    color: Color(0xFF1A1316),
+                                                  ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          //child: Text(prova!, style: TextStyle(color: Colors.grey)),
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                          height: 120,
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                                elevation: 10,
+                                                backgroundColor: Colors.white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                )
+                                            ),
+                                            onPressed:  () => {
+                                              setState(() {
+                                                fuel = 'Diesel';
+                                                imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FDiesel.png?alt=media&token=0dd1ea68-8ed5-46d0-a112-00bba2a138b8';
+                                              }
+                                              ),
+                                              Navigator.pop(context),
+                                            },
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Align(
+                                                  heightFactor: 1.4,
+                                                  alignment: Alignment.center,
+                                                  child: Image.asset('images/Diesel.png',scale: 3.1),
+                                                ),
+                                                Container(
+                                                  padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
+                                                  alignment: Alignment.bottomCenter,
+                                                  child: Text('Diesel', style: const TextStyle(
+                                                    fontSize: 15.0,
+                                                    color: Color(0xFF1A1316),
+
+                                                  ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+
+                                      ]
+                                  ),
+                                  TableRow(
+                                      children: [
+                                        Container(
+                                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                          height: 120,
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                                elevation: 10,
+                                                backgroundColor: Colors.white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                  //side: BorderSide(color: Colors.blue,width: 1.5),
+                                                )
+                                            ),
+                                            onPressed:  () => {
+                                              setState(() {
+                                                fuel = 'Gas';
+                                                imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FGasMetano.png?alt=media&token=cfcb9719-5ea6-4755-be38-d2c7c17bea00';
+                                              }
+                                              ),
+                                              Navigator.pop(context),
+                                            },
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Align(
+                                                  heightFactor: 1.2,
+                                                  alignment: Alignment.center,
+                                                  child: Image.asset('images/GasMetano.png',scale: 3.2),
+                                                ),
+                                                Container(
+                                                  padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
+                                                  alignment: Alignment.bottomCenter,
+                                                  child: Text('Gas', style: const TextStyle(
+                                                    fontSize: 15.0,
+                                                    color: Color(0xFF1A1316),
+
+                                                  ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                          height: 120,
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                                elevation: 10,
+                                                backgroundColor: Colors.white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                  //side: BorderSide(color: Colors.blue,width: 1.5),
+                                                )
+                                            ),
+                                            onPressed:  () => {
+                                              setState(() {
+                                                fuel = 'Metano';
+                                                imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FGasMetano.png?alt=media&token=cfcb9719-5ea6-4755-be38-d2c7c17bea00';
+
+                                              }
+                                              ),
+                                              Navigator.pop(context),
+                                            },
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Align(
+                                                  heightFactor: 1.2,
+                                                  alignment: Alignment.center,
+                                                  child: Image.asset('images/GasMetano.png',scale: 3.2),
+                                                ),
+                                                Container(
+                                                  padding: EdgeInsets.symmetric(vertical:2,horizontal: 8),
+                                                  alignment: Alignment.bottomCenter,
+                                                  child: Text('Metano', style: const TextStyle(
+                                                    fontSize: 15.0,
+                                                    color: Color(0xFF1A1316),
+
+                                                  ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ]
+                                  ),
+                                  TableRow(
+                                      children: [
+                                        Container(
+                                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                          height: 120,
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                                elevation: 10,
+                                                backgroundColor: Colors.white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                  //side: BorderSide(color: Colors.blue,width: 1.5),
+                                                )
+                                            ),
+                                            onPressed:  () => {
+                                              setState(() {
+                                                fuel = 'Elettrica';
+                                                imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FElettrica.png?alt=media&token=3d76e48f-26f5-4a7c-882c-ea593f809ba2';
+                                              }
+                                              ),
+                                              Navigator.pop(context),
+                                            },
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Align(
+                                                  heightFactor: 1.4,
+                                                  alignment: Alignment.center,
+                                                  child: Image.asset('images/Elettrica.png',scale: 3),
+                                                ),
+                                                Container(
+                                                  padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
+                                                  alignment: Alignment.bottomCenter,
+                                                  child: Text('Elettrica', style: const TextStyle(
+                                                    fontSize: 15.0,
+                                                    color: Color(0xFF1A1316),
+
+                                                  ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                          height: 120,
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                                elevation: 10,
+                                                backgroundColor: Colors.white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                  //side: BorderSide(color: Colors.blue,width: 1.5),
+                                                )
+                                            ),
+                                            onPressed:  () => {
+                                              setState(() {
+                                                fuel = 'Ibrida';
+                                                imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FIbrida.png?alt=media&token=91494a2c-2e3b-4270-a79f-a553fef1c408';
+                                              }
+                                              ),
+                                              Navigator.pop(context),
+                                            },
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Align(
+                                                  heightFactor: 1.4,
+                                                  alignment: Alignment.center,
+                                                  child: Image.asset('images/Ibrida.png',scale: 3),
+                                                ),
+                                                Container(
+                                                  padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
+                                                  alignment: Alignment.bottomCenter,
+                                                  child: Text('Ibrida', style: const TextStyle(
+                                                    fontSize: 15.0,
+                                                    color: Color(0xFF1A1316),
+
+                                                  ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ]
+                                  ),
+                                ],
+                              ),
+                            ).show();
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 8,horizontal: 15),
+                            child: Row(
+                              //mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                //Icon(Icons.calendar_month),
+                                Text('$fuel', style: TextStyle(color: Colors.black54),)
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      //Kilometri
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
+                        child:
+                        Form(
+                          key: _formKeyKm,
+                          child:
+                          TextFormField(
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 16,
+                              ),
+                              hintText: 'Inserisci i kilometri attuali del veicolo',
+                              hintStyle: const TextStyle(fontSize: 14),
+                              filled: true,
+                              fillColor: Colors.white70,
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: BorderSide(color: Colors.grey),
+                              ),
+                              focusedBorder:  OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.indigoAccent),
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.red),
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.red),
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                            ),
+                            validator: (value) {
+                              if(value == null || value.isEmpty){
+                                return 'Inserisci i kilometri attuali del veicolo';
+                              }
+                              else {
+                                return null;
+                              }
+                            },
+                            onChanged: (value) {
+                              setState(() {
+                                kilometers = value;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                      //ButtonAddVeicolo
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 100.0),
+                        child: ElevatedButton(
+                          onPressed: () => {
+                            if(image == null) {
+                              displayCenterMotionToast()
+                            }
+                            else if(!_formKeyType.currentState!.validate()){
+                            }
+                            else if(!_formKeyKm.currentState!.validate()){
+                              }
+                              else{
+                                  FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+
+                                    CollectionReference vehicle = await FirebaseFirestore.instance.collection('vehicle');
+
+                                    vehicle.add({
+                                      'uid': user?.uid,
+                                      'make': make,
+                                      'model': model,
+                                      'kilometers' : kilometers,
+                                      'image' : imageUrl,
+                                      'logoImage': url,
+                                      'fuel' : fuel,
+                                      'imageFuelUrl' : imageFuelUrl
+                                    });
+
+                                    if(fuel == 'Metano')
+                                    {
+                                      userPoints = (userPoints! + metanPoints)!;
+                                    }
+                                    else if(fuel == 'Elettrica')
+                                    {
+                                      userPoints = (userPoints! + electricPoints)!;
+                                    }
+                                    else if(fuel == 'Gas')
+                                    {
+                                      userPoints = (userPoints! + gplPoints)!;
+                                    }
+                                    else if(fuel == 'Benzina')
+                                    {
+                                      userPoints = (userPoints! + benzPoints)!;
+                                    }
+                                    else if(fuel == 'Diesel')
+                                    {
+                                      userPoints = (userPoints! + dieselPoints)!;
+                                    }
+                                    else
+                                    {
+                                      userPoints = (userPoints! + ibridPoints)!;
+                                    }
+                                    final ref = FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser?.uid);
+                                    ref.update({
+                                      'points' : userPoints
+                                    }).then((value) => debugPrint("Il nuovo userpoint dovrebbe essere $userPoints"));
 
 
-                          /*
+                                    /*
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const LoadingScreen()),
             );
             */
-                          Navigator.of(context).pushNamed(HomePage.routeName);
-                        })
-                      }
-                },
-                style: ElevatedButton.styleFrom(
-                  elevation: 10,
-                  backgroundColor: Colors.blue.shade200,
-                  shape: const StadiumBorder(),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12,
-                    horizontal: 0,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    // crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: const [
-                      Icon(
-                        Icons.add,
-                        color: Colors.white,
-                      ),
-                      SizedBox(
-                        width: 8,
-                      ),
-                      Text(
-                        "Aggiungi",
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: Colors.white,
+                                    Navigator.of(context).pushNamed(HomePage.routeName);
+                                  })
+                                }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            elevation: 10,
+                            backgroundColor: Colors.blue.shade200,
+                            shape: const StadiumBorder(),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 0,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              // crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: const [
+                                Icon(
+                                  Icons.add,
+                                  color: Colors.white,
+                                ),
+                                SizedBox(
+                                  width: 8,
+                                ),
+                                Text(
+                                  "Aggiungi",
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
-              ),
+              ],
             ),
           ],
         ),
       ),
-      ],
-    ),
-    ],
-    ),
-    ),
     );
   }
 
@@ -1396,11 +1396,11 @@ class _AddVeicoloState extends State<AddVeicolo> {
       return;
     }*/
 
-      final ref = FirebaseStorage.instance.ref().child('userImages').child('User: ${auth.currentUser!.uid}');
-      await ref.putFile(image!);
-      final imageURL = await ref.getDownloadURL();
+    final ref = FirebaseStorage.instance.ref().child('userImages').child('User: ${auth.currentUser!.uid}');
+    await ref.putFile(image!);
+    final imageURL = await ref.getDownloadURL();
 
-      setState(() => imageUrl = imageURL);
+    setState(() => imageUrl = imageURL);
   }
 
   void displayCenterMotionToast() {
@@ -1461,14 +1461,10 @@ class _AddVeicoloState extends State<AddVeicolo> {
 
 /*
 class LoadingScreen extends StatelessWidget{
-
   static const routeName = '/splash-screen';
-
   const LoadingScreen({super.key});
-
   @override
   Widget build(BuildContext context) {
-
     return AnimatedSplashScreen(
       splash: Lottie.network('https://assets6.lottiefiles.com/packages/lf20_gv7Ovi.json'),
       backgroundColor: Colors.white,
@@ -1480,9 +1476,5 @@ class LoadingScreen extends StatelessWidget{
       animationDuration: const Duration(seconds: 1),
     );
   }
-
 }
 */
-
-
-

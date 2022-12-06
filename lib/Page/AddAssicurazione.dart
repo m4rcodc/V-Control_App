@@ -5,20 +5,20 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class BoxNofitica extends StatefulWidget{
+class BoxNotifica extends StatefulWidget{
   late int value;
   late String time;
   void Function()? remove;
 
-  BoxNofitica(String testo, int num, {super.key,required this.remove}){
+  BoxNotifica(String testo, int num, {super.key,required this.remove}){
     time = testo;
     value = num;
   }
   @override
-  State<BoxNofitica> createState() => _BoxNotificaState(time,value,remove);
+  State<BoxNotifica> createState() => _BoxNotificaState(time,value,remove);
 }
 
-class _BoxNotificaState extends State<BoxNofitica>{
+class _BoxNotificaState extends State<BoxNotifica>{
   late String _testoNotifica;
   final void Function()? remove;
   _BoxNotificaState(String time, int num, this.remove){
@@ -51,6 +51,7 @@ class AddAssicurazione extends StatefulWidget{
   static const routeName = '/add-Assicurazione';
 
   static List<Map<String,dynamic>> assicurazioni = [];
+  static var info = null;
 
   static Future<Map<String,dynamic>> getAssic() async{
     if(assicurazioni.length == 0){
@@ -66,26 +67,51 @@ class AddAssicurazione extends StatefulWidget{
   }
 
   @override
-  State<AddAssicurazione> createState() => _AddAssicurazioneState(assicurazioni);
+  State<AddAssicurazione> createState() => _AddAssicurazioneState(assicurazioni,info);
 }
 
 class _AddAssicurazioneState extends State<AddAssicurazione> {
-  String prezzo ="";
-  String tipoScad ="";
+  String prezzo = '';
+  String tipoScad = '';
   DateTime date = DateTime.now();
-
+  static late BuildContext contextScad;
   late List<Map<String,dynamic>> numAssic;
   List<String> assicurazioni = [];
   String selectAssic = '';
   String numero = '';
   bool blockText = true;
+  var info;
+  bool mod = false;
+  String stringNotifiche = "";
 
-  List<BoxNofitica> _notifiche = [];
+  List<BoxNotifica> _notifiche = [];
 
-  _AddAssicurazioneState(List<Map<String,dynamic>> assic){
+  _AddAssicurazioneState(List<Map<String,dynamic>> assic, info){
     numAssic = assic;
     for(int i=0;i<assic.length;i++){
       assicurazioni.add(assic[i]['nome']);
+    }
+    if(info != null){
+      print('we');
+      selectAssic = info['nome'];
+      for(int i=0;i<numAssic.length;i++){
+        if(numAssic[i]['nome'] == selectAssic) {
+          numero = numAssic[i]['numero'];
+          blockText = false;
+        }
+      }
+      prezzo = info['prezzo'];
+      tipoScad = info['tipoScad'];
+      Timestamp timestamp = info['data'];
+      date = DateTime.fromMillisecondsSinceEpoch(timestamp.seconds*1000);
+      if(info['notifiche'] != ''){
+        List<String> notifiche = info['notifiche'].split(',');
+        for(int i=0;i<notifiche.length;i++){
+          List<String> notifica = notifiche[i].split('-');
+          _notifiche.add(BoxNotifica(notifica[1], int.parse(notifica[0]),remove: ()=>setState(() {_notifiche.clear();})));
+        }
+      }
+      mod = true;
     }
   }
 
@@ -104,7 +130,7 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
     }
     if(metti){
       setState(() {
-        _notifiche.add(BoxNofitica(time, num, remove: ()=>setState(() {_notifiche.clear();}))
+        _notifiche.add(BoxNotifica(time, num, remove: ()=>setState(() {_notifiche.clear();}))
         );
       });
     }
@@ -127,6 +153,10 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
 
   void _submit(){
     if (_formKey.currentState!.validate()){
+      for(int i=0;i<_notifiche.length;i++){
+        stringNotifiche += _notifiche[i].value.toString()+"-"+_notifiche[i].time;
+        if(i != _notifiche.length-1) stringNotifiche += ',';
+      }
       var info = {
         'titolo': 'Assicurazione',
         'nome': selectAssic,
@@ -134,9 +164,15 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
         'tipoScad': tipoScad,
         'dataScad': date,
         'tipoScad': tipoScad,
-        'notifiche': _notifiche,
+        'notifiche': stringNotifiche,
       };
-      Scadenze.insert(info);
+      if(mod){
+        Scadenze.update(info,'Assicurazione');
+      }
+      else{
+        Scadenze.insert(info,false);
+      }
+      AddAssicurazione.info = null;
       HomePage.setPage(Scadenze(), 1);
       Navigator.of(context).popAndPushNamed(HomePage.routeName);
     }
@@ -388,6 +424,7 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
                   dropdownDecoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
                   ),
+                  value: mod ? selectAssic : null,
                   items: assicurazioni
                       .map((item) =>
                       DropdownMenuItem<String>(
@@ -406,8 +443,8 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
                     }
                   },
                   onChanged: (value) {
-
                     selectAssic = value.toString();
+                    print(selectAssic);
                     for(int i=0;i<numAssic.length;i++){
                       if(numAssic[i]['nome'] == selectAssic) {
                         setState(() {
@@ -461,6 +498,7 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
                 child: TextFormField(
+                  initialValue: prezzo,
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     setState(() {
@@ -512,6 +550,7 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
                       filled: true,
                       fillColor: Colors.white70
                   ),
+                  value: mod ? tipoScad : null,
                   isExpanded: true,
                   hint: const Text(
                     'Tipologia scadenza',

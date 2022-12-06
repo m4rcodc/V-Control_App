@@ -17,19 +17,22 @@ class Veicolo extends StatefulWidget {
 class _VeicoloState extends State<Veicolo>{
 
   var make;
+  var state;
 
   String? uid = FirebaseAuth.instance.currentUser!.uid;
 
-  Future<bool?> checkCar() async {
+   checkCar() async {
     final doc =  await FirebaseFirestore.instance
         .collection('vehicle')
         .where('uid', isEqualTo: uid)
         .get();
-    if(doc.docs[0].exists){
-      return Future<bool>.value(true);
+    if(doc.docs.isNotEmpty){
+      state = true;
+      print(state);
     }
     else {
-      return Future<bool>.value(false);
+      state = false;
+      print(state);
     }
   }
 
@@ -41,6 +44,12 @@ class _VeicoloState extends State<Veicolo>{
     doc.docs[0].reference.delete();
     Navigator.pushNamedAndRemoveUntil(context, HomePage.routeName, (route) => false);
 
+  }
+
+  @override
+  initState() {
+    super.initState();
+    checkCar();
   }
 
   Stream<List<Vehicle>> readVehicles() => FirebaseFirestore.instance
@@ -84,7 +93,6 @@ class _VeicoloState extends State<Veicolo>{
         left: (MediaQuery.of(context).size.width /2) * 0,
         child: Image.asset('images/LogoApp.png', scale: 6),
       ),
-      vehicle.image != null ?
       Positioned(
         top: MediaQuery.of(context).size.height * 0.10,
         left: (MediaQuery.of(context).size.width /2) * 0.44,
@@ -92,19 +100,19 @@ class _VeicoloState extends State<Veicolo>{
           width: 230,
           height: 150,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.only(
-              topRight: Radius.circular(20.0),
-              bottomLeft: Radius.circular(20.0),
-              topLeft: Radius.circular(20.0),
-              bottomRight: Radius.circular(20.0)
-            ),
-            border: Border.all(color: Colors.blueAccent,width: 2),
-            color: Colors.white,
-            image: DecorationImage(
+              borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(20.0),
+                  bottomLeft: Radius.circular(20.0),
+                  topLeft: Radius.circular(20.0),
+                  bottomRight: Radius.circular(20.0)
+              ),
+              border: Border.all(color: Colors.blueAccent,width: 2),
+              color: Colors.white,
+              image: DecorationImage(
                 image: NetworkImage('${vehicle.image}',
-            ),
-              fit: BoxFit.cover,
-          ),
+                ),
+                fit: BoxFit.cover,
+              ),
               boxShadow: [
                 BoxShadow(
                     color: Colors.black54,
@@ -112,8 +120,8 @@ class _VeicoloState extends State<Veicolo>{
                     offset: Offset(0,5)
                 ),
               ]
-        ),
-        /*child:  CircleAvatar(
+          ),
+          /*child:  CircleAvatar(
           radius: 100.0,
           backgroundColor: Colors.blue.shade400,
           child: CircleAvatar(
@@ -122,16 +130,8 @@ class _VeicoloState extends State<Veicolo>{
             backgroundImage: NetworkImage('${vehicle.image}'),
           ),
         ),*/
+        ),
       ),
-      )
-      : Container(
-            alignment: Alignment.center,
-           // padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.60, horizontal: 20),
-            child: Text(
-              'Prova'
-            )
-          ),
-      vehicle.make != null ?
       Positioned(
         top:  MediaQuery.of(context).size.height * 0.32,
         left: 10,
@@ -194,8 +194,6 @@ class _VeicoloState extends State<Veicolo>{
           ],
         ),
       )
-      :
-      Container(),
     ],
   );
 
@@ -255,27 +253,42 @@ class _VeicoloState extends State<Veicolo>{
           IconButton(
             icon: const Icon(Icons.delete_outline),
             onPressed: () {
-              AwesomeDialog(
-                context: context,
-                dialogType: DialogType.warning,
-                headerAnimationLoop: false,
-                animType: AnimType.topSlide,
-                title: 'Attenzione!',
-                desc:
-                'Sicuro di voler elminare il veicolo?',
-                btnCancelText: 'Cancella',
-                btnCancelOnPress: () {},
-                btnOkOnPress: () {
-                  deleteVehicle();
-                },
-              ).show();
+              if(state == true) {
+                AwesomeDialog(
+                  context: context,
+                  dialogType: DialogType.warning,
+                  headerAnimationLoop: false,
+                  animType: AnimType.topSlide,
+                  title: 'Attenzione!',
+                  desc:
+                  'Sicuro di voler elminare il veicolo?',
+                  btnCancelText: 'Cancella',
+                  btnCancelOnPress: () {},
+                  btnOkOnPress: () {
+                    deleteVehicle();
+                  },
+                ).show();
+              }
+              else {
+                AwesomeDialog(
+                  context: context,
+                  dialogType: DialogType.warning,
+                  headerAnimationLoop: false,
+                  animType: AnimType.topSlide,
+                  title: 'Attenzione!',
+                  desc:
+                  'Prima di poter eliminare un veicolo devi aggiungerlo!',
+                  btnOkOnPress: () {
+                  },
+                ).show();
+              }
             },
           ),
           IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.of(context).pushNamed(AddVeicolo.routeName);
-             /* if(checkCar() == true) {
+              icon: const Icon(Icons.add),
+              onPressed: () {
+                Navigator.of(context).pushNamed(AddVeicolo.routeName);
+                /* if(checkCar() == true) {
                 Navigator.of(context).pushNamed(AddVeicolo.routeName);
               }
               else {
@@ -294,7 +307,7 @@ class _VeicoloState extends State<Veicolo>{
                   },
                 ).show();
               }*/
-            }
+              }
           )
         ],
       ),
@@ -312,10 +325,33 @@ class _VeicoloState extends State<Veicolo>{
                 builder: (context,snapshot) {
                   if (snapshot.hasData) {
                     final vehicle = snapshot.data!;
-                    return ListView(
-                      shrinkWrap: true,
-                      children: vehicle.map(buildVehicle).toList(),
-                    );
+                    if (snapshot.data!.isNotEmpty) {
+                      return ListView(
+                        shrinkWrap: true,
+                        children: vehicle.map(buildVehicle).toList(),
+                      );
+                    }
+                    else {
+                      return
+                        Column(
+                        children: [
+                        Container(
+                        margin: EdgeInsets.only(top: 100),
+                        child: Image.asset(
+                         'images/PlaceHolder.png'
+                        )
+                      ),
+                          Container(
+                            alignment: Alignment.center,
+                            margin: EdgeInsets.only(top: 30),
+                              child: Text(
+                                  'Per inserire un nuovo veicolo \n\t\t premi il + in alto a destra',
+                                style: TextStyle(fontSize: 25,fontStyle: FontStyle.italic, fontWeight: FontWeight.bold, color: Colors.blue.shade400),
+                              )
+                          ),
+                      ],
+                        );
+                    }
                   }
                   else{
                     return Center(child: CircularProgressIndicator());

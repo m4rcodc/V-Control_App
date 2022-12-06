@@ -8,7 +8,9 @@ import 'package:d_chart/d_chart.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:car_control/models/costs.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:intl/intl.dart';
 
 
 
@@ -31,6 +33,8 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
   String? month;
   String? year;
   String? fullNameMonth;
+  DateTime now = new DateTime.now();
+  var formatter = new DateFormat('dd-MM-yyyy');
 
 
   final _headerStyle = const TextStyle(
@@ -47,7 +51,6 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
       .doc('2022').collection(FirebaseAuth.instance.currentUser!.uid).orderBy('index', descending: false)
       .snapshots(includeMetadataChanges: true);
 
-
   Stream<List<Costs>> readCosts() =>
   FirebaseFirestore.instance
       .collection('CostiRifornimento')
@@ -59,39 +62,214 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
   snapshot.docs.map((doc) => Costs.fromJson(doc.data())).toList()
   );
 
-  DataRow buildTableCosts(Costs cost) =>
-      DataRow(
-        cells: [
-          DataCell(Text('${cost.data}',
-              style: _contentStyle,
-              textAlign: TextAlign.right)),
-          DataCell(Text('${cost.costo}€', style: _contentStyle)),
-          DataCell(Text('${cost.litri}',
-              style: _contentStyle,
-              textAlign: TextAlign.right)),
-          DataCell(IconButton(
-              onPressed: () => {
-                  AwesomeDialog(
-                    context: context,
-                    headerAnimationLoop: false,
-                    dialogType: DialogType.noHeader,
-                    title: 'Attenzione!',
-                    desc:
-                    'Sei sicuro di voler procedere con la cancellazione?',
-                    btnOkOnPress: () {
+  DataRow buildTableCosts(Costs cost) {
+    return DataRow(
+      cells: [
+        DataCell(Text('${cost.data}',
+            style: _contentStyle,
+            textAlign: TextAlign.right)),
+        DataCell(Text('${cost.costo} €', style: _contentStyle)),
+        DataCell(Text('${cost.litri}',
+            style: _contentStyle,
+            textAlign: TextAlign.right)),
+        DataCell(IconButton(
+            onPressed: () =>
+            {
+              AwesomeDialog(
+                context: context,
+                headerAnimationLoop: false,
+                dialogType: DialogType.noHeader,
+                title: 'Attenzione!',
+                desc:
+                'Sei sicuro di voler procedere con la cancellazione?',
+                body:
+                Container(
+                    height: 340,
+                    child:
+                    Column(
+                      children: [
+                        Container(
+                            alignment: Alignment.center,
+                            child: Text('Modifica data')
+                        ),
+                        Container(
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 15.0, horizontal: 10.0),
+                          child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  elevation: 10,
+                                  backgroundColor: Colors.blue,
+                                  shape: StadiumBorder()
+                              ),
+                              onPressed: () async {
+                                DateTime? newDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: now,
+                                    firstDate: DateTime(1900),
+                                    lastDate: DateTime(2100),
+                                    builder: (context, child) {
+                                      return Theme(
+                                        data: Theme.of(context).copyWith(
+                                            colorScheme: const ColorScheme
+                                                .light(
+                                              primary: Colors.lightBlue,
+                                              onPrimary: Colors.white,
+                                              onSurface: Colors.blueAccent,
+                                            ),
+                                            textButtonTheme: TextButtonThemeData(
+                                                style: TextButton.styleFrom(
+                                                  backgroundColor: Colors
+                                                      .lightBlue.shade50,
+                                                )
+                                            )
+                                        ),
+                                        child: child!,
+                                      );
+                                    }
+                                );
+                                if (newDate == null) return;
+                                setState(() => now = newDate);
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 8, horizontal: 15),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.calendar_month),
+                                    Text("Data rifornimento: ${formatter.format(
+                                        now)}")
+                                  ],
+                                ),
+                              )
+                          ),
+                        ),
+                        Container(
+                            margin: EdgeInsets.only(top: 20),
+                            alignment: Alignment.center,
+                            child: Text('Modifica costo rifornimento')
+                        ),
+                        Container(
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 15.0, horizontal: 15.0),
+                          child:
+                          TextFormField(
+                            autovalidateMode: AutovalidateMode
+                                .onUserInteraction,
+                            keyboardType: TextInputType.numberWithOptions(
+                                decimal: true),
+                            inputFormatters: [FilteringTextInputFormatter.allow(
+                                RegExp('[0-9.,]+')),
+                            ],
+                            decoration: InputDecoration(
+                              alignLabelWithHint: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 16,
+                              ),
+                              labelStyle: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.black54,
+                              ),
+                              labelText: 'Costo rifornimento',
+                              filled: true,
+                              fillColor: Colors.white,
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: BorderSide(color: Colors.grey),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Colors.indigoAccent),
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.red),
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.red),
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                            ),
+                            onChanged: (value) {
+                              setState(() {
+                                //costoRifornimento = double.tryParse(value);
+                              });
+                            },
+                          ),
+                        ),
+                        Container(
+                            margin: EdgeInsets.only(top: 20),
+                            alignment: Alignment.center,
+                            child: Text('Modifica litri')
+                        ),
+                        Container(
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 15.0, horizontal: 15.0),
+                          child:
+                          TextFormField(
+                            autovalidateMode: AutovalidateMode
+                                .onUserInteraction,
+                            keyboardType: TextInputType.numberWithOptions(
+                                decimal: true),
+                            inputFormatters: [FilteringTextInputFormatter.allow(
+                                RegExp('[0-9.,]+')),
+                            ],
+                            decoration: InputDecoration(
+                              alignLabelWithHint: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 16,
+                              ),
+                              labelStyle: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.black54,
+                              ),
+                              labelText: 'Litri',
+                              filled: true,
+                              fillColor: Colors.white,
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: BorderSide(color: Colors.grey),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Colors.indigoAccent),
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.red),
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.red),
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                            ),
+                            onChanged: (value) {
+                              setState(() {
+                                //costoRifornimento = double.tryParse(value);
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    )
 
-                    },
-                    btnCancelOnPress: () {
-                    },
-                    btnCancelText: 'Cancella',
-                    btnCancelIcon: Icons.cancel_outlined,
-                    btnOkIcon: Icons.check_circle,
-                  ).show()
-                },
-              icon: Icon(Icons.cancel_outlined, color: Colors.grey,))
-          ),
-        ],
-      );
+                ),
+                btnOkOnPress: () {},
+                btnCancelOnPress: () {},
+                btnCancelText: 'Cancella',
+                btnCancelIcon: Icons.cancel_outlined,
+                btnOkIcon: Icons.check_circle,
+              ).show()
+            },
+            icon: Icon(Icons.edit, color: Colors.grey,))
+        ),
+      ],
+    );
+  }
 
 
   Widget build(BuildContext context) {
@@ -142,7 +320,7 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
                         .map((e) {
                       return {
                         'domain': e.data()['mese'],
-                        'measure': e.data()['costo'],
+                        'measure': e.data()['costoRifornimento'],
                       };
                     }).toList();
                     return AspectRatio(

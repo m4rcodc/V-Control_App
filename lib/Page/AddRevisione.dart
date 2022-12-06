@@ -5,20 +5,20 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class BoxNofitica extends StatefulWidget{
+class BoxNotifica extends StatefulWidget{
   late int value;
   late String time;
   void Function()? remove;
 
-  BoxNofitica(String testo, int num, {super.key,required this.remove}){
+  BoxNotifica(String testo, int num, {super.key,required this.remove}){
     time = testo;
     value = num;
   }
   @override
-  State<BoxNofitica> createState() => _BoxNotificaState(time,value,remove);
+  State<BoxNotifica> createState() => _BoxNotificaState(time,value,remove);
 }
 
-class _BoxNotificaState extends State<BoxNofitica>{
+class _BoxNotificaState extends State<BoxNotifica>{
   late String _testoNotifica;
   final void Function()? remove;
   _BoxNotificaState(String time, int num, this.remove){
@@ -50,23 +50,10 @@ class _BoxNotificaState extends State<BoxNofitica>{
 class AddRevisione extends StatefulWidget{
   static const routeName = '/add-revisione';
 
-  static List<Map<String,dynamic>> revisione = [];
-
-  static Future<Map<String,dynamic>> getAssic() async{
-    if(revisione.length == 0){
-      var ref = FirebaseFirestore.instance.collection("Revisione");
-      var query = await ref.get();
-      for (var queryDocumentSnapshot in query.docs){
-        Map<String, dynamic> data = queryDocumentSnapshot.data();
-        print(data);
-        revisione.add(data);
-      }
-    }
-    return {};
-  }
+  static var info = null;
 
   @override
-  State<AddRevisione> createState() => _AddRevisioneState(revisione);
+  State<AddRevisione> createState() => _AddRevisioneState(info);
 
 }
 
@@ -74,19 +61,24 @@ class _AddRevisioneState extends State<AddRevisione> {
   String prezzo ="";
   String tipoScad ="";
   DateTime date = DateTime.now();
+  bool mod = false;
+  String stringNotifiche = '';
 
-  late List<Map<String,dynamic>> numAssic;
-  List<String> assicurazioni = [];
-  String selectAssic = '';
-  String numero = '';
-  bool blockText = true;
+  List<BoxNotifica> _notifiche = [];
 
-  List<BoxNofitica> _notifiche = [];
-
-  _AddRevisioneState(List<Map<String,dynamic>> assic){
-    numAssic = assic;
-    for(int i=0;i<assic.length;i++){
-      assicurazioni.add(assic[i]['nome']);
+  _AddRevisioneState(info){
+    if(info != null){
+      prezzo = info['prezzo'];
+      Timestamp timestamp = info['data'];
+      date = DateTime.fromMillisecondsSinceEpoch(timestamp.seconds*1000);
+      if(info['notifiche'] != ''){
+        List<String> notifiche = info['notifiche'].split(',');
+        for(int i=0;i<notifiche.length;i++){
+          List<String> notifica = notifiche[i].split('-');
+          _notifiche.add(BoxNotifica(notifica[1], int.parse(notifica[0]),remove: ()=>setState(() {_notifiche.clear();})));
+        }
+      }
+      mod = true;
     }
   }
 
@@ -105,7 +97,7 @@ class _AddRevisioneState extends State<AddRevisione> {
     }
     if(metti){
       setState(() {
-        _notifiche.add(BoxNofitica(time, num, remove: ()=>setState(() {_notifiche.clear();}))
+        _notifiche.add(BoxNotifica(time, num, remove: ()=>setState(() {_notifiche.clear();}))
         );
       });
     }
@@ -128,16 +120,25 @@ class _AddRevisioneState extends State<AddRevisione> {
 
   void _submit(){
     if (_formKey.currentState!.validate()){
+      for(int i=0;i<_notifiche.length;i++){
+        stringNotifiche += _notifiche[i].value.toString()+"-"+_notifiche[i].time;
+        if(i != _notifiche.length-1) stringNotifiche += ',';
+      }
       var info = {
         'titolo': 'Revisione',
-        'nome': selectAssic,
+        'nome': '',
         'prezzo': prezzo,
-        'tipoScad': tipoScad,
         'dataScad': date,
-        'tipoScad': tipoScad,
-        'notifiche': _notifiche,
+        'notifiche': stringNotifiche,
+        'tipoScad': ''
       };
-      Scadenze.insert(info);
+      if(mod){
+        Scadenze.update(info,'Revisione');
+        AddRevisione.info = null;
+      }
+      else{
+        Scadenze.insert(info,false);
+      }
       HomePage.setPage(Scadenze(), 1);
       Navigator.of(context).popAndPushNamed(HomePage.routeName);
     }
@@ -353,11 +354,12 @@ class _AddRevisioneState extends State<AddRevisione> {
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
                 alignment: Alignment.center,
-                child: Image.asset('images/ImageManutenzione.png',height: 120,width: 120),
+                child: Image.asset('images/ImageManutenzione.png',height: 150,width: 150),
               ),
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
                 child: TextFormField(
+                  initialValue: prezzo,
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     setState(() {
