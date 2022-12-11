@@ -2,13 +2,15 @@ import 'package:car_control/Page/AddAssicurazione.dart';
 import 'package:car_control/Page/AddBollo.dart';
 import 'package:car_control/Page/AddTagliando.dart';
 import 'package:car_control/Page/home_page.dart';
-import 'package:car_control/Page/veicolo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:intl/intl.dart';
 import '../Widgets/BoxScadenza.dart';
 import 'AddRevisione.dart';
+import 'package:timelines/timelines.dart';
+
 
 
 
@@ -18,6 +20,8 @@ class Scadenze extends StatefulWidget {
   static late List<AnimationWidget> lista = [];
 
   static bool resetAnimation = false;
+
+  static String uid = FirebaseAuth.instance.currentUser!.uid;
 
   static void modifica(String titolo,String nome,String prezzo, Timestamp data,String tipoScad,String notif){
     var info= {
@@ -48,7 +52,98 @@ class Scadenze extends StatefulWidget {
     Navigator.of(_ScadenzeState.contextScad).pushNamed(route);
   }
 
-  static String uid = FirebaseAuth.instance.currentUser!.uid;
+  static pagamento(String prezzo, String titolo) async{
+    List months =
+    ['gen', 'feb', 'mar', 'apr', 'mag','giu','lug','ago','set','ott','nov','dic'];
+    DateTime now = new DateTime.now();
+    int indexMonth = now.month;
+    String month = months[indexMonth - 1];
+    var formatter = new DateFormat('dd-MM-yyyy');
+
+    CollectionReference costiScadenze = await FirebaseFirestore
+        .instance.collection('CostiScadenze');
+    final doc = await FirebaseFirestore.instance
+        .collection('CostiScadenze')
+        .where(
+        'mese', isEqualTo: month)
+        .where('uid', isEqualTo: uid)
+        .get();
+    var docs = doc.docs;
+    double sum = 0.0;
+    for (int i = 0; i < docs.length; i++) {
+      sum += docs[i]['costoScadenza'];
+    }
+    final generalCosts = await FirebaseFirestore.instance
+        .collection('CostiGenerali')
+        .doc('2022')
+        .collection(uid!)
+        .get();
+    final test = await FirebaseFirestore.instance
+        .collection('CostiTotaliScadenze').doc('2022').collection(
+        uid!).get();
+    if (generalCosts.docs.isEmpty) {
+      final docu = await FirebaseFirestore
+          .instance.collection('CostiGenerali')
+          .doc('2022')
+          .collection(uid!);
+      for (int i = 0; i < 12; i++) {
+        docu.doc(months[i]).set(
+            {'mese': months[i],
+              'costo': 0,
+              'index': i,
+              'totaleLitri': 0,
+            }
+        );
+      }
+    }
+    if (test.docs.isEmpty) {
+      final docu = await FirebaseFirestore.instance
+          .collection('CostiTotaliScadenze')
+          .doc('2022')
+          .collection(uid!);
+      for (int i = 0; i < 12; i++) {
+        docu.doc(months[i]).set(
+            {'mese': months[i],
+              'costoScadenza': 0,
+              'index': i,
+            }
+        );
+      }
+    }
+
+    costiScadenze.add({
+      'costoScadenza': double.tryParse(prezzo),
+      'data': formatter.format(now),
+      'year': now.year.toString(),
+      'mese': month,
+      'uid': uid,
+      'tipo': titolo
+    });
+
+    final doc1 = await FirebaseFirestore.instance
+        .collection('CostiGenerali').doc('2022')
+        .collection(uid!).where(
+        'mese', isEqualTo: month)
+        .get();
+    var docs1 = doc1.docs;
+    double sum1 = 0.0;
+    sum1 += docs1[0]['costo'];
+
+    await FirebaseFirestore.instance.collection(
+        'CostiTotaliScadenze').doc('2022')
+        .collection(uid!)
+        .doc('${month}')
+        .update({"costoScadenza": sum + double.tryParse(prezzo)!});
+
+    await FirebaseFirestore.instance.collection(
+        'CostiGenerali').doc('2022')
+        .collection(uid!)
+        .doc('${month}')
+        .update({"costo": double.tryParse(prezzo)! + sum1});
+
+    deleteAfterPay(titolo);
+
+  }
 
   static Future<List<AnimationWidget>> getScadenze() async{
     var ref = FirebaseFirestore.instance.collection("scadenze")
@@ -65,7 +160,7 @@ class Scadenze extends StatefulWidget {
                 DateTime.fromMillisecondsSinceEpoch(timestamp.seconds*1000),
                 getIcon(data['titolo']),
                 data['prezzo'],
-                pagamento: (){},
+                pagamento: () => pagamento(data['prezzo'], data['titolo']),
                 modifica: () => modifica(data['titolo'],data['nome'],data['prezzo'],timestamp,data['tipoScad'],data['notifiche']),
                 delete: () => delete(data['titolo']),
               ),
@@ -94,7 +189,7 @@ class Scadenze extends StatefulWidget {
           info['dataScad'],
           getIcon(info['titolo']),
           info['prezzo'],
-          pagamento: (){},
+          pagamento: () => pagamento(info['prezzo'], info['titolo']),
           modifica: () => modifica(info['titolo'],info['nome'],info['prezzo'],timestamp,info['tipoScad'],info['notifiche']),
           delete: () => delete(info['titolo']),
         ),
@@ -116,6 +211,7 @@ class Scadenze extends StatefulWidget {
             'tipoScad': info['tipoScad'],
             'notifiche': info['notifiche'],
             'uid': uid,
+            'numero': info['numero']
           });
         }
       }
@@ -128,6 +224,7 @@ class Scadenze extends StatefulWidget {
           'tipoScad': info['tipoScad'],
           'notifiche': info['notifiche'],
           'uid': uid,
+          'numero': info['numero']
         });
       }
     });
@@ -150,7 +247,7 @@ class Scadenze extends StatefulWidget {
     return null;
   }
 
-  static void delete(String titolo){
+  static void delete(String titolo) async{
     if(titolo == 'Assicurazione') AddAssicurazione.info = null;
     if(titolo == 'Bollo') AddBollo.info = null;
     if(titolo == 'Revisione') AddRevisione.info = null;
@@ -167,13 +264,45 @@ class Scadenze extends StatefulWidget {
     }
 
     FirebaseAuth.instance.authStateChanges().listen((User? user) async {
-      CollectionReference scadenze = await FirebaseFirestore.instance.collection('scadenze');
-      var ref = scadenze.where('uid',isEqualTo: uid).where('titolo',isEqualTo: titolo);
+      CollectionReference scadenze = await FirebaseFirestore.instance
+          .collection('scadenze');
+      var ref = scadenze.where('uid', isEqualTo: uid).where(
+          'titolo', isEqualTo: titolo);
       var query = await ref.get();
-      for(var doc in query.docs){
+      for (var doc in query.docs) {
         doc.reference.delete();
       }
-    });
+    }
+      );
+  }
+
+  static void deleteAfterPay(String titolo){
+    if(titolo == 'Assicurazione') AddAssicurazione.info = null;
+    if(titolo == 'Bollo') AddBollo.info = null;
+    if(titolo == 'Revisione') AddRevisione.info = null;
+    if(titolo == 'Tagliando') AddTagliando.info = null;
+
+    AnimationWidget? deleted = search(titolo);
+    if(deleted != null){
+      lista.remove(deleted);
+      HomePage.setPage(Scadenze(), 1);
+      Navigator.pushReplacement(
+          _ScadenzeState.contextScad,
+          MaterialPageRoute(
+              builder: (BuildContext context) => HomePage()));
+    }
+
+    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+      CollectionReference scadenze = await FirebaseFirestore.instance
+          .collection('scadenze');
+      var ref = scadenze.where('uid', isEqualTo: uid).where(
+          'titolo', isEqualTo: titolo);
+      var query = await ref.get();
+      for (var doc in query.docs) {
+        doc.reference.delete();
+      }
+    }
+    );
   }
 
   static void sortLista(){
@@ -198,12 +327,37 @@ class Scadenze extends StatefulWidget {
 
   @override
   _ScadenzeState createState() => _ScadenzeState(lista,resetAnimation);
-}
+  }
+
 
 class _ScadenzeState extends State<Scadenze>{
   static late BuildContext contextScad;
 
   late List<AnimationWidget> listaScadenze;
+  var state;
+
+  String? uid = FirebaseAuth.instance.currentUser!.uid;
+
+  checkCar() async {
+    final doc =  await FirebaseFirestore.instance
+        .collection('vehicle')
+        .where('uid', isEqualTo: uid)
+        .get();
+    if(doc.docs.isNotEmpty){
+      state = true;
+      print(state);
+    }
+    else {
+      state = false;
+      print(state);
+    }
+  }
+
+  @override
+  initState() {
+    super.initState();
+    checkCar();
+  }
 
   _ScadenzeState(lista,resetAnimation) {
     listaScadenze = lista;
@@ -283,53 +437,71 @@ class _ScadenzeState extends State<Scadenze>{
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         actions: <Widget>[
-          SpeedDial(
-            foregroundColor: Colors.white,
-            backgroundColor: Colors.transparent,
-            direction: SpeedDialDirection.down,
-            spaceBetweenChildren: 15.0,
-            icon: Icons.add,
-            activeIcon: Icons.keyboard_arrow_up,
-            renderOverlay: true,
-            elevation: 0,
-            shape: CircleBorder(),
-            children: itemsAddScadenze,
-          ),
-        ],
-        title: Text('Scadenze'),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 10),
+             child: SpeedDial(
+              foregroundColor: Colors.white,
+              backgroundColor: Colors.transparent,
+              direction: SpeedDialDirection.down,
+              spaceBetweenChildren: 15.0,
+              icon: Icons.add,
+              activeIcon: Icons.keyboard_arrow_up,
+              renderOverlay: true,
+              elevation: 0,
+              shape: CircleBorder(),
+              children: itemsAddScadenze,
+            ),
+
+             )
+    ],
+        title: Text('Scadenze', style: TextStyle(color: Colors.white)),
         centerTitle: true,
         backgroundColor: Colors.transparent,
-        elevation: 0.0,
-        toolbarHeight: 55,
+        elevation: 10.0,
+        toolbarHeight: 50,
         flexibleSpace: Container(
           decoration:const BoxDecoration(
               borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
               gradient: LinearGradient(
-                colors: [Colors.cyan,Colors.lightBlue],
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
+                colors: [Colors.cyan,Color(0xFF90CAF9)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               )
           ),
         ),
       ), /*child:const Center(
             child: Text('Scadenze Screen', style: TextStyle(fontSize: 40)),
           )*/
-      body: Container(
+      body:
+      Container(
         decoration:const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Colors.lightBlue, Colors.white70],
-            )
+            color: Color(0xFFE3F2FD)
         ),
-        child: Center(
-            child: ListView(
-                children:  listaScadenze
+        child:
+        Stack(
+            children: [
+               Timeline.tileBuilder(
+                  padding: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.91, top: MediaQuery.of(context).size.height * 0.11),
+                    builder: TimelineTileBuilder.fromStyle(
+                      contentsAlign: ContentsAlign.basic,
+                      contentsBuilder: (context, index) => Padding(
+                        padding:  EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.18, bottom: 20),
+                      ),
+                      itemCount: 4,
+                      indicatorStyle: IndicatorStyle.dot,
+                      connectorStyle: ConnectorStyle.solidLine
+                      ),
+                      theme: TimelineThemeData(
+                        color: Colors.blue.shade500
+                      ),
+                    ),
+              ListView(
+                children:
+                listaScadenze,
             )
-        ),
+          ],
       ),
-
-
+      ),
     );
   }
 }
@@ -355,7 +527,7 @@ class _AnimationWidgetState extends State<AnimationWidget> with SingleTickerProv
   }
 
   late final AnimationController _controller = AnimationController(
-    duration: const Duration(seconds: 2),
+    duration: const Duration(seconds: 1),
     vsync: this,
   )..forward();
 

@@ -18,6 +18,7 @@ class _VeicoloState extends State<Veicolo>{
 
   var make;
   var state;
+  var state1;
 
   String? uid = FirebaseAuth.instance.currentUser!.uid;
 
@@ -28,10 +29,12 @@ class _VeicoloState extends State<Veicolo>{
         .get();
     if(doc.docs.isNotEmpty){
       state = true;
+      state1 = true;
       print(state);
     }
     else {
       state = false;
+      state1 = false;
       print(state);
     }
   }
@@ -287,8 +290,7 @@ class _VeicoloState extends State<Veicolo>{
           IconButton(
               icon: const Icon(Icons.add),
               onPressed: () {
-                Navigator.of(context).pushNamed(AddVeicolo.routeName);
-                /* if(checkCar() == true) {
+                 if(state1 == false) {
                 Navigator.of(context).pushNamed(AddVeicolo.routeName);
               }
               else {
@@ -300,13 +302,10 @@ class _VeicoloState extends State<Veicolo>{
                   title: 'Attenzione!',
                   desc:
                   'Per aggiungere un secondo veicolo, passa alla funzionalità premium dell\'app!',
-                  btnCancelText: 'Cancella',
-                  btnCancelOnPress: () {},
                   btnOkOnPress: () {
-                    deleteVehicle();
                   },
                 ).show();
-              }*/
+              }
               }
           )
         ],
@@ -316,7 +315,6 @@ class _VeicoloState extends State<Veicolo>{
         decoration: const BoxDecoration(
             color: Color(0xFFE3F2FD)
         ),
-
         child: ListView(
           //physics: NeverScrollableScrollPhysics(),
           children: [

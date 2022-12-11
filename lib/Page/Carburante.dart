@@ -98,7 +98,6 @@ class _CarburanteState extends State<Carburante>{
                     shrinkWrap: true,
                     padding: EdgeInsets.all(16),
                     children: [
-
                       //Data
                       Container(
                 margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
@@ -438,7 +437,7 @@ class _CarburanteState extends State<Carburante>{
                                   {'mese': months[i],
                                     'costo': 0,
                                     'index': i,
-                                    'totaleLitri': 0
+                                    'totaleLitri': 0,
                                   }
                               );
                             }

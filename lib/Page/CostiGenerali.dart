@@ -53,6 +53,17 @@ class CostiGeneraliState extends State<CostiGenerali>{
           snapshot.docs.map((doc) => RecapCosti.fromJson(doc.data())).toList()
       );
 
+  Stream<List<RecapCosti>> readRecapScadenze() =>
+      FirebaseFirestore.instance
+          .collection('CostiTotaliScadenze')
+          .doc('2022')
+          .collection(FirebaseAuth.instance.currentUser!.uid)
+          .where('mese', isEqualTo: month)
+          .snapshots()
+          .map((snapshot) =>
+          snapshot.docs.map((doc) => RecapCosti.fromJson(doc.data())).toList()
+      );
+
   ActivityListTile buildCardRecapRifornimenti(RecapCosti recapCosti) => ActivityListTile(
       title: 'Recap rifornimenti',
       subtitle:'Totale spese: ${recapCosti.rifornimento} €',
@@ -69,6 +80,16 @@ class CostiGeneraliState extends State<CostiGenerali>{
       subtitle2: '',
       trailingImage:
       Image.asset('images/ImageManutenzione2.png', height: 110),
+      color: Colors.white,
+      onTab: () {}
+  );
+
+  ActivityListTile buildCardRecapScadenze(RecapCosti recapCosti) => ActivityListTile(
+      title: 'Recap scadenze',
+      subtitle: 'Totale spese: ${recapCosti.costoScadenze}  €',
+      subtitle2: '',
+      trailingImage:
+      Image.asset('images/RecapScadenze.png', height: 110),
       color: Colors.white,
       onTab: () {}
   );
@@ -193,7 +214,6 @@ class CostiGeneraliState extends State<CostiGenerali>{
                   stream: readRecapRifornimenti(),
                   builder: (context,snapshot) {
                     if (snapshot.hasData) {
-                      print('la query è andata a buon fine');
                       final recap = snapshot.data!;
                       if(recap.isNotEmpty) {
                         return ListView(
@@ -226,7 +246,6 @@ class CostiGeneraliState extends State<CostiGenerali>{
                       }
                     }
                     else {
-                      print('query fallita');
                       //return Center(child: CircularProgressIndicator());
                       return Column(
                           children: [
@@ -256,7 +275,6 @@ class CostiGeneraliState extends State<CostiGenerali>{
                         stream: readRecapManutenzioni(),
                         builder: (context,snapshot) {
                           if (snapshot.hasData) {
-                            print('la query è andata a buon fine');
                             final recap = snapshot.data!;
                             if(recap.isNotEmpty) {
                               return ListView(
@@ -282,7 +300,6 @@ class CostiGeneraliState extends State<CostiGenerali>{
                             }
                           }
                           else {
-                            print('query fallita');
                             //return Center(child: CircularProgressIndicator());
                             return Column(
                                 children: [
@@ -292,6 +309,55 @@ class CostiGeneraliState extends State<CostiGenerali>{
                                       subtitle2: '',
                                       trailingImage:
                                       Image.asset('images/ImageManutenzione2.png', height: 110),
+                                      color: Colors.white,
+                                      onTab: () {}
+                                  ),
+                                ]
+                            );
+                          }
+                        }
+                    ),
+                    //Scadenze
+                  StreamBuilder<List<RecapCosti>> (
+                        stream: readRecapScadenze(),
+                        builder: (context,snapshot) {
+                          if (snapshot.hasData) {
+                            final recap = snapshot.data!;
+                            if(recap.isNotEmpty) {
+                              return ListView(
+                                  padding: EdgeInsets.symmetric(vertical: 0),
+                                  shrinkWrap: true,
+                                  children: recap.map(buildCardRecapScadenze).toList()
+                              );
+                            }
+                            else {
+                              print('sono qui');
+                              return Column(
+                                  children: [
+                                    ActivityListTile(
+                                        title: 'Recap Scadenze',
+                                        subtitle: 'Totale spese:  €',
+                                        subtitle2: '',
+                                        trailingImage:
+                                        Image.asset('images/RecapScadenze.png', height: 110),
+                                        color: Colors.white,
+                                        onTab: () {}
+                                    ),
+                                  ]
+                              );
+                            }
+                          }
+                          else {
+                            print('sono qui 1');
+                            //return Center(child: CircularProgressIndicator());
+                            return Column(
+                                children: [
+                                  ActivityListTile(
+                                      title: 'Recap Scadenze',
+                                      subtitle: 'Totale spese:  €',
+                                      subtitle2: '',
+                                      trailingImage:
+                                      Image.asset('images/RecapScadenze.png', height: 110),
                                       color: Colors.white,
                                       onTab: () {}
                                   ),

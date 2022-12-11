@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -38,17 +39,23 @@ class BoxScadenza extends StatelessWidget{
       if(prezzo == "")
         _subtitle = strScadenza;
       else
-        _subtitle = strScadenza+"\n"+prezzo+"€";
+        _subtitle = strScadenza+"\n"+prezzo+" €";
     }
     else
-      _subtitle = nomeAssic+"\n"+strScadenza+"\n"+prezzo+"€";
+      _subtitle = nomeAssic+"\n"+strScadenza+"\n"+prezzo+" €";
     _icona = icona;
   }
+
+  void methodPagamento() async {
+    pagamento;
+  }
+
+
 
   @override
   Widget build(BuildContext context){
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
+      margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.032,left: MediaQuery.of(context).size.width * 0.073, right: MediaQuery.of(context).size.width * 0.023),
       child: Card(
         shape: RoundedRectangleBorder(
           side: BorderSide(
@@ -58,29 +65,73 @@ class BoxScadenza extends StatelessWidget{
           borderRadius: BorderRadius.all(Radius.circular(12)),
 
         ),
-        child: Column(
+        child:
+        Container(
+        margin: EdgeInsets.only(top: 8),
+        child:
+        Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             ListTile(
               leading: Icon(
                 _icona,
                 size: 45,
+                color: Colors.blue.shade200,
               ),
               title: Text(_title),
               subtitle: Text(_subtitle),
-              trailing: IconButton(
-                icon: Icon(Icons.close),
-                onPressed: delete,
+              trailing:
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFF90CAF9),
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                child:
+              IconButton(
+                icon: Icon(Icons.close, color: Colors.white),
+                onPressed:
+                    () {
+                      AwesomeDialog(
+                        context: context,
+                        dialogType: DialogType.warning,
+                        headerAnimationLoop: false,
+                        animType: AnimType.topSlide,
+                        title: 'Attenzione!',
+                        desc:
+                        'Sicuro di voler procedere con l\'eliminazione?',
+                        btnCancelText: 'No',
+                        btnOkText: 'Si',
+                        btnCancelOnPress: () {},
+                        btnOkOnPress:
+                          delete
+                      ).show();
+                    }
+              ),
               ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 TextButton(
-                    onPressed: pagamento,
+                    onPressed:
+                        () {
+                      AwesomeDialog(
+                        context: context,
+                        dialogType: DialogType.warning,
+                        headerAnimationLoop: false,
+                        animType: AnimType.topSlide,
+                        title: 'Vuoi proseguire con l\'aggiunta del pagamento all\'interno della sezione costi?',
+                        btnOkText: 'Prosegui',
+                        btnCancelText: 'No',
+                        btnCancelOnPress: () {},
+                        btnOkOnPress:
+                          pagamento
+                      ).show();
+                      },
+
                     child:Row(
                       children: const [
-                        Icon(Icons.monetization_on,color: Colors.green,),
+                        Icon(Icons.euro,color: Colors.green,),
                         Text("Pagamento")
                       ],
                     )
@@ -95,6 +146,7 @@ class BoxScadenza extends StatelessWidget{
             ),
           ],
         ),
+      ),
       ),
     );
   }

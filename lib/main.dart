@@ -1,5 +1,6 @@
 import 'package:car_control/Page/AddAssicurazione.dart';
 import 'package:car_control/Page/AddBollo.dart';
+import 'package:car_control/Page/AddRevisione.dart';
 import 'package:car_control/Page/AddTagliando.dart';
 import 'package:car_control/Page/Autolavaggio.dart';
 import 'package:car_control/Page/Costi.dart';
@@ -53,6 +54,7 @@ class MyApp extends StatelessWidget {
         AddAssicurazione.routeName: (context) => AddAssicurazione(),
         AddTagliando.routeName: (context) => AddTagliando(),
         AddBollo.routeName: (context) => AddBollo(),
+        AddRevisione.routeName: (context) => AddRevisione(),
         Costi.routeName: (context) => Costi(0),
         CostiRifornimento.routeName: (context) => CostiRifornimento(),
 

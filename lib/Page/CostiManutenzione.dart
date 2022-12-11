@@ -233,7 +233,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                 ),
             ),
             Container(
-              padding: EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+              padding: EdgeInsets.symmetric(vertical: 6, horizontal: 3),
               child: Accordion(
                 maxOpenSections: 2,
                 headerBackgroundColorOpened: Colors.black54,

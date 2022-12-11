@@ -1,7 +1,9 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:car_control/Page/Scadenze.dart';
 import 'package:car_control/Page/home_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -33,14 +35,28 @@ class _BoxNotificaState extends State<BoxNotifica>{
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           IconButton(
+            color: Colors.white,
               onPressed: remove,
               icon: Icon(Icons.close)),
-          Text(
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(
+                  Radius.circular(25)),
+              color: Colors.white,
+            ),
+            child:
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            child:
+            Text(
             _testoNotifica,
             style: const TextStyle(
-                fontSize: 18
+                fontSize: 15,
+                color: Colors.black45
             ),
-          )
+          ),
+          ),
+          ),
         ],
       ),
     );
@@ -82,7 +98,22 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
   bool blockText = true;
   var info;
   bool mod = false;
+  String assicurazione = "Assicurazione";
   String stringNotifiche = "";
+  String? typeAssicurazione = 'Assicurazione';
+  String? allianz = 'Allianz Direct';
+  String? direct = 'Direct Assicurazioni';
+  String? italiana = 'Italiana Assicurazioni';
+  String? quixa = 'Quixa';
+  String? zurich = 'Zurich Connect';
+  bool? flag;
+  String? typeScadenza = 'Tipo di scadenza';
+  String? uid = FirebaseAuth.instance.currentUser!.uid;
+  List months =
+  ['gen', 'feb', 'mar', 'apr', 'mag','giu','lug','ago','set','ott','nov','dic'];
+  int? current_month;
+  DateTime now = new DateTime.now();
+  var formatter = new DateFormat('dd-MM-yyyy');
 
   List<BoxNotifica> _notifiche = [];
 
@@ -151,26 +182,28 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
 
   final _formKey = GlobalKey<FormState>();
 
-  void _submit(){
-    if (_formKey.currentState!.validate()){
-      for(int i=0;i<_notifiche.length;i++){
-        stringNotifiche += _notifiche[i].value.toString()+"-"+_notifiche[i].time;
-        if(i != _notifiche.length-1) stringNotifiche += ',';
+  void _submit() async{
+    if (_formKey.currentState!.validate()) {
+      for (int i = 0; i < _notifiche.length; i++) {
+        stringNotifiche +=
+            _notifiche[i].value.toString() + "-" + _notifiche[i].time;
+        if (i != _notifiche.length - 1) stringNotifiche += ',';
       }
       var info = {
         'titolo': 'Assicurazione',
-        'nome': selectAssic,
+        'nome': typeAssicurazione,
         'prezzo': prezzo,
-        'tipoScad': tipoScad,
         'dataScad': date,
-        'tipoScad': tipoScad,
+        'tipoScad': typeScadenza,
         'notifiche': stringNotifiche,
+        'numero': numero
       };
-      if(mod){
-        Scadenze.update(info,'Assicurazione');
+      if (mod) {
+        Scadenze.update(info, 'Assicurazione');
       }
-      else{
-        Scadenze.insert(info,false);
+      else {
+        Scadenze.insert(info, false);
+
       }
       AddAssicurazione.info = null;
       HomePage.setPage(Scadenze(), 1);
@@ -217,6 +250,8 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
             context: context,
             builder: (BuildContext context) =>
                 AlertDialog(
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(25.0))),
                   title: const Text('Notifica personalizzata'),
                   content: Form(
                     child:Row(
@@ -341,256 +376,98 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        iconTheme: IconThemeData(
+          color: Colors.blue.shade300, //
+        ),
         actions: <Widget>[
           Container(
-            margin: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
-            child: ElevatedButton(
+            margin: EdgeInsets.symmetric(vertical: 10,horizontal: 5),
+            child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                  elevation: 10,
-                  backgroundColor: Colors.white70,
+                  elevation: 3,
+                  backgroundColor: Colors.white,
                   shape: StadiumBorder()
               ),
-              onPressed: _submit,
-              child: Text("Salva",style: TextStyle(fontSize: 18,color: Colors.blue),),
+              onPressed:() async{
+                await showDialog(
+                    context: context,
+                    builder: (BuildContext context){
+                      List<Widget> notif = dialogNotif;
+                      for(int i=0;i<_notifiche.length;i++){
+                        if((_notifiche[i].value == 1 && _notifiche[i].time != "ore") || (_notifiche[i].value == 12 && _notifiche[i].time == "ore")){
+                          for(int j=0;j<notif.length;j++){
+                            if(notif[j].key.toString() == "[<'"+_notifiche[i].time+"'>]"){
+                              notif.removeAt(j);
+                            }
+                          }
+                        }
+                      }
+                      return SimpleDialog(
+                        title: const Text("Aggiungi notifiche"),
+                        children: notif,
+                        shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(25.0))),
+                      );
+                    }
+                );
+              },
+              icon: Icon(
+                Icons.notification_add,
+                color: Colors.blue,
+              ),
+              label: Text("Notifiche",style: TextStyle(fontSize: 16,color: Colors.blue),),
 
             ),
           )
         ],
-        title: Text("Assicurazione"),
+        title: Text("Assicurazione",style: TextStyle(color: Colors.blue.shade300)),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0.0,
-        toolbarHeight: 55,
-        flexibleSpace: Container(
-          decoration:const BoxDecoration(
-              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
-              gradient: LinearGradient(
-                  colors: [Colors.cyan,Colors.lightBlue],
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft
-              )
-          ),
-        ),
+        //toolbarHeight: 55,
       ),
       body: Container(
-        //padding: EdgeInsets.only(top: 20.0,left: 20.0, right: 20.0),
-        decoration:const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              colors: [Colors.lightBlue, Colors.white70],
-            )
+        decoration: const BoxDecoration(
+            color: Color(0xFFE3F2FD),
         ),
-        child: Form(
+        child:
+            ListView(
+    children: [
+      Container(
+        child:
+        Image.asset(
+          'images/Assicurazione.png',
+          //scale:1,
+          //fit: BoxFit.contain,
+          height: MediaQuery.of(context).size.height * 0.24,
+          width: MediaQuery.of(context).size.width,
+        ),
+      ),
+         Container(
+           margin: EdgeInsets.only(top:0, bottom: 30, left: 30, right: 30),
+          decoration: BoxDecoration(
+            color: Color(0xFF90CAF9),
+            borderRadius: BorderRadius.all(
+               Radius.circular(25),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black54,
+                blurRadius: 6.0,
+              ),
+            ],
+          ),
+          //height: MediaQuery.of(context).size.height * 0.58,
+        child: ListView(
+          //physics: NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          //padding: EdgeInsets.all(16),
+        children: [
+        Form(
           key: _formKey,
           child: ListView(
+            shrinkWrap: true,
             children: [
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
-                alignment: Alignment.center,
-                child: Image.asset('images/insurance.png',height: 120,width: 120),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
-                child: DropdownButtonFormField2(
-                  decoration: InputDecoration(
-                    //Add isDense true and zero Padding.
-                    //Add Horizontal padding using buttonPadding and Vertical padding by increasing buttonHeight instead of add Padding here so that The whole TextField Button become clickable, and also the dropdown menu open under The whole TextField Button.
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: Colors.grey),
-                      ),
-                      focusedBorder:  OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.indigoAccent),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white70
-                  ),
-                  isExpanded: true,
-                  hint: const Text(
-                    'Assicurazione',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                  icon: const Icon(
-                    Icons.arrow_drop_down,
-                    color: Colors.black45,
-                  ),
-                  iconSize: 30,
-                  buttonHeight: 60,
-                  buttonPadding: const EdgeInsets.only(left: 20, right: 10),
-                  dropdownDecoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  value: mod ? selectAssic : null,
-                  items: assicurazioni
-                      .map((item) =>
-                      DropdownMenuItem<String>(
-                        value: item,
-                        child: Text(
-                          item,
-                          style: const TextStyle(
-                            fontSize: 14,
-                          ),
-                        ),
-                      ))
-                      .toList(),
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Seleziona assicurazione';
-                    }
-                  },
-                  onChanged: (value) {
-                    selectAssic = value.toString();
-                    print(selectAssic);
-                    for(int i=0;i<numAssic.length;i++){
-                      if(numAssic[i]['nome'] == selectAssic) {
-                        setState(() {
-                          numero = numAssic[i]['numero'];
-                          blockText = false;
-                        });
-                      }
-                    }
-                  },
-                  onSaved: (value) {
-                    selectAssic = value.toString();
-                  },
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
-                child: TextFormField(
-                  enabled: blockText,
-                  controller: TextEditingController(text: numero),
-                  onChanged: (value) {
-                    setState(() {
-                      numero = value;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 20,
-                    ),
-                    hintText: "Numero assicurazione",
-                    hintStyle: const TextStyle(fontSize: 14),
-                    filled: true,
-                    fillColor: Colors.white70,
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder:  OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.indigoAccent),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                  validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return "Inserisci il numero dell'assicurazione";
-                    }
-                    return null;
-                  },
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
-                child: TextFormField(
-                  initialValue: prezzo,
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    setState(() {
-                      prezzo = value;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 20,
-                    ),
-                    hintText: "Inserisci il prezzo",
-                    hintStyle: const TextStyle(fontSize: 14),
-                    filled: true,
-                    fillColor: Colors.white70,
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder:  OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.indigoAccent),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                  validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Inserisci il prezzo';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
-                child: DropdownButtonFormField2(
-                  decoration: InputDecoration(
-                    //Add isDense true and zero Padding.
-                    //Add Horizontal padding using buttonPadding and Vertical padding by increasing buttonHeight instead of add Padding here so that The whole TextField Button become clickable, and also the dropdown menu open under The whole TextField Button.
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: Colors.grey),
-                      ),
-                      focusedBorder:  OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.indigoAccent),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white70
-                  ),
-                  value: mod ? tipoScad : null,
-                  isExpanded: true,
-                  hint: const Text(
-                    'Tipologia scadenza',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                  icon: const Icon(
-                    Icons.arrow_drop_down,
-                    color: Colors.black45,
-                  ),
-                  iconSize: 30,
-                  buttonHeight: 60,
-                  buttonPadding: const EdgeInsets.only(left: 20, right: 10),
-                  dropdownDecoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  items: choiceScad
-                      .map((item) =>
-                      DropdownMenuItem<String>(
-                        value: item,
-                        child: Text(
-                          item,
-                          style: const TextStyle(
-                            fontSize: 14,
-                          ),
-                        ),
-                      ))
-                      .toList(),
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Seleziona tipologia scadenza';
-                    }
-                  },
-                  onChanged: (value) {
-                    tipoScad = value.toString();
-                  },
-                  onSaved: (value) {
-                    tipoScad = value.toString();
-                  },
-                ),
-              ),
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
                 child: ElevatedButton(
@@ -627,7 +504,7 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
                       setState(() => date = newDate);
                     },
                     child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 15,horizontal: 15),
+                      padding: EdgeInsets.symmetric(vertical: 8,horizontal: 15),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -638,46 +515,649 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
                     )
                 ),
               ),
-
               Container(
-                margin: const EdgeInsets.symmetric(vertical: 10,horizontal: 15.0),
+                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
                 child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      elevation: 10,
-                      backgroundColor: Colors.blue,
-                      shape: const StadiumBorder()
-                  ),
-                  onPressed:() async{
-                    await showDialog(
+                    style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.only(top: 10, bottom: 10),
+                        elevation: 3,
+                        backgroundColor: Colors.white,
+                        shadowColor: Colors.blue.withOpacity(0.09),
+                        shape: StadiumBorder(),
+                        side: BorderSide(color: Colors.grey, width: 1)
+                    ),
+                    onPressed: () async {
+                      AwesomeDialog(
                         context: context,
-                        builder: (BuildContext context){
-                          List<Widget> notif = dialogNotif;
-                          for(int i=0;i<_notifiche.length;i++){
-                            if((_notifiche[i].value == 1 && _notifiche[i].time != "ore") || (_notifiche[i].value == 12 && _notifiche[i].time == "ore")){
-                              for(int j=0;j<notif.length;j++){
-                                if(notif[j].key.toString() == "[<'"+_notifiche[i].time+"'>]"){
-                                  notif.removeAt(j);
-                                }
-                              }
-                            }
-                          }
-                          return SimpleDialog(
-                            title: const Text("Aggiungi notifiche"),
-                            children: notif,
-                          );
-                        }
-                    );
+                        headerAnimationLoop: false,
+                        dialogType: DialogType.noHeader,
+                        padding: EdgeInsets.zero,
+                        dialogBackgroundColor: Colors.blue.shade200,
+                        body:
+                        Table(
+                          children:  [
+                            TableRow(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                    height: 120,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        elevation: 10,
+                                        backgroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          //side: BorderSide(color: Colors.blue,width: 1.5),
+                                        ),
+                                      ),
+                                      onPressed:  () => {
+                                      for(int i=0;i<numAssic.length;i++){
+                                        if(numAssic[i]['nome'] == allianz!) {
+                                            setState(() {
+                                              numero = numAssic[i]['numero'];
+                                              blockText = false;
+                                              typeAssicurazione = allianz!;
+                                            })
+                                          }
+                                      },
+                                        Navigator.pop(context),
+                                      },
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          Align(
+                                            heightFactor: 1.5,
+                                            alignment: Alignment.center,
+                                            child: Image.asset('images/Allianz.png',scale: 6.5),
+                                          ),
+                                          Container(
+                                            padding: EdgeInsets.symmetric(vertical:0,horizontal: 6),
+                                            alignment: Alignment.bottomCenter,
+                                            child: Text('Allianz Direct', style: const TextStyle(
+                                              fontSize: 12.0,
+                                              color: Color(0xFF1A1316),
+
+                                            ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    //child: Text(prova!, style: TextStyle(color: Colors.grey)),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                    height: 120,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          elevation: 10,
+                                          backgroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            //side: BorderSide(color: Colors.blue,width: 1.5),
+                                          )
+                                      ),
+                                      onPressed:  () => {
+                                        for(int i=0;i<numAssic.length;i++){
+                                          if(numAssic[i]['nome'] == direct!) {
+                                            setState(() {
+                                              numero = numAssic[i]['numero'];
+                                              blockText = false;
+                                              typeAssicurazione = direct!;
+                                            })
+                                          }
+                                        },
+                                        Navigator.pop(context),
+                                      },
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          Align(
+                                            heightFactor: 1.6,
+                                            alignment: Alignment.center,
+                                            child: Image.asset('images/Direct.png',scale: 2.5, alignment: Alignment.center,),
+                                          ),
+                                          Container(
+                                            padding: EdgeInsets.symmetric(vertical:2,horizontal: 6),
+                                            alignment: Alignment.bottomCenter,
+                                            child: Text('Direct Assicurazioni', textAlign: TextAlign.center, style: const TextStyle(
+                                              fontSize: 12.0,
+                                              color: Color(0xFF1A1316),
+
+                                            ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+
+                                ]
+                            ),
+                            TableRow(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                    height: 120,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          elevation: 10,
+                                          backgroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            //side: BorderSide(color: Colors.blue,width: 1.5),
+                                          )
+                                      ),
+                                      onPressed:  () => {
+                                        for(int i=0;i<numAssic.length;i++){
+                                          if(numAssic[i]['nome'] == italiana!) {
+                                            setState(() {
+                                              numero = numAssic[i]['numero'];
+                                              blockText = false;
+                                              typeAssicurazione = italiana!;
+                                            })
+                                          }
+                                        },
+                                        Navigator.pop(context),
+                                      },
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          Align(
+                                            heightFactor: 1.3,
+                                            alignment: Alignment.center,
+                                            child: Image.asset('images/Italiana.png',scale: 9),
+                                          ),
+                                          Container(
+                                            padding: EdgeInsets.symmetric(vertical:2,horizontal: 0),
+                                            alignment: Alignment.bottomCenter,
+                                            child: Text('Italiana Assicurazioni', textAlign: TextAlign.center, style: const TextStyle(
+                                              fontSize: 12.0,
+                                              color: Color(0xFF1A1316),
+
+                                            ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                    height: 120,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          elevation: 10,
+                                          backgroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            //side: BorderSide(color: Colors.blue,width: 1.5),
+                                          )
+                                      ),
+                                      onPressed:  () => {
+                                        for(int i=0;i<numAssic.length;i++){
+                                          if(numAssic[i]['nome'] == quixa!) {
+                                            setState(() {
+                                              numero = numAssic[i]['numero'];
+                                              blockText = false;
+                                              typeAssicurazione = quixa!;
+                                            })
+                                          }
+                                        },
+                                        Navigator.pop(context),
+                                      },
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          Align(
+                                            heightFactor: 1.5,
+                                            alignment: Alignment.center,
+                                            child: Image.asset('images/Quixa.png',scale: 5.5),
+                                          ),
+                                          Container(
+                                            padding: EdgeInsets.symmetric(vertical:2,horizontal: 8),
+                                            alignment: Alignment.bottomCenter,
+                                            child: Text('Quixa', style: const TextStyle(
+                                              fontSize: 12.0,
+                                              color: Color(0xFF1A1316),
+
+                                            ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ]
+                            ),
+                            TableRow(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                    height: 120,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          elevation: 10,
+                                          backgroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            //side: BorderSide(color: Colors.blue,width: 1.5),
+                                          )
+                                      ),
+                                      onPressed:  () => {
+                                        for(int i=0;i<numAssic.length;i++){
+                                          if(numAssic[i]['nome'] == zurich!) {
+                                            setState(() {
+                                              numero = numAssic[i]['numero'];
+                                              blockText = false;
+                                              typeAssicurazione = zurich!;
+                                            })
+                                          }
+                                        },
+                                        Navigator.pop(context),
+                                      },
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          Align(
+                                            heightFactor: 1.8,
+                                            alignment: Alignment.center,
+                                            child: Image.asset('images/Zurich.png',scale: 4.5),
+                                          ),
+                                          Container(
+                                            padding: EdgeInsets.symmetric(vertical:2,horizontal: 0),
+                                            alignment: Alignment.bottomCenter,
+                                            child: Text('Zurich Connect', style: const TextStyle(
+                                              fontSize: 12.0,
+                                              color: Color(0xFF1A1316),
+
+                                            ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                    height: 120,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          elevation: 10,
+                                          backgroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            //side: BorderSide(color: Colors.blue,width: 1.5),
+                                          )
+                                      ),
+                                        onPressed:  () => {
+                                          showDialog(
+                                              context: context,
+                                              builder: (context) => AlertDialog(
+                                                  shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.all(Radius.circular(32.0))),
+                                                  title: Text('Inserisci l\'assicurazione del tuo veicolo'),
+                                                  content: TextFormField(
+                                                    autofocus: true,
+                                                    decoration: InputDecoration(hintText: 'Inserisci qui'),
+                                                    onChanged: (value) {
+                                                      setState(() {
+                                                        typeAssicurazione = value;
+                                                        blockText = true;
+                                                      });
+                                                    },
+                                                  ),
+                                                  actions: [
+                                                    TextButton(
+                                                      child: Text('Inserisci'),
+                                                      onPressed: () {
+                                                        var nav =  Navigator.of(context);
+                                                        nav.pop();
+                                                        nav.pop();
+                                                      },
+                                                    )
+                                                  ]
+                                              )
+                                          ),
+                                      },
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          Align(
+                                            heightFactor: 1.5,
+                                            alignment: Alignment.center,
+                                            child: Image.asset('images/OtherMaintenance.png',scale: 5),
+                                          ),
+                                          Container(
+                                            padding: EdgeInsets.symmetric(vertical:2,horizontal: 6),
+                                            alignment: Alignment.bottomCenter,
+                                            child: Text('Altro', style: const TextStyle(
+                                              fontSize: 12.0,
+                                              color: Color(0xFF1A1316),
+
+                                            ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ]
+                            ),
+                          ],
+                        ),
+                      ).show();
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8,horizontal: 15),
+                      child: Row(
+                        //mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          //Icon(Icons.calendar_month),
+                          Text('$typeAssicurazione', style: TextStyle(color: Colors.black45),)
+                        ],
+                      ),
+                    )
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
+                child: TextFormField(
+                  enabled: blockText,
+                  autofocus: false,
+                  controller: blockText == true ? null : TextEditingController(text: numero),
+                  onChanged: (value) {
+                    setState(() {
+                      numero = value;
+                    });
                   },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 15,horizontal: 15),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.notification_add),
-                        Text(" Aggiungi notifiche")
-                      ],
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                    labelText: "Numero assicurazione",
+                    labelStyle: const TextStyle(fontSize: 14, color: Colors.black54),
+                    filled: true,
+                    fillColor: Colors.white,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                    focusedBorder:  OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: BorderSide(color: Colors.indigoAccent),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red),
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red),
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    disabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.indigoAccent),
+                      borderRadius: BorderRadius.circular(25),
                     ),
                   ),
+                  validator: (String? value) {
+                    if (value == null || value.isEmpty) {
+                      return "Inserisci il numero dell'assicurazione";
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
+                child: TextFormField(
+                  autofocus: false,
+                  initialValue: prezzo,
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    setState(() {
+                      prezzo = value;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                    labelText: "Inserisci il prezzo",
+                    labelStyle: const TextStyle(fontSize: 14, color: Colors.black54),
+                    filled: true,
+                    fillColor: Colors.white,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                    focusedBorder:  OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.indigoAccent),
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red),
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red),
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                  ),
+                  validator: (String? value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Inserisci il prezzo';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
+                child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.only(top: 10, bottom: 10),
+                        elevation: 3,
+                        backgroundColor: Colors.white,
+                        shadowColor: Colors.blue.withOpacity(0.09),
+                        shape: StadiumBorder(),
+                        side: BorderSide(color: Colors.grey, width: 1)
+                    ),
+                    onPressed: () {
+                      AwesomeDialog(
+                        context: context,
+                        headerAnimationLoop: false,
+                        dialogType: DialogType.noHeader,
+                        dialogBackgroundColor: Colors.blue.shade200,
+                        dialogBorderRadius: BorderRadius.all(
+                            Radius.circular(30)),
+                        body:
+                        Container(
+                            height: MediaQuery.of(context).size.height * 0.32,
+                            child:
+                            Column(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 5.0, vertical: 15.0),
+                                  child:
+                                  Row(
+                                      mainAxisAlignment: MainAxisAlignment
+                                          .spaceEvenly,
+                                      children: [
+                                        Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 10, horizontal: 15),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(30)),
+                                            color: Colors.white,
+                                            boxShadow: <BoxShadow>[
+                                              BoxShadow(
+                                                  color: Colors.black54,
+                                                  blurRadius: 20.0,
+                                                  offset: Offset(0.0, 6)
+                                              )
+                                            ],
+                                          ),
+                                          child:
+                                          Icon(
+                                            Icons.calendar_month,
+                                            size: 25.0,
+                                          ),
+                                        ),
+                                        Container(
+                                          width: 188,
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 10,
+                                                    horizontal: 15),
+                                                shape: StadiumBorder(),
+                                                elevation: 10.0,
+                                                backgroundColor: Colors.white
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                typeScadenza = 'Trimestrale';
+                                              });
+                                              Navigator.pop(context);
+                                            },
+                                            child: Text('Trimestrale',
+                                                style: TextStyle(fontSize: 25,
+                                                    color: Colors.black87)),
+
+                                          ),
+                                        )
+                                      ]
+                                  ),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 5.0, vertical: 15.0),
+                                  child:
+                                  Row(
+                                      mainAxisAlignment: MainAxisAlignment
+                                          .spaceEvenly,
+                                      children: [
+                                        Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 10, horizontal: 15),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(30)),
+                                            color: Colors.white,
+                                            boxShadow: <BoxShadow>[
+                                              BoxShadow(
+                                                  color: Colors.black54,
+                                                  blurRadius: 20.0,
+                                                  offset: Offset(0.0, 6)
+                                              )
+                                            ],
+                                          ),
+                                          child:
+                                          Icon(
+                                            Icons.calendar_month,
+                                            size: 25.0,
+                                          ),
+                                        ),
+                                        Container(
+                                          width: 188,
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              padding: EdgeInsets.symmetric(
+                                                  vertical: 10, horizontal: 15),
+                                              shape: StadiumBorder(),
+                                              elevation: 10.0,
+                                              backgroundColor: Colors.white,
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                typeScadenza = 'Semestrale';
+                                              });
+                                              Navigator.pop(context);
+                                            },
+                                            child: Text('Semestrale',
+                                                style: TextStyle(fontSize: 25,
+                                                    color: Colors.black87)),
+
+                                          ),
+                                        )
+                                      ]
+                                  ),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 5.0, vertical: 15.0),
+                                  child:
+                                  Row(
+                                      mainAxisAlignment: MainAxisAlignment
+                                          .spaceEvenly,
+                                      children: [
+                                        Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 10, horizontal: 15),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(30)),
+                                            color: Colors.white,
+                                            boxShadow: <BoxShadow>[
+                                              BoxShadow(
+                                                  color: Colors.black54,
+                                                  blurRadius: 20.0,
+                                                  offset: Offset(0.0, 6)
+                                              )
+                                            ],
+                                          ),
+                                          child:
+                                          Icon(
+                                            Icons.calendar_month,
+                                            size: 25.0,
+                                          ),
+                                        ),
+                                        Container(
+                                          width: 188,
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 10,
+                                                    horizontal: 15),
+                                                shape: StadiumBorder(),
+                                                elevation: 10.0,
+                                                backgroundColor: Colors.white
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                typeScadenza = 'Annuale';
+                                              });
+                                              Navigator.pop(context);
+                                            },
+                                            child: Text('Annuale',
+                                                style: TextStyle(fontSize: 25,
+                                                    color: Colors.black87)),
+
+                                          ),
+                                        )
+                                      ]
+                                  ),
+                                ),
+                              ],
+                            )
+                        ),
+                      ).show();
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8,horizontal: 15),
+                      child: Row(
+                        //mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          //Icon(Icons.calendar_month),
+                          Text('$typeScadenza', style: TextStyle(color: Colors.black45),)
+                        ],
+                      ),
+                    )
                 ),
               ),
               Container(
@@ -685,9 +1165,53 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
                     children: _notifiche
                 ),
               ),
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 80.0),
+                child: ElevatedButton(
+                  onPressed: () => {
+                  _submit()
+              },
+                  style: ElevatedButton.styleFrom(
+                    elevation: 10,
+                    backgroundColor: Colors.blue.shade200,
+                    shape: const StadiumBorder(),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 0,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      // crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: const [
+                        Icon(
+                          Icons.add,
+                          color: Colors.white,
+                        ),
+                        SizedBox(
+                          width: 8,
+                        ),
+                        Text(
+                          "Aggiungi",
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.white,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
+          ],
+      ),
+        ),
+      ],
+    ),
       ),
     );
   }

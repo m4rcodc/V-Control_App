@@ -6,6 +6,7 @@ class RecapCosti {
   double? rifornimento;
   double? costo;
   String? year;
+  double? costoScadenze;
 
 
   RecapCosti({
@@ -15,7 +16,8 @@ class RecapCosti {
     required this.manutenzione,
     required this.rifornimento,
     required this.costo,
-    required this.year
+    required this.year,
+    required this.costoScadenze
 
   });
 
@@ -26,7 +28,8 @@ class RecapCosti {
       manutenzione: json['costoManutenzione'],
       rifornimento: json['costoRifornimento'],
       costo: json['costo'],
-      year: json['year']
+      year: json['year'],
+      costoScadenze: json['costoScadenza']
   );
 
 

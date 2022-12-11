@@ -1,3 +1,5 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:car_control/Page/Help.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -13,8 +15,13 @@ class Help extends StatefulWidget {
 String? fuel;
 String? distributore;
 String? uid = FirebaseAuth.instance.currentUser?.uid;
+var number;
 
-class _HelpState extends State<Help>{
+class _HelpState extends State<Help> {
+
+  String? numero = '';
+  var state;
+
 
   final ref = FirebaseFirestore.instance.collection("vehicle").where("uid", isEqualTo:uid).get().then((value){
     fuel = value.docs[0].data()['fuel'];
@@ -30,9 +37,61 @@ class _HelpState extends State<Help>{
     }
   });
 
-  final number = '333333333';
+   checkNumber()  async{
+    await FirebaseFirestore.instance.collection("scadenze").where("uid", isEqualTo:uid).where("titolo", isEqualTo: 'Assicurazione').get().then((value) {
+      setState(() {
+        numero = value.docs[0].data()['numero'];
+      });
+    });
+  }
+
+    checkCar() async {
+      final doc =  await FirebaseFirestore.instance
+          .collection('vehicle')
+          .where('uid', isEqualTo: uid)
+          .get();
+      if(doc.docs.isNotEmpty){
+        state = true;
+        print(state);
+      }
+      else {
+        state = false;
+        print(state);
+      }
+    }
+
+
+
+
+  @override
+  initState() {
+    super.initState();
+    checkNumber();
+    checkCar();
+  }
+
   @override
   Widget build(BuildContext context) {
+    _callNumber() async{
+       if(numero! == ''){
+         return AwesomeDialog(
+           context: context,
+           dialogType: DialogType.error,
+           headerAnimationLoop: false,
+           //animType: AnimType.topSlide,
+           //transitionAnimationDuration: Duration(microseconds: 50),
+           title: 'Attenzione!',
+           desc:
+           'Prima di poter effettuare una chiamata di emergenza, inserisci le informazioni relative alla tua assicurazione!',
+           btnOkOnPress: () {
+
+           },
+         ).show();
+       }
+       else {
+         await FlutterPhoneDirectCaller.callNumber(numero!);
+       }
+    }
     return Scaffold(
       extendBody: true,
       extendBodyBehindAppBar: true,
@@ -113,7 +172,7 @@ class _HelpState extends State<Help>{
               ),
               child: ListTile(
                 title: Text('Numero di emergenza assicurazione'),
-                subtitle: Text(number),
+                subtitle: Text('$numero'),
                 leading: Icon(
                   Icons.sos,
                   size: 40,
@@ -141,19 +200,46 @@ class _HelpState extends State<Help>{
                         children: [
                           Container(
                             padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                            decoration: BoxDecoration(
+                                color: Colors.transparent
+                              ),
                             height: 250,
                             child: ElevatedButton(
+                              clipBehavior: Clip.antiAlias,
                               style: ElevatedButton.styleFrom(
                                   elevation: 10,
                                   backgroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12)
-                                  )
+                                  ),
+                                padding: EdgeInsets.zero,
                               ),
                               onPressed: () {
-                                _launchRiforn();
+                                if(state == false){
+                                   AwesomeDialog(
+                                    context: context,
+                                    dialogType: DialogType.error,
+                                    headerAnimationLoop: false,
+                                    //animType: AnimType.topSlide,
+                                    //transitionAnimationDuration: Duration(microseconds: 50),
+                                    title: 'Attenzione!',
+                                    desc:
+                                    'Inserisci un veicolo!',
+                                    btnOkOnPress: () {
+                                    },
+                                  ).show();
+                                }
+                                else {
+                                  _launchRiforn();
+                                }
                               },
-                              child: Padding(
+                              child:
+                              Stack(
+                                fit: StackFit.expand,
+                                //alignment: Alignment.center,
+                                children: [
+                                  Image.asset('images/BackgroundMappe.png', fit: BoxFit.cover,  opacity: const AlwaysStoppedAnimation(0.5),),
+                              Padding(
                                 padding: const EdgeInsets.only(
                                   left: 14.0,
                                   top: 18,
@@ -165,10 +251,35 @@ class _HelpState extends State<Help>{
                                   children: <Widget>[
                                     Align(
                                       alignment: Alignment.topLeft,
-                                      child: Icon(
-                                        Icons.search,
-                                          color: Colors.lightBlue
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                        color: Color(0xFF90CAF9),
+                                        borderRadius: BorderRadius.circular(25),
                                       ),
+                                  child:
+                                      IconButton(
+                                        icon: Icon(Icons.search, color: Colors.white),
+                                        onPressed: () {
+                                          if(state == false){
+                                            AwesomeDialog(
+                                              context: context,
+                                              dialogType: DialogType.error,
+                                              headerAnimationLoop: false,
+                                              //animType: AnimType.topSlide,
+                                              //transitionAnimationDuration: Duration(microseconds: 50),
+                                              title: 'Attenzione!',
+                                              desc:
+                                              'Inserisci un veicolo!',
+                                              btnOkOnPress: () {
+                                              },
+                                            ).show();
+                                          }
+                                          else {
+                                            _launchRiforn();
+                                          }
+                                        },
+                                      ),
+                                   ),
                                     ),
                                     Container(
                                       padding: EdgeInsets.symmetric(vertical:12,horizontal: 0),
@@ -176,7 +287,6 @@ class _HelpState extends State<Help>{
                                         style: const TextStyle(
                                           fontSize: 18.0,
                                           color: Color(0xFF1A1316),
-
                                         ),
                                       ),
 
@@ -188,51 +298,79 @@ class _HelpState extends State<Help>{
                                   ],
                                 ),
                               ),
+                             ],
+                              ),
                             ),
                           ),
                           Container(
                             padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                            decoration: BoxDecoration(
+                                color: Colors.transparent
+                            ),
                             height: 250,
                             child: ElevatedButton(
+                              clipBehavior: Clip.antiAlias,
                               style: ElevatedButton.styleFrom(
-                                  elevation: 10,
-                                  backgroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12)
-                                  )
+                                elevation: 10,
+                                backgroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)
+                                ),
+                                padding: EdgeInsets.zero,
                               ),
-                              onPressed: () => {_launchOff()},
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 14.0,
-                                  top: 18,
-                                  bottom: 15,
-                                  right: 16,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Align(
-                                      alignment: Alignment.topLeft,
-                                      child: Icon(
-                                        Icons.search,
-                                          color: Colors.lightBlue
-                                      ),
+                              onPressed: () {
+                                  _launchOff();
+                              },
+                              child:
+                              Stack(
+                                fit: StackFit.expand,
+                                //alignment: Alignment.center,
+                                children: [
+                                  Image.asset('images/BackgroundMappe.png', fit: BoxFit.cover,  opacity: const AlwaysStoppedAnimation(0.5),),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 14.0,
+                                      top: 18,
+                                      bottom: 15,
+                                      right: 16,
                                     ),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(vertical:20,horizontal: 0),
-                                      child: Text('Trova l\' officina più vicina', style: const TextStyle(
-                                        fontSize: 18.0,
-                                        color: Color(0xFF1A1316),
-                                      ),
-                                      ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Align(
+                                          alignment: Alignment.topLeft,
+                                         child: Container(
+                                            decoration: BoxDecoration(
+                                              color: Color(0xFF90CAF9),
+                                              borderRadius: BorderRadius.circular(25),
+                                            ),
+                                            child:
+                                            IconButton(
+                                              icon: Icon(Icons.search, color: Colors.white),
+                                              onPressed: () {
+                                                _launchOff();
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(vertical:12,horizontal: 0),
+                                          child: Text('Trova l\' officina più vicina',
+                                            style: const TextStyle(
+                                              fontSize: 18.0,
+                                              color: Color(0xFF1A1316),
+                                            ),
+                                          ),
+
+                                        ),
+                                        Text('Visualizza sulla mappa', style: const TextStyle(
+                                          fontSize: 16.0,
+                                          color: Colors.blueGrey,
+                                        )),
+                                      ],
                                     ),
-                                    Text('Visualizza sulla mappa', style: const TextStyle(
-                                      fontSize: 16.0,
-                                        color: Colors.blueGrey
-                                    )),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -249,13 +387,8 @@ class _HelpState extends State<Help>{
   }
 }
 
-_callNumber() async{
-  const number = '08592119XXXX'; //set the number here
-  bool? res = await FlutterPhoneDirectCaller.callNumber(number);
-}
 
 _launchRiforn() async{
-
 
   var url = "https://www.google.com/maps/search/?api=1&query=${distributore}";
 

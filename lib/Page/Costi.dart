@@ -50,7 +50,6 @@ class Costi extends StatelessWidget {
             Tab(icon: Icon(Icons.public), text: 'Generali'),
             Tab(icon: Icon(Icons.local_gas_station), text: 'Carburante'),
             Tab(icon: Icon(Icons.build), text: 'Manutenzione'),
-            //Tab(icon: Icon(Icons.local_car_wash), text: 'Autolavaggio'),
           ],
         ),
         elevation: 8,

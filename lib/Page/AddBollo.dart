@@ -2,6 +2,7 @@ import 'package:car_control/Page/Scadenze.dart';
 import 'package:car_control/Page/home_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -33,14 +34,28 @@ class _BoxNotificaState extends State<BoxNotifica>{
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           IconButton(
+              color: Colors.white,
               onPressed: remove,
               icon: Icon(Icons.close)),
-          Text(
-            _testoNotifica,
-            style: const TextStyle(
-                fontSize: 18
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(
+                  Radius.circular(25)),
+              color: Colors.white,
             ),
-          )
+            child:
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              child:
+              Text(
+                _testoNotifica,
+                style: const TextStyle(
+                    fontSize: 15,
+                    color: Colors.black45
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -63,6 +78,13 @@ class _AddBolloState extends State<AddBollo> {
   DateTime date = DateTime.now();
   bool mod = false;
   String stringNotifiche = "";
+  String bollo = "Bollo";
+  String? uid = FirebaseAuth.instance.currentUser!.uid;
+  List months =
+  ['gen', 'feb', 'mar', 'apr', 'mag','giu','lug','ago','set','ott','nov','dic'];
+  int? current_month;
+  DateTime now = new DateTime.now();
+  var formatter = new DateFormat('dd-MM-yyyy');
 
   List<BoxNotifica> _notifiche = [];
 
@@ -120,12 +142,13 @@ class _AddBolloState extends State<AddBollo> {
 
   final _formKey = GlobalKey<FormState>();
 
-  void _submit(){
+  void _submit() async{
     if (_formKey.currentState!.validate()){
       for(int i=0;i<_notifiche.length;i++){
         stringNotifiche += _notifiche[i].value.toString()+"-"+_notifiche[i].time;
         if(i != _notifiche.length-1) stringNotifiche += ',';
       }
+
       var info = {
         'titolo': 'Bollo',
         'nome': '',
@@ -185,6 +208,8 @@ class _AddBolloState extends State<AddBollo> {
             context: context,
             builder: (BuildContext context) =>
                 AlertDialog(
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(25.0))),
                   title: const Text('Notifica personalizzata'),
                   content: Form(
                     child:Row(
@@ -309,189 +334,245 @@ class _AddBolloState extends State<AddBollo> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        iconTheme: IconThemeData(
+        color: Colors.blue.shade300,
+       ),
         actions: <Widget>[
           Container(
             margin: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
-            child: ElevatedButton(
+            child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                  elevation: 10,
-                  backgroundColor: Colors.white70,
+                  elevation: 3,
+                  backgroundColor: Colors.white,
                   shape: StadiumBorder()
               ),
-              onPressed: _submit,
-              child: Text("Salva",style: TextStyle(fontSize: 18,color: Colors.blue),),
+              onPressed:() async{
+                await showDialog(
+                    context: context,
+                    builder: (BuildContext context){
+                      List<Widget> notif = dialogNotif;
+                      for(int i=0;i<_notifiche.length;i++){
+                        if((_notifiche[i].value == 1 && _notifiche[i].time != "ore") || (_notifiche[i].value == 12 && _notifiche[i].time == "ore")){
+                          for(int j=0;j<notif.length;j++){
+                            if(notif[j].key.toString() == "[<'"+_notifiche[i].time+"'>]"){
+                              notif.removeAt(j);
+                            }
+                          }
+                        }
+                      }
+                      return SimpleDialog(
+                        title: const Text("Aggiungi notifiche"),
+                        children: notif,
+                        shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(25.0))),
+                      );
+                    }
+                );
+              },
+              icon: Icon(
+                Icons.notification_add,
+                color: Colors.blue,
+              ),
+              label: Text("Notifiche",style: TextStyle(fontSize: 18,color: Colors.blue),),
 
             ),
           )
         ],
-        title: Text("Bollo"),
+        title: Text("Bollo",style: TextStyle(color: Colors.blue.shade300)),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0.0,
-        toolbarHeight: 55,
-        flexibleSpace: Container(
-          decoration:const BoxDecoration(
-              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
-              gradient: LinearGradient(
-                  colors: [Colors.cyan,Colors.lightBlue],
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft
-              )
-          ),
-        ),
+        //toolbarHeight: 55,
       ),
-      body: Container(
+      body:
+      Container(
         //padding: EdgeInsets.only(top: 20.0,left: 20.0, right: 20.0),
         decoration:const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              colors: [Colors.lightBlue, Colors.white70],
-            )
+            color: Color(0xFFE3F2FD)
         ),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
-                alignment: Alignment.center,
-                child: Image.asset('images/taxes.png',height: 150,width: 150),
+        child:
+        ListView(
+          children: [
+            Container(
+              margin: EdgeInsets.only(top: 25),
+              child:
+              Image.asset(
+                'images/taxes.png',
+                //scale:1,
+                //fit: BoxFit.contain,
+                height: MediaQuery.of(context).size.height * 0.30,
+                width: MediaQuery.of(context).size.width,
               ),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
-                child: TextFormField(
-                  initialValue: prezzo,
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    setState(() {
-                      prezzo = value;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 20,
-                    ),
-                    hintText: "Inserisci il prezzo",
-                    hintStyle: const TextStyle(fontSize: 14),
-                    filled: true,
-                    fillColor: Colors.white70,
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder:  OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.indigoAccent),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                  validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Inserisci il prezzo';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
-                child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        elevation: 10,
-                        backgroundColor: Colors.blue,
-                        shape: StadiumBorder()
-                    ),
-                    onPressed: () async {
-                      DateTime? newDate = await showDatePicker(
-                          context: context,
-                          initialDate: date,
-                          firstDate: DateTime(1900),
-                          lastDate: DateTime(2100),
-                          builder: (conext,child) {
-                            return Theme(
-                              data: Theme.of(context).copyWith(
-                                  colorScheme: const  ColorScheme.light(
-                                    primary: Colors.lightBlue,
-                                    onPrimary: Colors.white,
-                                    onSurface: Colors.blueAccent,
-                                  ),
-                                  textButtonTheme: TextButtonThemeData(
-                                      style: TextButton.styleFrom(
-                                        backgroundColor: Colors.lightBlue.shade50,
-                                      )
-                                  )
-                              ),
-                              child: child!,
-                            );
-                          }
-                      );
-                      if (newDate == null) return;
-                      setState(() => date = newDate);
-                    },
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 15,horizontal: 15),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.calendar_month),
-                          Text(" Data scadenza: ${formatter.format(date)}")
-                        ],
-                      ),
-                    )
-                ),
-              ),
-
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 10,horizontal: 15.0),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      elevation: 10,
-                      backgroundColor: Colors.blue,
-                      shape: const StadiumBorder()
-                  ),
-                  onPressed:() async{
-                    await showDialog(
-                        context: context,
-                        builder: (BuildContext context){
-                          List<Widget> notif = dialogNotif;
-                          for(int i=0;i<_notifiche.length;i++){
-                            if((_notifiche[i].value == 1 && _notifiche[i].time != "ore") || (_notifiche[i].value == 12 && _notifiche[i].time == "ore")){
-                              for(int j=0;j<notif.length;j++){
-                                if(notif[j].key.toString() == "[<'"+_notifiche[i].time+"'>]"){
-                                  notif.removeAt(j);
-                                }
-                              }
-                            }
-                          }
-                          return SimpleDialog(
-                            title: const Text("Aggiungi notifiche"),
-                            children: notif,
-                          );
-                        }
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 15,horizontal: 15),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.notification_add),
-                        Text(" Aggiungi notifiche")
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                child: Column(
-                    children: _notifiche
-                ),
+            ),
+        Container(
+          margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.03, bottom: 30, left: 30, right: 30),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(25)),
+            color: Color(0xFF90CAF9),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black54,
+                blurRadius: 6.0,
               ),
             ],
           ),
+          child:
+              Container(
+          //margin: const EdgeInsets.symmetric(vertical: 20.0,horizontal: 10.0),
+          child:
+            ListView(
+              shrinkWrap: true,
+              children: [
+                Form(
+                    key: _formKey,
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.symmetric(vertical: 25.0,horizontal: 15.0),
+                          child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  elevation: 10,
+                                  backgroundColor: Colors.blue,
+                                  shape: StadiumBorder()
+                              ),
+                              onPressed: () async {
+                                DateTime? newDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: date,
+                                    firstDate: DateTime(1900),
+                                    lastDate: DateTime(2100),
+                                    builder: (conext,child) {
+                                      return Theme(
+                                        data: Theme.of(context).copyWith(
+                                            colorScheme: const  ColorScheme.light(
+                                              primary: Colors.lightBlue,
+                                              onPrimary: Colors.white,
+                                              onSurface: Colors.blueAccent,
+                                            ),
+                                            textButtonTheme: TextButtonThemeData(
+                                                style: TextButton.styleFrom(
+                                                  backgroundColor: Colors.lightBlue.shade50,
+                                                )
+                                            )
+                                        ),
+                                        child: child!,
+                                      );
+                                    }
+                                );
+                                if (newDate == null) return;
+                                setState(() => date = newDate);
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: 15,horizontal: 15),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.calendar_month),
+                                    Text(" Data scadenza: ${formatter.format(date)}")
+                                  ],
+                                ),
+                              )
+                          ),
+                        ),
+                       Container(
+                        margin: const EdgeInsets.symmetric(vertical: 25.0,horizontal: 15.0),
+                        child: TextFormField(
+                        initialValue: prezzo,
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) {
+                        setState(() {
+                        prezzo = value;
+                        });
+                        },
+                          decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 20,
+                          ),
+                            hintText: "Inserisci il prezzo",
+                            hintStyle: const TextStyle(fontSize: 14),
+                            filled: true,
+                            fillColor: Colors.white,
+                            enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: BorderSide(color: Colors.grey),
+                            ),
+                            focusedBorder:  OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.indigoAccent),
+                            borderRadius: BorderRadius.circular(25),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.red),
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.red),
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                            ),
+                            validator: (String? value) {
+                            if (value == null || value.isEmpty) {
+                               return 'Inserisci il prezzo';
+                            }
+                            return null;
+                            },
+                            ),
+                       ),
+                  Container(
+                      child: Column(
+                          children: _notifiche
+                      ),
+                  ),
+                        Container(
+                          margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 80.0),
+                          child: ElevatedButton(
+                            onPressed: () => {
+                              _submit()
+                            },
+                            style: ElevatedButton.styleFrom(
+                              elevation: 10,
+                              backgroundColor: Colors.blue.shade200,
+                              shape: const StadiumBorder(),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 0,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                // crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: const [
+                                  Icon(
+                                    Icons.add,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(
+                                    width: 8,
+                                  ),
+                                  Text(
+                                    "Aggiungi",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                ]
+              )
         ),
+        ],
       ),
+    ),
+      ),
+      ],
+      ),
+    ),
     );
   }
 }
