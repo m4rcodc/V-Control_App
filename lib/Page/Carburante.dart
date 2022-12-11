@@ -41,6 +41,7 @@ class _CarburanteState extends State<Carburante> {
   double? index = 1;
   late double totalCost;
   int? userPoints;
+  double? indexTable = 0;
 
 
   //Variabile che tiene conto quanti km ha percorso il veicolo in precedenza dall'ultima volta che ha ottenuto
@@ -445,6 +446,42 @@ class _CarburanteState extends State<Carburante> {
                             CollectionReference costi = await FirebaseFirestore
                                 .instance.collection('CostiRifornimento');
                             //CollectionReference costiTot = await FirebaseFirestore.instance.collection('CostiTotali').doc('2022').collection('Cost').doc();
+                            current_month = now.month;
+                            current_year = now.year;
+                            final doc = await FirebaseFirestore.instance
+                                .collection('CostiRifornimento')
+                                .where(
+                                'mese', isEqualTo: months[current_month! - 1])
+                                .where('uid', isEqualTo: user?.uid)
+                                .get();
+                            var docs = doc.docs;
+                            double sum = 0.0;
+                            double sumLitri = 0.0;
+                            for (int i = 0; i < docs.length; i++) {
+                              sum += docs[i]['costo'];
+                              print('costo $sum');
+                            }
+                            for (int i = 0; i < docs.length; i++) {
+                              sumLitri += docs[i]['litri'];
+                              print('litri $sumLitri');
+                            }
+
+                            //Indexing
+                            final indexing = await FirebaseFirestore.instance
+                                .collection('CostiRifornimento')
+                                .where('uid', isEqualTo: user?.uid)
+                                .orderBy('index', descending: true)
+                                .limit(1)
+                                .get();
+                            var docsIndexing = indexing.docs;
+                            if(docsIndexing.isEmpty){
+                              indexTable = 0;
+                            }
+                            else{
+                              var index = docsIndexing[0]['index'];
+                              indexTable = index;
+                            }
+
                             final test = await FirebaseFirestore.instance
                                 .collection('CostiTotali')
                                 .doc('2022')
@@ -458,11 +495,6 @@ class _CarburanteState extends State<Carburante> {
                                 .collection(user!.uid)
                                 .get();
 
-                            final vehicle = FirebaseFirestore.instance
-                                .collection('vehicle').doc(user?.uid).update({
-                              'kilometers': kmVeicolo
-                            });
-
                             if (test.docs.isEmpty) {
                               final docu = await FirebaseFirestore.instance
                                   .collection('CostiTotali')
@@ -471,9 +503,9 @@ class _CarburanteState extends State<Carburante> {
                               for (int i = 0; i < 12; i++) {
                                 docu.doc(months[i]).set(
                                     {'mese': months[i],
-                                      'costo': 0,
+                                      'costoRifornimento': 0,
                                       'index': i,
-                                      'totaleLitri': 0
+                                      'totaleLitri': 0,
                                     }
                                 );
                               }
@@ -488,15 +520,16 @@ class _CarburanteState extends State<Carburante> {
                                     {'mese': months[i],
                                       'costo': 0,
                                       'index': i,
-                                      'totaleLitri': 0
+                                      'totaleLitri': 0,
                                     }
                                 );
                               }
                             }
 
-                            current_month = now.month;
-                            current_year = now.year;
-
+                            final vehicle = FirebaseFirestore.instance
+                                .collection('vehicle').doc(user?.uid).update({
+                              'kilometers': kmVeicolo! + oldKilometers!
+                            });
 
                             costi.add({
                               'costo': costoRifornimento,
@@ -508,7 +541,9 @@ class _CarburanteState extends State<Carburante> {
                               'litri': double.tryParse(labelLitri!),
                               'costoAlLitro': costoAlLitro,
                               'Kilometri veicolo': kmVeicolo,
-                              'index': index
+                              'index': indexTable! + 1,
+                              'recapRifornimento': costoRifornimento!,
+                              'recapLitri': double.tryParse(labelLitri!)!,
                             });
 
                             await readPoints();
@@ -582,24 +617,6 @@ class _CarburanteState extends State<Carburante> {
                             }
 
 
-                            final doc = await FirebaseFirestore.instance
-                                .collection('CostiRifornimento')
-                                .where(
-                                'mese', isEqualTo: months[current_month! - 1])
-                                .where('uid', isEqualTo: user?.uid)
-                                .get();
-                            var docs = doc.docs;
-                            double sum = 0.0;
-                            double sumLitri = 0.0;
-                            for (int i = 0; i < docs.length; i++) {
-                              sum += docs[i]['costo'];
-                              print('costo $sum');
-                            }
-                            for (int i = 0; i < docs.length; i++) {
-                              sumLitri += docs[i]['litri'];
-                              print('litri $sumLitri');
-                            }
-
                             final doc1 = await FirebaseFirestore.instance
                                 .collection('CostiGenerali').doc('2022')
                                 .collection(user.uid).where(
@@ -613,20 +630,13 @@ class _CarburanteState extends State<Carburante> {
                                 'CostiTotali').doc('2022')
                                 .collection(user.uid)
                                 .doc('${months[current_month! - 1]}')
-                                .update({"costo": sum});
+                                .update({"costoRifornimento": sum + costoRifornimento!, "totaleLitri": sumLitri + double.tryParse(labelLitri!)!});
 
                             await FirebaseFirestore.instance.collection(
                                 'CostiGenerali').doc('2022')
                                 .collection(user.uid)
                                 .doc('${months[current_month! - 1]}')
                                 .update({"costo": costoRifornimento! + sum1});
-
-                            await FirebaseFirestore.instance.collection(
-                                'CostiGenerali').doc('2022')
-                                .collection(user.uid)
-                                .doc('${months[current_month! - 1]}')
-                                .update({"totaleLitri": sumLitri});
-
 
                             Navigator.of(context, rootNavigator: true).pop();
                           }
