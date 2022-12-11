@@ -22,16 +22,16 @@ class CommunityModel {
   });
 
   static CommunityModel fromJson(Map<String, dynamic> json) => CommunityModel(
-      make: json['make'],
-      model: json['model'],
-      uid: json['uid'],
-      image: json['image'],
-      name: json['name'],
-      fuel: json['fuel'],
-      points: json['points'],
+    make: json['make'],
+    model: json['model'],
+    uid: json['uid'],
+    image: json['image'],
+    name: json['name'],
+    fuel: json['fuel'],
+    points: json['points'],
   );
 
-  
+
 
 
 }

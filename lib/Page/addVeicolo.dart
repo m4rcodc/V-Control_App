@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:motion_toast/motion_toast.dart';
 import 'package:motion_toast/resources/arrays.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../Widgets/select_photo_options_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/userModel.dart';
@@ -18,6 +19,7 @@ const int metanPoints = 200;
 const int gplPoints = 150;
 const int benzPoints = 100;
 const int dieselPoints = 0;
+int sceltaPoints=0;
 
 class AddVeicolo extends StatefulWidget{
 
@@ -44,13 +46,14 @@ class _AddVeicoloState extends State<AddVeicolo> {
   String? make = 'Marca';
   String? model = 'Modello';
   String? plate;
-  String? kilometers;
+  int? kilometers;
   String? type;
   String? engine;
   String? fuel = 'Tipo di alimentazione';
   String? url;
   String? imageFuelUrl;
-  int? userPoints=0;
+  int? userPoints;
+  int? consumoMedio;
   var setDefaultMake = true, setDefaultModel = true, setDefaultType = true;
 
   File? image;
@@ -77,15 +80,18 @@ class _AddVeicoloState extends State<AddVeicolo> {
 
   String? selectedValue;
 
+  readPoints() async {
+    SharedPreferences.getInstance().then((value) { userPoints = value.getInt('points');});
+  }
+
+  setPoints(int? userPoints) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('points', userPoints!);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final ref = FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser?.uid).withConverter(
-      fromFirestore: UserModel.fromFirestore,
-      toFirestore: (UserModel user, _) => user.toFirestore(),
-    ).get().then((value) {
-      userPoints = value.data()?.points;
-      debugPrint("Userpoints $userPoints");
-    });
+    readPoints();
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -339,6 +345,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                   setState(() {
                                                     make = snapshot.data.docs[0]['name'];
                                                     url = snapshot.data.docs[0]['logo'];
+
                                                   }
                                                   ),
                                                   Navigator.pop(context),
@@ -381,6 +388,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                   setState(() {
                                                     make = snapshot.data.docs[1]['name'];
                                                     url = snapshot.data.docs[1]['logo'];
+
                                                   }
                                                   ),
                                                   Navigator.pop(context),
@@ -428,6 +436,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                   setState(() {
                                                     make = snapshot.data.docs[2]['name'];
                                                     url = snapshot.data.docs[2]['logo'];
+
                                                   }
                                                   ),
                                                   Navigator.pop(context),
@@ -470,6 +479,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                   setState(() {
                                                     make = snapshot.data.docs[3]['name'];
                                                     url = snapshot.data.docs[3]['logo'];
+
                                                   }
                                                   ),
                                                   Navigator.pop(context),
@@ -516,6 +526,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                   setState(() {
                                                     make = snapshot.data.docs[4]['name'];
                                                     url = snapshot.data.docs[4]['logo'];
+
                                                   }
                                                   ),
                                                   Navigator.pop(context),
@@ -721,10 +732,14 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                                 //side: BorderSide(color: Colors.blue,width: 1.5),
                                                               ),
                                                             ),
-                                                            onPressed:  () => {
-                                                              setState(() => model = snapshot.data.docs[0]['model']),
-                                                              Navigator.pop(context),
+                                                            onPressed: (){
+                                                              setState(() {
+                                                                model = snapshot.data.docs[0]['model'];
+                                                                consumoMedio = snapshot.data.docs[0]['consumoMedio'];
+                                                              });
+                                                              Navigator.pop(context);
                                                             },
+
                                                             child:
                                                             Text('${snapshot.data.docs[0]['model']}', style: TextStyle(
                                                                 fontSize: 20,
@@ -745,9 +760,12 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                                 //side: BorderSide(color: Colors.blue,width: 1.5),
                                                               ),
                                                             ),
-                                                            onPressed:  () => {
-                                                              setState(() => model = snapshot.data.docs[1]['model']),
-                                                              Navigator.pop(context),
+                                                            onPressed: (){
+                                                              setState(() {
+                                                                model = snapshot.data.docs[1]['model'];
+                                                                consumoMedio = snapshot.data.docs[1]['consumoMedio'];
+                                                              });
+                                                              Navigator.pop(context);
                                                             },
                                                             child: Container(
                                                               child: Text('${snapshot.data.docs[1]['model']}', style: TextStyle(
@@ -773,9 +791,12 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                                 //side: BorderSide(color: Colors.blue,width: 1.5),
                                                               ),
                                                             ),
-                                                            onPressed:  () => {
-                                                              setState(() => model = snapshot.data.docs[2]['model']),
-                                                              Navigator.pop(context),
+                                                            onPressed: (){
+                                                              setState(() {
+                                                                model = snapshot.data.docs[2]['model'];
+                                                                consumoMedio = snapshot.data.docs[2]['consumoMedio'];
+                                                              });
+                                                              Navigator.pop(context);
                                                             },
                                                             child:
                                                             Text('${snapshot.data.docs[2]['model']}', style: TextStyle(
@@ -797,9 +818,12 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                                 //side: BorderSide(color: Colors.blue,width: 1.5),
                                                               ),
                                                             ),
-                                                            onPressed:  () => {
-                                                              setState(() => model = snapshot.data.docs[3]['model']),
-                                                              Navigator.pop(context),
+                                                            onPressed: (){
+                                                              setState(() {
+                                                                model = snapshot.data.docs[3]['model'];
+                                                                consumoMedio = snapshot.data.docs[3]['consumoMedio'];
+                                                              });
+                                                              Navigator.pop(context);
                                                             },
                                                             child:Text('${snapshot.data.docs[3]['model']}', style: TextStyle(
                                                                 fontSize: 20,
@@ -823,9 +847,12 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                                 //side: BorderSide(color: Colors.blue,width: 1.5),
                                                               ),
                                                             ),
-                                                            onPressed:  () => {
-                                                              setState(() => model = snapshot.data.docs[4]['model']),
-                                                              Navigator.pop(context),
+                                                            onPressed: (){
+                                                              setState(() {
+                                                                model = snapshot.data.docs[4]['model'];
+                                                                consumoMedio = snapshot.data.docs[4]['consumoMedio'];
+                                                              });
+                                                              Navigator.pop(context);
                                                             },
                                                             child:
                                                             Text('${snapshot.data.docs[4]['model']}', style: TextStyle(
@@ -1253,7 +1280,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
                             },
                             onChanged: (value) {
                               setState(() {
-                                kilometers = value;
+                                kilometers = int.parse(value);
+                                debugPrint("I km inseriti sono: ${kilometers.toString()}");
                               });
                             },
                           ),
@@ -1274,9 +1302,10 @@ class _AddVeicoloState extends State<AddVeicolo> {
                               else{
                                   FirebaseAuth.instance.authStateChanges().listen((User? user) async {
 
-                                    CollectionReference vehicle = await FirebaseFirestore.instance.collection('vehicle');
+                                    final vehicle = FirebaseFirestore.instance.collection('vehicle').doc(FirebaseAuth.instance.currentUser?.uid);
 
-                                    vehicle.add({
+
+                                    vehicle.set({
                                       'uid': user?.uid,
                                       'make': make,
                                       'model': model,
@@ -1284,31 +1313,44 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                       'image' : imageUrl,
                                       'logoImage': url,
                                       'fuel' : fuel,
-                                      'imageFuelUrl' : imageFuelUrl
+                                      'imageFuelUrl' : imageFuelUrl,
+                                      'consumoMedio' : consumoMedio,
+                                      'countLitri' : 0.0,
+                                      'countRifornimento' : 0
                                     });
+
+                                    debugPrint("Il consumo medio è ${consumoMedio.toString()}");
+
+
 
                                     if(fuel == 'Metano')
                                     {
+                                      sceltaPoints = metanPoints;
                                       userPoints = (userPoints! + metanPoints)!;
                                     }
                                     else if(fuel == 'Elettrica')
                                     {
+                                      sceltaPoints = electricPoints;
                                       userPoints = (userPoints! + electricPoints)!;
                                     }
                                     else if(fuel == 'Gas')
                                     {
+                                      sceltaPoints = gplPoints;
                                       userPoints = (userPoints! + gplPoints)!;
                                     }
                                     else if(fuel == 'Benzina')
                                     {
+                                      sceltaPoints = benzPoints;
                                       userPoints = (userPoints! + benzPoints)!;
                                     }
                                     else if(fuel == 'Diesel')
                                     {
+                                      sceltaPoints = dieselPoints;
                                       userPoints = (userPoints! + dieselPoints)!;
                                     }
                                     else
                                     {
+                                      sceltaPoints = ibridPoints;
                                       userPoints = (userPoints! + ibridPoints)!;
                                     }
                                     final ref = FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser?.uid);
@@ -1316,13 +1358,30 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                       'points' : userPoints
                                     }).then((value) => debugPrint("Il nuovo userpoint dovrebbe essere $userPoints"));
 
+                                    final comm = FirebaseFirestore.instance.collection("community").doc(user?.uid);
+                                    comm.update({
+                                      'points' : userPoints,
+                                      'model' : model,
+                                      'make' : make,
+                                      'image' : imageUrl,
+                                      'fuel' : fuel
+                                    }).then((value) => debugPrint("Aggiunta community!"));
 
-                                    /*
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const LoadingScreen()),
-            );
-            */
+                                    setPoints(userPoints);
+
+                                    await AwesomeDialog(
+                                      context: context,
+                                      dialogType: DialogType.success,
+                                      headerAnimationLoop: false,
+                                      animType: AnimType.topSlide,
+                                      title: 'Complimenti!',
+                                      desc:
+                                      'Hai ricevuto $sceltaPoints punti!',
+                                      btnOkOnPress: () {
+                                      },
+                                    ).show();
+
+
                                     Navigator.of(context).pushNamed(HomePage.routeName);
                                   })
                                 }
@@ -1461,10 +1520,14 @@ class _AddVeicoloState extends State<AddVeicolo> {
 
 /*
 class LoadingScreen extends StatelessWidget{
+
   static const routeName = '/splash-screen';
+
   const LoadingScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
+
     return AnimatedSplashScreen(
       splash: Lottie.network('https://assets6.lottiefiles.com/packages/lf20_gv7Ovi.json'),
       backgroundColor: Colors.white,
@@ -1476,5 +1539,9 @@ class LoadingScreen extends StatelessWidget{
       animationDuration: const Duration(seconds: 1),
     );
   }
+
 }
 */
+
+
+

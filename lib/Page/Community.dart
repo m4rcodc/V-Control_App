@@ -1,8 +1,12 @@
+
 import 'package:awesome_dialog/awesome_dialog.dart';
-import 'package:car_control/models/communityModel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_signin_button/button_list.dart';
+import '../models/communityModel.dart';
+
+
 
 class Community extends StatefulWidget {
 
@@ -13,7 +17,12 @@ class Community extends StatefulWidget {
 class _CommunityState extends State<Community>{
 
 
-  Stream<List<CommunityModel>> readCommunityPoints() => FirebaseFirestore.instance
+  int? rank;
+
+  List<CommunityModel> communityProfile = [];
+
+
+  Stream<List<CommunityModel>> readUserPointsComm() => FirebaseFirestore.instance
       .collection('community')
       .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
       .snapshots()
@@ -21,6 +30,27 @@ class _CommunityState extends State<Community>{
       snapshot.docs.map((doc) => CommunityModel.fromJson(doc.data())).toList()
   );
 
+  Stream<List<CommunityModel>> readCommunityPoints() {
+    return FirebaseFirestore.instance
+        .collection('community')
+        .orderBy('points', descending: true)
+        .snapshots()
+        .map((snapshot) =>
+        snapshot.docs.map((doc) => CommunityModel.fromJson(doc.data())).toList()
+    );
+  }
+
+  List<CommunityModel> commList = [];
+
+
+
+
+
+  @override
+  initState(){
+    super.initState();
+
+  }
 
 
   Widget buildCommunity(CommunityModel comm) {
@@ -148,7 +178,7 @@ class _CommunityState extends State<Community>{
                               width: 3,
                             ),
                             Text(
-                              "10",
+                              rank.toString(),
                               style: TextStyle(
                                   fontSize: 40,
                                   fontWeight: FontWeight.w300,
@@ -253,15 +283,15 @@ class _CommunityState extends State<Community>{
                                         itemBuilder: (context, index) {
                                           return ListTile(
                                             title: Row(
-                                              children: const [
+                                              children: [
                                                 CircleAvatar(
                                                   backgroundImage: NetworkImage(
-                                                      "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=580&q=80"),
+                                                      communityProfile[index].image!),
                                                 ),
                                                 SizedBox(
                                                   width: 3,
                                                 ),
-                                                Text("Prova")
+                                                Text(communityProfile[index].name!)
                                               ],
                                             ),
                                             leading: Text("${index + 1}.",
@@ -269,8 +299,7 @@ class _CommunityState extends State<Community>{
                                                   fontWeight: FontWeight.bold),),
                                             trailing:
                                             Text(
-                                                (200000 / (index + 1)).toString().substring(
-                                                    0, 5), style: const TextStyle(
+                                                (communityProfile[index].points.toString()), style: const TextStyle(
                                                 fontWeight: FontWeight.bold)),
                                           );
                                         },
@@ -279,7 +308,7 @@ class _CommunityState extends State<Community>{
                                           color: Colors.white,
                                           indent: 10,
                                           endIndent: 10,),
-                                        itemCount: 12),
+                                        itemCount: communityProfile.length),
                                   ),
                                 ],
                               ),
@@ -298,17 +327,17 @@ class _CommunityState extends State<Community>{
                       children:[
                         CircleAvatar(
                           backgroundImage: NetworkImage(
-                              "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=580&q=80"),
+                              communityProfile[2].image!),
                         ),
                         Container(
                             padding: EdgeInsets.only(top: 6),
                             child:
-                            Text('Nome 2')
+                            Text(communityProfile[2].name!)
                         ),
                         Container(
                             padding: EdgeInsets.only(top: 4),
                             child:
-                            Text('1000')
+                            Text(communityProfile[2].points.toString())
                         )
                       ],
                     ),
@@ -321,17 +350,17 @@ class _CommunityState extends State<Community>{
                       children:[
                         CircleAvatar(
                           backgroundImage: NetworkImage(
-                              "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=580&q=80"),
+                              communityProfile[1].image!),
                         ),
                         Container(
                             padding: EdgeInsets.only(top: 6),
                             child:
-                            Text('Nome 1')
+                            Text(communityProfile[1].name!)
                         ),
                         Container(
                             padding: EdgeInsets.only(top: 4),
                             child:
-                            Text('1200')
+                            Text(communityProfile[1].points.toString())
                         )
                       ],
                     ),
@@ -344,17 +373,17 @@ class _CommunityState extends State<Community>{
                       children:[
                         CircleAvatar(
                           backgroundImage: NetworkImage(
-                              "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=580&q=80"),
+                              communityProfile[3].image!),
                         ),
                         Container(
                             padding: EdgeInsets.only(top: 6),
                             child:
-                            Text('Nome 3')
+                            Text(communityProfile[3].name!)
                         ),
                         Container(
                             padding: EdgeInsets.only(top: 4),
                             child:
-                            Text('900')
+                            Text(communityProfile[3].points.toString())
                         )
                       ],
                     ),
@@ -372,7 +401,6 @@ class _CommunityState extends State<Community>{
       ),
     );
   }
-
 
 
 
@@ -413,21 +441,38 @@ class _CommunityState extends State<Community>{
         child: ListView(
           //physics: NeverScrollableScrollPhysics(),
           children: [
+
             StreamBuilder<List<CommunityModel>>(
                 stream: readCommunityPoints(),
                 builder: (context,snapshot) {
                   if (snapshot.hasData) {
                     final comm = snapshot.data!;
-                    return ListView(
-                      shrinkWrap: true,
-                      children: comm.map(buildCommunity).toList(),
+                    communityProfile = comm.toList();
+                    int count = 0;
+                    for(int i = 0; i<communityProfile.length ; i++)
+                    {
+                      if(communityProfile[i].uid == FirebaseAuth.instance.currentUser?.uid)
+                      {
+                        count = i;
+                        rank = ++i;
+                        break;
+                      }
+                    }
+
+                    List<CommunityModel> singleProfile = [];
+                    singleProfile.add(communityProfile[count]);
+                    return Column(
+                      children: singleProfile.map(buildCommunity).toList(),
                     );
                   }
                   else{
                     return Center(child: CircularProgressIndicator());
                   }
                 }
+
             ),
+
+
           ],
         ),
 

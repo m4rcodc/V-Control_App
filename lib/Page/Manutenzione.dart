@@ -1,7 +1,6 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:car_control/Page/Costi.dart';
 import 'package:car_control/Widgets/DetailsCarCard.dart';
-import 'package:car_control/models/userModel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,7 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ftoast/ftoast.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/userModel.dart';
 
 const cambioGommePoints = 100;
 const cambioOlioPoints = 50;
@@ -19,6 +20,7 @@ const motorePoints = 100;
 const impiantoFrenantePoints = 150;
 const altroPoints = 5;
 int sceltaPoints=0;
+
 
 
 class Manutenzione extends StatefulWidget {
@@ -49,22 +51,26 @@ class _ManutenzioneState extends State<Manutenzione>{
   String? freni = 'Impianto frenante';
   String? altro = 'Altro';
   int? userPoints;
-
   DateTime now = new DateTime.now();
   var formatter = new DateFormat('dd-MM-yyyy');
+
+
+  readPoints() async {
+    SharedPreferences.getInstance().then((value) { userPoints = value.getInt('points');});
+  }
+
+  setPoints(int? userPoints) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('points', userPoints!);
+  }
+
 
   List months =
   ['gen', 'feb', 'mar', 'apr', 'mag','giu','lug','ago','set','ott','nov','dic'];
 
   @override
   Widget build(BuildContext context) {
-    final ref = FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser?.uid).withConverter(
-      fromFirestore: UserModel.fromFirestore,
-      toFirestore: (UserModel user, _) => user.toFirestore(),
-    ).get().then((value) {
-      userPoints = value.data()?.points;
-      debugPrint("Userpoints $userPoints");
-    });
+
     return Scaffold(
       //extendBody: true,
       extendBodyBehindAppBar: true,
@@ -83,40 +89,40 @@ class _ManutenzioneState extends State<Manutenzione>{
             color: Color(0xFFE3F2FD)
         ),
         child:
-            Container(
-              padding: EdgeInsets.all(20),
-              child:
-              Image.asset(
-                'images/ImageManutenzione.png',
-                height: 410,
-                width: MediaQuery.of(context).size.width,
-                scale: 1.75,
-              ),
-            ),
-         ),
-        //Data
-        bottomSheet: Container(
-          decoration: BoxDecoration(
-            color: Color(0xFF90CAF9),
-            boxShadow: [
-              BoxShadow(
-                offset: Offset(0,-3),
-                blurRadius: 8,
-                color: Colors.black54,
-              )
-            ],
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(25),
-              topRight: Radius.circular(25),
-            ),
+        Container(
+          padding: EdgeInsets.all(20),
+          child:
+          Image.asset(
+            'images/ImageManutenzione.png',
+            height: 410,
+            width: MediaQuery.of(context).size.width,
+            scale: 1.75,
           ),
-          height: MediaQuery.of(context).size.height * 0.58,
-          child: ListView(
-            physics: NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            padding: EdgeInsets.all(16),
-            children: [
-          Container(
+        ),
+      ),
+      //Data
+      bottomSheet: Container(
+        decoration: BoxDecoration(
+          color: Color(0xFF90CAF9),
+          boxShadow: [
+            BoxShadow(
+              offset: Offset(0,-3),
+              blurRadius: 8,
+              color: Colors.black54,
+            )
+          ],
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(25),
+            topRight: Radius.circular(25),
+          ),
+        ),
+        height: MediaQuery.of(context).size.height * 0.58,
+        child: ListView(
+          physics: NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          padding: EdgeInsets.all(16),
+          children: [
+            Container(
               margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
               child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -163,8 +169,8 @@ class _ManutenzioneState extends State<Manutenzione>{
                   )
               ),
             ),
-              //Manutenzione
-              Container(
+            //Manutenzione
+            Container(
               margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
               child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -184,26 +190,26 @@ class _ManutenzioneState extends State<Manutenzione>{
                       //isDense: true,
                       //title: 'Seleziona un tipo di manutenzione',
                       body:
-                        Table(
+                      Table(
                         children:  [
                           TableRow(
                               children: [
                                 Container(
-                              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                                 height: 120,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
+                                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                  height: 120,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
                                       elevation: 10,
                                       backgroundColor: Colors.white,
                                       shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          //side: BorderSide(color: Colors.blue,width: 1.5),
+                                        borderRadius: BorderRadius.circular(12),
+                                        //side: BorderSide(color: Colors.blue,width: 1.5),
                                       ),
-                                  ),
-                                  onPressed:  () => {
-                                  setState(() => typeManutention = ruote!),
-                                  Navigator.pop(context),
-                                  },
+                                    ),
+                                    onPressed:  () => {
+                                      setState(() => typeManutention = ruote!),
+                                      Navigator.pop(context),
+                                    },
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: <Widget>[
@@ -213,7 +219,7 @@ class _ManutenzioneState extends State<Manutenzione>{
                                           child: Image.asset('images/wheel.png',scale: 6),
                                         ),
                                         Container(
-                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 6),
+                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
                                           alignment: Alignment.bottomCenter,
                                           child: Text('Cambio ruote', style: const TextStyle(
                                             fontSize: 12.0,
@@ -235,8 +241,8 @@ class _ManutenzioneState extends State<Manutenzione>{
                                         elevation: 10,
                                         backgroundColor: Colors.white,
                                         shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                            //side: BorderSide(color: Colors.blue,width: 1.5),
+                                          borderRadius: BorderRadius.circular(12),
+                                          //side: BorderSide(color: Colors.blue,width: 1.5),
                                         )
                                     ),
                                     onPressed:  () => {
@@ -252,7 +258,7 @@ class _ManutenzioneState extends State<Manutenzione>{
                                           child: Image.asset('images/oil.png',scale: 5.5),
                                         ),
                                         Container(
-                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 6),
+                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
                                           alignment: Alignment.bottomCenter,
                                           child: Text('Cambio olio', style: const TextStyle(
                                             fontSize: 12.0,
@@ -278,8 +284,8 @@ class _ManutenzioneState extends State<Manutenzione>{
                                         elevation: 10,
                                         backgroundColor: Colors.white,
                                         shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                            //side: BorderSide(color: Colors.blue,width: 1.5),
+                                          borderRadius: BorderRadius.circular(12),
+                                          //side: BorderSide(color: Colors.blue,width: 1.5),
                                         )
                                     ),
                                     onPressed:  () => {
@@ -295,7 +301,7 @@ class _ManutenzioneState extends State<Manutenzione>{
                                           child: Image.asset('images/battery.png',scale: 4.6),
                                         ),
                                         Container(
-                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 0),
+                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 8),
                                           alignment: Alignment.bottomCenter,
                                           child: Text('Cambio batteria', style: const TextStyle(
                                             fontSize: 12.0,
@@ -316,8 +322,8 @@ class _ManutenzioneState extends State<Manutenzione>{
                                         elevation: 10,
                                         backgroundColor: Colors.white,
                                         shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                            //side: BorderSide(color: Colors.blue,width: 1.5),
+                                          borderRadius: BorderRadius.circular(12),
+                                          //side: BorderSide(color: Colors.blue,width: 1.5),
                                         )
                                     ),
                                     onPressed:  () => {
@@ -358,8 +364,8 @@ class _ManutenzioneState extends State<Manutenzione>{
                                         elevation: 10,
                                         backgroundColor: Colors.white,
                                         shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                            //side: BorderSide(color: Colors.blue,width: 1.5),
+                                          borderRadius: BorderRadius.circular(12),
+                                          //side: BorderSide(color: Colors.blue,width: 1.5),
                                         )
                                     ),
                                     onPressed:  () => {
@@ -396,8 +402,8 @@ class _ManutenzioneState extends State<Manutenzione>{
                                         elevation: 10,
                                         backgroundColor: Colors.white,
                                         shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                            //side: BorderSide(color: Colors.blue,width: 1.5),
+                                          borderRadius: BorderRadius.circular(12),
+                                          //side: BorderSide(color: Colors.blue,width: 1.5),
                                         )
                                     ),
                                     onPressed:  () => {
@@ -429,7 +435,7 @@ class _ManutenzioneState extends State<Manutenzione>{
                               ]
                           ),
                         ],
-                        ),
+                      ),
                     ).show();
                   },
                   child: Padding(
@@ -444,8 +450,8 @@ class _ManutenzioneState extends State<Manutenzione>{
                   )
               ),
             ),
-              //Costo
-              Container(
+            //Costo
+            Container(
               margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
               child: TextFormField(
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
@@ -480,8 +486,8 @@ class _ManutenzioneState extends State<Manutenzione>{
                 },
               ),
             ),
-              //Note
-              Container(
+            //Note
+            Container(
               margin: const EdgeInsets.symmetric(vertical: 18.0,horizontal: 15.0),
               child: TextFormField(
                 maxLines: 4,
@@ -533,63 +539,36 @@ class _ManutenzioneState extends State<Manutenzione>{
                           else if(!_formKeyKm.currentState!.validate()){
                             }
                             else{*/
-                    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+                  FirebaseAuth.instance.authStateChanges().listen((User? user) async {
                     CollectionReference costi = await FirebaseFirestore.instance.collection('CostiManutenzione');
                     final test = await FirebaseFirestore.instance.collection('CostiTotaliManutenzione').doc('2022').collection(user!.uid).get();
-                    final generalCosts = await FirebaseFirestore.instance.collection('CostiGenerali').doc('2022').collection(user.uid).get();
-                    current_month = now.month;
-                    note ??= '';
-                    final doc = await FirebaseFirestore.instance.collection('CostiManutenzione').where('mese', isEqualTo: months[current_month! - 1]).where('uid', isEqualTo: user.uid).get();
-                    var docs = doc.docs;
-                    double sum = 0.0;
-                    for(int i=0; i < docs.length; i++){
-                      sum += docs[i]['costo'];
-                    }
+                    final generalCosts = await FirebaseFirestore.instance.collection('CostiGenerali').doc('2022').collection(user!.uid).get();
 
                     if(test.docs.isEmpty) {
-                      final docu = await FirebaseFirestore.instance.collection('CostiTotaliManutenzione').doc('2022').collection(user.uid);
+                      final docu = await FirebaseFirestore.instance.collection('CostiTotaliManutenzione').doc('2022').collection(user!.uid);
                       for(int i = 0; i < 12; i++) {
                         docu.doc(months[i]).set(
                             {'mese': months[i],
-                              'costoManutenzione': 0,
+                              'costo': 0,
                               'index': i,
                             }
                         );
                       }
                     }
                     if(generalCosts.docs.isEmpty){
-                      print('sono qui manutenzione');
-                      final docu = await FirebaseFirestore.instance.collection('CostiGenerali').doc('2022').collection(user.uid);
+                      final docu = await FirebaseFirestore.instance.collection('CostiGenerali').doc('2022').collection(user!.uid);
                       for(int i = 0; i < 12; i++) {
                         docu.doc(months[i]).set(
                             {'mese': months[i],
                               'costo': 0,
                               'index': i,
                               'totaleLitri': 0,
+                              'manutenzioni': 0,
+                              'rifornimento': 0,
                             }
                         );
                       }
                     }
-
-                    /*final totalCost = await FirebaseFirestore.instance
-                        .collection('CostiTotali').doc('2022').collection(
-                        user!.uid).get();
-                    if(totalCost.docs.isEmpty){
-                      final docu = await FirebaseFirestore.instance
-                          .collection('CostiTotali')
-                          .doc('2022')
-                          .collection(user!.uid);
-                      for (int i = 0; i < 12; i++) {
-                        docu.doc(months[i]).set(
-                            {'mese': months[i],
-                              'costo': 0,
-                              'index': i,
-                              'totaleLitri': 0,
-                              'manutenzione': 0,
-                            }
-                        );
-                      }
-                    }*/
                     /*else {
                       final docu = await FirebaseFirestore.instance.collection('CostiTotaliManutenzione').doc('2022').collection(user!.uid);
                       for(int i = 0; i < 12; i++) {
@@ -602,6 +581,10 @@ class _ManutenzioneState extends State<Manutenzione>{
                       }
                     }*/
 
+                    current_month = now.month;
+
+                    note ??= '';
+
                     costi.add({
                       'costo': costoManutenzione,
                       'data': formatter.format(now),
@@ -611,6 +594,9 @@ class _ManutenzioneState extends State<Manutenzione>{
                       'year': now.year.toString(),
                       'uid': user?.uid,
                     });
+
+                    await readPoints();
+
 
                     if(typeManutention == 'Cambio ruote')
                     {
@@ -648,15 +634,46 @@ class _ManutenzioneState extends State<Manutenzione>{
                       'points' : userPoints
                     }).then((value) => debugPrint("Il nuovo userpoint dovrebbe essere $userPoints"));
 
+                    final comm = FirebaseFirestore.instance.collection("community").doc(FirebaseAuth.instance.currentUser?.uid);
+                    comm.update({
+                      'points' : userPoints
+                    }).then((value) => debugPrint("update community!"));
+
+                    setPoints(userPoints);
+
+                    await AwesomeDialog(
+                      context: context,
+                      dialogType: DialogType.success,
+                      headerAnimationLoop: false,
+                      animType: AnimType.topSlide,
+                      title: 'Complimenti!',
+                      desc:
+                      'Hai ricevuto $sceltaPoints punti!',
+                      btnOkOnPress: () {
+                      },
+                    ).show();
+
+
+/*
                     FToast.toast(
                       context,
                       msg: "Complimenti!\nHai guadagnato $sceltaPoints punti!",
+
+
                       image: Icon(
                         Icons.star_border,
                         color: Colors.yellowAccent,
                       ),
+
                       imageDirection: AxisDirection.left,
                     );
+*/
+                    final doc = await FirebaseFirestore.instance.collection('CostiManutenzione').where('mese', isEqualTo: months[current_month! - 1]).where('uid', isEqualTo: user?.uid).get();
+                    var docs = doc.docs;
+                    double sum = 0.0;
+                    for(int i=0; i < docs.length; i++){
+                      sum += docs[i]['costo'];
+                    }
 
                     final doc1 = await FirebaseFirestore.instance.collection('CostiGenerali').doc('2022').collection(user.uid).where('mese', isEqualTo: months[current_month! - 1]).get();
                     var docs1 = doc1.docs;
@@ -664,17 +681,11 @@ class _ManutenzioneState extends State<Manutenzione>{
                     sum1 += docs1[0]['costo'];
 
 
-                    await FirebaseFirestore.instance.collection('CostiTotaliManutenzione').doc('2022').collection(user.uid).doc('${months[current_month! - 1]}').update({"costoManutenzione": sum + costoManutenzione!});
+                    await FirebaseFirestore.instance.collection('CostiTotaliManutenzione').doc('2022').collection(user.uid).doc('${months[current_month! - 1]}').update({"costo": sum});
 
                     await FirebaseFirestore.instance.collection('CostiGenerali').doc('2022').collection(user.uid).doc('${months[current_month! - 1]}').update({"costo": sum1 + costoManutenzione!});
 
-                    //await FirebaseFirestore.instance.collection('CostiTotali').doc('2022').collection(user.uid).doc('${months[current_month! - 1]}').update({"manutenzione": sum + costoManutenzione!});
 
-                    /*Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => const LoadingScreen()),
-                                  );
-                                  */
                     Navigator.of(context,rootNavigator: true).pop();
                   })
                 },

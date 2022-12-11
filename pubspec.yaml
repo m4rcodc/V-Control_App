@@ -67,6 +67,7 @@ dependencies:
   ftoast: ^2.0.0
   flutter_speed_dial: ^6.2.0
   timelines: ^0.1.0
+  shared_preferences: ^2.0.15
 
 
 

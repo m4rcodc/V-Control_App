@@ -6,6 +6,8 @@ import 'package:car_control/models/vehicle.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../models/userModel.dart';
 import 'login_page.dart';
 
 class Veicolo extends StatefulWidget {
@@ -18,19 +20,26 @@ class _VeicoloState extends State<Veicolo>{
 
   var make;
   var state;
-  var state1;
 
   String? uid = FirebaseAuth.instance.currentUser!.uid;
+  final prefs = SharedPreferences.getInstance();
+  int? userPoints;
+  String? fuel;
+  String? imgVehicle;
+  String? model;
+  var state1;
 
-   checkCar() async {
+  checkCar() async {
     final doc =  await FirebaseFirestore.instance
         .collection('vehicle')
         .where('uid', isEqualTo: uid)
         .get();
     if(doc.docs.isNotEmpty){
       state = true;
-      state1 = true;
+      model = doc.docs[0].get('model');
+      SharedPreferences.getInstance().then((value) => value.setString('modelVehicle', model!));
       print(state);
+      state1 = true;
     }
     else {
       state = false;
@@ -44,6 +53,7 @@ class _VeicoloState extends State<Veicolo>{
         .collection('vehicle')
         .where('uid', isEqualTo: uid)
         .get();
+    fuel = doc.docs[0].get('fuel'); //Prelevo il valore di fuel
     doc.docs[0].reference.delete();
     Navigator.pushNamedAndRemoveUntil(context, HomePage.routeName, (route) => false);
 
@@ -62,6 +72,32 @@ class _VeicoloState extends State<Veicolo>{
       .map((snapshot) =>
       snapshot.docs.map((doc) => Vehicle.fromJson(doc.data())).toList()
   );
+
+
+  //Leggo i punti dalla variabile condivisa
+  readPoints() async{
+    SharedPreferences.getInstance().then((value) { userPoints = value.getInt('points');});
+  }
+
+
+  //Leggo i punti dal db
+  readUserPoints() async{
+
+    FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser?.uid).withConverter(
+      fromFirestore: UserModel.fromFirestore,
+      toFirestore: (UserModel user, _) => user.toFirestore(),
+    ).get().then((value) {
+      userPoints = value.data()?.points;
+      SharedPreferences.getInstance().then((value) => value.setInt('points', userPoints!));
+    }).onError((error, stackTrace) {
+      debugPrint(error.toString());
+    });
+  }
+
+  setPoints(int? points) async{
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('points', points!);
+  }
 
   Widget buildVehicle(Vehicle vehicle) => Stack(
     children: [
@@ -184,7 +220,7 @@ class _VeicoloState extends State<Veicolo>{
                 ),
                 DetailsCarCard(
                   firstText: "Km attuali",
-                  secondText: '${vehicle.kilometers}',
+                  secondText: '${vehicle.kilometers.toString()}',
                   icon: Image.asset(
                     "images/tachimetro-icon.png",
                     width: 80,
@@ -202,11 +238,18 @@ class _VeicoloState extends State<Veicolo>{
 
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     if(uid == null)
     {
       Navigator.pushReplacement(context, MaterialPageRoute(
           builder: (context) => const LoginPage()));
+    }
+    if(userPoints == null)
+    {
+      readUserPoints();
+    }
+    else{
+      readPoints();
     }
     return Scaffold(
       extendBody: true,
@@ -256,65 +299,96 @@ class _VeicoloState extends State<Veicolo>{
           IconButton(
             icon: const Icon(Icons.delete_outline),
             onPressed: () {
-              if(state == true) {
-                AwesomeDialog(
-                  context: context,
-                  dialogType: DialogType.warning,
-                  headerAnimationLoop: false,
-                  animType: AnimType.topSlide,
-                  title: 'Attenzione!',
-                  desc:
-                  'Sicuro di voler elminare il veicolo?',
-                  btnCancelText: 'Cancella',
-                  btnCancelOnPress: () {},
-                  btnOkOnPress: () {
-                    deleteVehicle();
-                  },
-                ).show();
-              }
-              else {
-                AwesomeDialog(
-                  context: context,
-                  dialogType: DialogType.warning,
-                  headerAnimationLoop: false,
-                  animType: AnimType.topSlide,
-                  title: 'Attenzione!',
-                  desc:
-                  'Prima di poter eliminare un veicolo devi aggiungerlo!',
-                  btnOkOnPress: () {
-                  },
-                ).show();
-              }
+              AwesomeDialog(
+                context: context,
+                dialogType: DialogType.warning,
+                headerAnimationLoop: false,
+                animType: AnimType.topSlide,
+                title: 'Attenzione!',
+                desc:
+                'Sicuro di voler elminare il veicolo?',
+                btnCancelText: 'Cancella',
+                btnCancelOnPress: () {},
+                btnOkOnPress: () async{
+                  await deleteVehicle();
+
+
+                  if(fuel == 'Metano')
+                  {
+                    userPoints = (userPoints! - metanPoints)!;
+                  }
+                  else if(fuel == 'Elettrica')
+                  {
+                    userPoints = (userPoints! - electricPoints)!;
+                  }
+                  else if(fuel == 'Gas')
+                  {
+                    userPoints = (userPoints! - gplPoints)!;
+                  }
+                  else if(fuel == 'Benzina')
+                  {
+                    userPoints = (userPoints! - benzPoints)!;
+                  }
+                  else if(fuel == 'Diesel')
+                  {
+                    userPoints = (userPoints! - dieselPoints)!;
+                  }
+                  else
+                  {
+                    userPoints = (userPoints! - ibridPoints)!;
+                  }
+
+
+                  final upd = FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser?.uid);
+                  upd.update({
+                    'points' : userPoints
+                  }).then((value) => debugPrint("Il nuovo userpoint dovrebbe essere $userPoints"));
+
+                  final comm = FirebaseFirestore.instance.collection("community").doc(FirebaseAuth.instance.currentUser?.uid);
+                  comm.update({
+                    'points' : userPoints,
+                    'model' : '',
+                    'make' : '',
+                    'image' : 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/defaultImage%2FLogoApp.png?alt=media&token=815b924d-e981-4fb6-ad76-483a2f591310',
+                    'fuel' : ''
+                  }).then((value) => debugPrint("update community!"));
+
+                  setPoints(userPoints);
+
+
+                },
+              ).show();
             },
           ),
           IconButton(
               icon: const Icon(Icons.add),
               onPressed: () {
-                 if(state1 == false) {
-                Navigator.of(context).pushNamed(AddVeicolo.routeName);
-              }
-              else {
-                AwesomeDialog(
-                  context: context,
-                  dialogType: DialogType.warning,
-                  headerAnimationLoop: false,
-                  animType: AnimType.topSlide,
-                  title: 'Attenzione!',
-                  desc:
-                  'Per aggiungere un secondo veicolo, passa alla funzionalità premium dell\'app!',
-                  btnOkOnPress: () {
-                  },
-                ).show();
-              }
+                if(state1 == false) {
+                  Navigator.of(context).pushNamed(AddVeicolo.routeName);
+                }
+                else {
+                  AwesomeDialog(
+                    context: context,
+                    dialogType: DialogType.warning,
+                    headerAnimationLoop: false,
+                    animType: AnimType.topSlide,
+                    title: 'Attenzione!',
+                    desc:
+                    'Per aggiungere un secondo veicolo, passa alla funzionalità premium dell\'app!',
+                    btnOkOnPress: () {
+                    },
+                  ).show();
+                }
               }
           )
-        ],
+          ],
       ),
       body:
       Container(
         decoration: const BoxDecoration(
             color: Color(0xFFE3F2FD)
         ),
+
         child: ListView(
           //physics: NeverScrollableScrollPhysics(),
           children: [
@@ -332,22 +406,22 @@ class _VeicoloState extends State<Veicolo>{
                     else {
                       return
                         Column(
-                        children: [
-                        Container(
-                        margin: EdgeInsets.only(top: 100),
-                        child: Image.asset(
-                         'images/PlaceHolder.png'
-                        )
-                      ),
-                          Container(
-                            alignment: Alignment.center,
-                            margin: EdgeInsets.only(top: 30),
-                              child: Text(
+                          children: [
+                            Container(
+                                margin: EdgeInsets.only(top: 100),
+                                child: Image.asset(
+                                    'images/PlaceHolder.png'
+                                )
+                            ),
+                            Container(
+                                alignment: Alignment.center,
+                                margin: EdgeInsets.only(top: 30),
+                                child: Text(
                                   'Per inserire un nuovo veicolo \n\t\t premi il + in alto a destra',
-                                style: TextStyle(fontSize: 25,fontStyle: FontStyle.italic, fontWeight: FontWeight.bold, color: Colors.blue.shade400),
-                              )
-                          ),
-                      ],
+                                  style: TextStyle(fontSize: 25,fontStyle: FontStyle.italic, fontWeight: FontWeight.bold, color: Colors.blue.shade400),
+                                )
+                            ),
+                          ],
                         );
                     }
                   }
