@@ -98,7 +98,7 @@ class _VeicoloState extends State<Veicolo>{
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('points', points!);
   }
-
+//ciao
   Widget buildVehicle(Vehicle vehicle) => Stack(
     children: [
       Container(
