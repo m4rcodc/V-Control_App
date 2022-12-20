@@ -1353,6 +1353,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                       sceltaPoints = ibridPoints;
                                       userPoints = (userPoints! + ibridPoints)!;
                                     }
+
                                     final ref = FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser?.uid);
                                     ref.update({
                                       'points' : userPoints

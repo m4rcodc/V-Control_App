@@ -17,6 +17,8 @@ class CostiManutenzione extends StatefulWidget{
   CostiManutenzioneState createState() => CostiManutenzioneState();
 }
 
+
+
 class CostiManutenzioneState extends State<CostiManutenzione>{
 
   List months =
@@ -40,11 +42,21 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
   String? a;
   final TextEditingController _textController = TextEditingController();
   String? datePostfix;
+  int? userPoints;
+
+  readPoints() async{
+    SharedPreferences.getInstance().then((value) { userPoints = value.getInt('points');});
+  }
 
   readCheckCar() async {
     SharedPreferences.getInstance().then((value) { checkCar = value.getBool('checkCar');});
     //print(checkCar);
 
+  }
+
+  setPoints(int? points) async{
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('points', points!);
   }
 
   final _headerStyle = const TextStyle(
@@ -325,6 +337,8 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                     int indexMonth = now.month;
                                     String month = months[indexMonth - 1];
 
+                                    await readPoints();
+
                                     final doc = await FirebaseFirestore.instance
                                         .collection('CostiManutenzione')
                                         .where(
@@ -359,8 +373,50 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                         .update({"costo": sum1 - (cost.costo!)});
 
                                     final docDeleted = await FirebaseFirestore.instance.collection('CostiManutenzione').where('uid', isEqualTo: uid).where('index', isEqualTo: cost.index).get();
+                                    String typeManutention = docDeleted.docs[0].get('type');
                                     DocumentReference docu =  docDeleted.docs[0].reference;
                                     docu.delete();
+
+
+                                    if(typeManutention == 'Cambio ruote')
+                                    {
+                                      userPoints = (userPoints! - cambioGommePoints)!;
+
+                                    }
+                                    else if(typeManutention == 'Cambio olio')
+                                    {
+                                      userPoints = (userPoints! - cambioOlioPoints)!;
+
+                                    }
+                                    else if(typeManutention == 'Cambio batteria')
+                                    {
+                                      userPoints = (userPoints! - cambioBatteriaPoints)!;
+
+                                    }
+                                    else if(typeManutention == 'Impianto frenante')
+                                    {
+                                      userPoints = (userPoints! - impiantoFrenantePoints)!;
+                                    }
+                                    else if(typeManutention == 'Motore')
+                                    {
+                                      userPoints = (userPoints! - motorePoints)!;
+                                    }
+                                    else
+                                    {
+                                      userPoints = (userPoints! - altroPoints)!;
+                                    }
+
+
+                                    setPoints(userPoints);
+                                    final upd = FirebaseFirestore.instance.collection("users")
+                                        .doc(FirebaseAuth.instance.currentUser?.uid);
+                                    upd.update({
+                                      'points': userPoints
+                                    });
+                                    final comm = FirebaseFirestore.instance.collection("community").doc(FirebaseAuth.instance.currentUser?.uid);
+                                    comm.update({
+                                      'points' : userPoints
+                                    });
 
                                     Navigator.of(context, rootNavigator: true).pop();
                                   },

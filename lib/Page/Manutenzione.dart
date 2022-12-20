@@ -642,6 +642,11 @@ class _ManutenzioneState extends State<Manutenzione>{
                       userPoints = (userPoints! + impiantoFrenantePoints)!;
 
                     }
+                    else if(typeManutention == 'Motore')
+                    {
+                      sceltaPoints = motorePoints;
+                      userPoints = (userPoints! + motorePoints)!;
+                    }
                     else
                     {
                       sceltaPoints = altroPoints;

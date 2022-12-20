@@ -26,7 +26,7 @@ class _VeicoloState extends State<Veicolo>{
   int? userPoints;
   String? fuel;
   String? imgVehicle;
-  String? model;
+
   var state1;
 
   checkCar() async {
@@ -36,18 +36,21 @@ class _VeicoloState extends State<Veicolo>{
         .get();
     if(doc.docs.isNotEmpty){
       state = true;
-      model = doc.docs[0].get('model');
-      SharedPreferences.getInstance().then((value) => value.setString('modelVehicle', model!));
+      String model = doc.docs[0].get('model');
+      debugPrint("Il model è $model");
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('modelV', model);
       print(state);
       state1 = true;
     }
     else {
       state = false;
       state1 = false;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('modelV', ' ');
       print(state);
     }
     SharedPreferences.getInstance().then((value) => value.setBool('checkCar', state!));
-
   }
 
   deleteVehicle() async {
@@ -58,6 +61,7 @@ class _VeicoloState extends State<Veicolo>{
     fuel = doc.docs[0].get('fuel'); //Prelevo il valore di fuel
     doc.docs[0].reference.delete();
     Navigator.pushNamedAndRemoveUntil(context, HomePage.routeName, (route) => false);
+
   }
 
   @override
@@ -300,125 +304,75 @@ class _VeicoloState extends State<Veicolo>{
           IconButton(
             icon: const Icon(Icons.delete_outline),
             onPressed: () {
-              if(state1 == false){
-                      AwesomeDialog(
-                      context: context,
-                      dialogType: DialogType.warning,
-                      headerAnimationLoop: false,
-                      animType: AnimType.topSlide,
-                      title: 'Attenzione!',
-                      desc:
-                      'Aggiungi prima un veicolo!',
-                      btnOkOnPress: () {
-                      },
-                      ).show();
-                }
-              else {
-                AwesomeDialog(
-                  context: context,
-                  dialogType: DialogType.warning,
-                  headerAnimationLoop: false,
-                  animType: AnimType.topSlide,
-                  title: 'Attenzione!',
-                  desc:
-                  'Sicuro di voler elminare il veicolo?',
-                  btnCancelText: 'Cancella',
-                  btnCancelOnPress: () {},
-                  btnOkOnPress: () async {
-                    await deleteVehicle();
-                    if (fuel == 'Metano') {
-                      userPoints = (userPoints! - metanPoints)!;
-                    }
-                    else if (fuel == 'Elettrica') {
-                      userPoints = (userPoints! - electricPoints)!;
-                    }
-                    else if (fuel == 'Gas') {
-                      userPoints = (userPoints! - gplPoints)!;
-                    }
-                    else if (fuel == 'Benzina') {
-                      userPoints = (userPoints! - benzPoints)!;
-                    }
-                    else if (fuel == 'Diesel') {
-                      userPoints = (userPoints! - dieselPoints)!;
-                    }
-                    else {
-                      userPoints = (userPoints! - ibridPoints)!;
-                    }
+    if(state1 == false){
+      AwesomeDialog(
+      context: context,
+      dialogType: DialogType.warning,
+      headerAnimationLoop: false,
+      animType: AnimType.topSlide,
+      title: 'Attenzione!',
+      desc:
+      'Aggiungi prima un veicolo!',
+      btnOkOnPress: () {
+      },
+      ).show();
+    }
+    else {
+      AwesomeDialog(
+      context: context,
+      dialogType: DialogType.warning,
+      headerAnimationLoop: false,
+      animType: AnimType.topSlide,
+      title: 'Attenzione!',
+      desc:
+      'Sicuro di voler elminare il veicolo?',
+      btnCancelText: 'Cancella',
+      btnCancelOnPress: () {},
+      btnOkOnPress: () async {
+      await deleteVehicle();
+      if (fuel == 'Metano') {
+      userPoints = (userPoints! - metanPoints)!;
+      }
+      else if (fuel == 'Elettrica') {
+      userPoints = (userPoints! - electricPoints)!;
+      }
+      else if (fuel == 'Gas') {
+      userPoints = (userPoints! - gplPoints)!;
+      }
+      else if (fuel == 'Benzina') {
+      userPoints = (userPoints! - benzPoints)!;
+      }
+      else if (fuel == 'Diesel') {
+      userPoints = (userPoints! - dieselPoints)!;
+      }
+      else {
+      userPoints = (userPoints! - ibridPoints)!;
+      }
 
 
-                    final upd = FirebaseFirestore.instance.collection("users")
-                        .doc(FirebaseAuth.instance.currentUser?.uid);
-                    upd.update({
-                      'points': userPoints
-                    }).then((value) => debugPrint(
-                        "Il nuovo userpoint dovrebbe essere $userPoints"));
+      final upd = FirebaseFirestore.instance.collection("users")
+          .doc(FirebaseAuth.instance.currentUser?.uid);
+      upd.update({
+      'points': userPoints
+      }).then((value) => debugPrint(
+      "Il nuovo userpoint dovrebbe essere $userPoints"));
 
-                    final comm = FirebaseFirestore.instance.collection(
-                        "community").doc(
-                        FirebaseAuth.instance.currentUser?.uid);
-                    comm.update({
-                      'points': userPoints,
-                      'model': '',
-                      'make': '',
-                      'image': 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/defaultImage%2FLogoApp.png?alt=media&token=815b924d-e981-4fb6-ad76-483a2f591310',
-                      'fuel': ''
-                    }).then((value) => debugPrint("update community!"));
+      final comm = FirebaseFirestore.instance.collection(
+      "community").doc(
+      FirebaseAuth.instance.currentUser?.uid);
+      comm.update({
+      'points': userPoints,
+      'model': '',
+      'make': '',
+      'image': 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/defaultImage%2FLogoApp.png?alt=media&token=815b924d-e981-4fb6-ad76-483a2f591310',
+      'fuel': ''
+      }).then((value) => debugPrint("update community!"));
 
-                    setPoints(userPoints);
+      setPoints(userPoints);
 
-                    /*
-                  //Cancello Costi generali
-                  final docGeneral = await FirebaseFirestore.instance
-                      .collection('CostiGenerali').doc('2022')
-                      .collection(FirebaseAuth.instance.currentUser!.uid)
-                      .get();
-                  docGeneral.docs[0].reference.delete();
-                  */
-                    //Cancello Costi Totali Rifornimento
-                    /*CollectionReference docTotaliRifornimenti = await FirebaseFirestore.instance
-                      .collection('CostiTotali').doc('2022')
-                      .collection(FirebaseAuth.instance.currentUser!.uid);
-                  docTotaliRifornimenti.snapshots().forEach((element) {
-                        for (QueryDocumentSnapshot snapshot in element.docs) {
-                           snapshot.reference.delete();
-                           }
-                  });
-                  */
-                    /*
-                  //Cancello Costi Totali Manutenzioni
-                  final docTotaliManutenzioni = await FirebaseFirestore.instance
-                      .collection('CostiTotaliManutenzione').doc('2022')
-                      .collection(FirebaseAuth.instance.currentUser!.uid)
-                      .get();
-                  docTotaliManutenzioni.docs[0].reference.delete();
-                  */
-                    /*
-                    final docRif = await FirebaseFirestore.instance
-                        .collection('CostiRifornimento')
-                        .where('uid', isEqualTo: FirebaseAuth.instance
-                        .currentUser!.uid)
-                        .get();
-                    int sizeRif = docRif.size;
-                    print(sizeRif);
-                    for (int i = 0; i <= sizeRif; i++) {
-                      docRif.docs[i].reference.delete();
-                    }
-
-                    final docMtz = await FirebaseFirestore.instance
-                        .collection('CostiManutenzione')
-                        .where('uid', isEqualTo: FirebaseAuth.instance
-                        .currentUser!.uid)
-                        .get();
-                    int sizeMtz = docRif.size;
-                    print(sizeMtz);
-                    for (int i = 0; i <= sizeMtz; i++) {
-                      docMtz.docs[i].reference.delete();
-                    }
-                    */
-                  },
-                ).show();
-              };
-            },
+      },
+      ).show();
+    }}
           ),
           IconButton(
               icon: const Icon(Icons.add),

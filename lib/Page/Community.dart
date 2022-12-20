@@ -1,12 +1,16 @@
-
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_signin_button/button_list.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/communityModel.dart';
 
-
+String? modelV;
+String infoCommunity = "Per partecipare alla community bisogna registrare un veicolo."
+    "Nel podio e nella classifica vedrai solo il punteggio degli utenti che hanno il tuo stesso modello di veicolo,"
+    'prova a batterli!\nGuadagnare punti è facilissimo!\nRiceverai punti ogni volta che guiderai in modo efficiente oppure ogni volta'
+    "che farai manutenzione e controlli al tuo veicolo! Inoltre acquistando un veicolo ibrido,elettrico o a metano riceverai dei punti extra!"
+    "\nScala la classifica e raggiungi la vetta! E cosa fondamentale: divertiti!";
 
 class Community extends StatefulWidget {
 
@@ -19,36 +23,51 @@ class _CommunityState extends State<Community>{
 
   int? rank;
 
+  List<String> namePodium = [];
+  List<int> pointsPodium = [];
+  List<String> imagePodium = [];
+
+
   List<CommunityModel> communityProfile = [];
 
 
-  Stream<List<CommunityModel>> readUserPointsComm() => FirebaseFirestore.instance
-      .collection('community')
-      .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
-      .snapshots()
-      .map((snapshot) =>
-      snapshot.docs.map((doc) => CommunityModel.fromJson(doc.data())).toList()
-  );
+
 
   Stream<List<CommunityModel>> readCommunityPoints() {
-    return FirebaseFirestore.instance
-        .collection('community')
-        .orderBy('points', descending: true)
-        .snapshots()
-        .map((snapshot) =>
-        snapshot.docs.map((doc) => CommunityModel.fromJson(doc.data())).toList()
-    );
+    debugPrint(modelV);
+    if(modelV == ' ')
+      {
+        return FirebaseFirestore.instance
+            .collection('community')
+            .orderBy('points', descending: true)
+            .snapshots()
+            .map((snapshot) =>
+            snapshot.docs.map((doc) => CommunityModel.fromJson(doc.data())).toList()
+        );
+      }else{
+      return FirebaseFirestore.instance
+          .collection('community').where('model', isEqualTo: modelV)
+          .orderBy('points', descending: true)
+          .snapshots()
+          .map((snapshot) =>
+          snapshot.docs.map((doc) => CommunityModel.fromJson(doc.data())).toList()
+      );
+    }
+
   }
 
   List<CommunityModel> commList = [];
 
 
-
-
-
   @override
-  initState(){
+  initState() {
     super.initState();
+  }
+
+  getModelV() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    modelV = prefs.getString('modelV') ?? ' ';
 
   }
 
@@ -327,17 +346,17 @@ class _CommunityState extends State<Community>{
                       children:[
                         CircleAvatar(
                           backgroundImage: NetworkImage(
-                              communityProfile[2].image!),
+                              imagePodium[1]),
                         ),
                         Container(
                             padding: EdgeInsets.only(top: 6),
                             child:
-                            Text(communityProfile[2].name!)
+                            Text( namePodium[1])
                         ),
                         Container(
                             padding: EdgeInsets.only(top: 4),
                             child:
-                            Text(communityProfile[2].points.toString())
+                            Text(pointsPodium[1].toString())
                         )
                       ],
                     ),
@@ -350,17 +369,17 @@ class _CommunityState extends State<Community>{
                       children:[
                         CircleAvatar(
                           backgroundImage: NetworkImage(
-                              communityProfile[1].image!),
+                             imagePodium[0]),
                         ),
                         Container(
                             padding: EdgeInsets.only(top: 6),
                             child:
-                            Text(communityProfile[1].name!)
+                            Text( namePodium[0])
                         ),
                         Container(
                             padding: EdgeInsets.only(top: 4),
                             child:
-                            Text(communityProfile[1].points.toString())
+                            Text(pointsPodium[0].toString())
                         )
                       ],
                     ),
@@ -373,17 +392,17 @@ class _CommunityState extends State<Community>{
                       children:[
                         CircleAvatar(
                           backgroundImage: NetworkImage(
-                              communityProfile[3].image!),
+                              imagePodium[2]),
                         ),
                         Container(
                             padding: EdgeInsets.only(top: 6),
                             child:
-                            Text(communityProfile[3].name!)
+                            Text(namePodium[2])
                         ),
                         Container(
                             padding: EdgeInsets.only(top: 4),
                             child:
-                            Text(communityProfile[3].points.toString())
+                            Text(pointsPodium[2].toString())
                         )
                       ],
                     ),
@@ -406,6 +425,7 @@ class _CommunityState extends State<Community>{
 
   @override
   Widget build(BuildContext context) {
+    getModelV();
 
     return Scaffold(
       //extendBody: true,
@@ -420,7 +440,43 @@ class _CommunityState extends State<Community>{
         actions: [
           IconButton(
             icon: Icon(Icons.info_outline),
-            onPressed: () => {},
+            onPressed: () => {
+            AwesomeDialog(
+            context: context,
+            headerAnimationLoop: false,
+            dialogType: DialogType.noHeader,
+            padding: EdgeInsets.zero,
+            dialogBackgroundColor: Colors.blue.shade200,
+            body:
+            ListView(
+            shrinkWrap: true,
+            padding: EdgeInsets.symmetric(vertical: 2,horizontal:12),
+            children: [
+            Container(
+            //padding: EdgeInsets.symmetric(vertical:10, horizontal:10),
+            alignment: Alignment.topCenter,
+            child: Text('📙 Info Community ❤', style: TextStyle(fontSize: 20),)
+            ),
+              Container(
+                height: 360, //margin: EdgeInsets.all(20),
+                child: ListView(
+                    padding: const EdgeInsets.only(
+                        top: 20, left: 12, right: 12),
+                    shrinkWrap: true,
+                    children: [
+                      Container(
+                        //padding: EdgeInsets.symmetric(vertical:10, horizontal:10),
+                          //alignment: Alignment.topCenter,
+                          child: Text(infoCommunity, style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic, fontFamily: 'Open Sans'),)
+                      ),
+                    ],
+
+              ),
+              )
+            ],
+            ),
+            ).show()
+            }, //end
           )
         ],
         flexibleSpace: Container(
@@ -447,8 +503,10 @@ class _CommunityState extends State<Community>{
                 builder: (context,snapshot) {
                   if (snapshot.hasData) {
                     final comm = snapshot.data!;
+
                     communityProfile = comm.toList();
                     int count = 0;
+                    debugPrint(communityProfile.length.toString());
                     for(int i = 0; i<communityProfile.length ; i++)
                     {
                       if(communityProfile[i].uid == FirebaseAuth.instance.currentUser?.uid)
@@ -459,6 +517,23 @@ class _CommunityState extends State<Community>{
                       }
                     }
 
+                    int j = 3;
+
+                    for(int i = 0; i<communityProfile.length ; i++)
+                      {
+                        namePodium.add(communityProfile[i].name ?? 'empty');
+                        pointsPodium.add(communityProfile[i].points ?? 0);
+                        imagePodium.add(communityProfile[i].image ?? '');
+                        j--;
+                      }
+                    for(;j>0;j--)
+                      {
+                        namePodium.add('empty');
+                        pointsPodium.add(0);
+                        imagePodium.add('https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/defaultImage%2FLogoApp.png?alt=media&token=815b924d-e981-4fb6-ad76-483a2f591310');
+                      }
+
+                    debugPrint("count è $count");
                     List<CommunityModel> singleProfile = [];
                     singleProfile.add(communityProfile[count]);
                     return Column(
