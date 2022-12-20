@@ -216,9 +216,9 @@ class CostiGeneraliState extends State<CostiGenerali>{
                     if (snapshot.hasData) {
                       final recap = snapshot.data!;
                       if(recap.isNotEmpty) {
-                        return ListView(
-                            padding: EdgeInsets.symmetric(vertical: 0),
-                            shrinkWrap: true,
+                        return Column(
+                            //padding: EdgeInsets.symmetric(vertical: 0),
+                            //shrinkWrap: true,
                             children: recap.map(buildCardRecapRifornimenti).toList()
                         );
                       }
@@ -277,9 +277,9 @@ class CostiGeneraliState extends State<CostiGenerali>{
                           if (snapshot.hasData) {
                             final recap = snapshot.data!;
                             if(recap.isNotEmpty) {
-                              return ListView(
-                                  padding: EdgeInsets.symmetric(vertical: 0),
-                                  shrinkWrap: true,
+                              return Column(
+                                  //padding: EdgeInsets.symmetric(vertical: 0),
+                                  //shrinkWrap: true,
                                   children: recap.map(buildCardRecapManutenzioni).toList()
                               );
                             }
@@ -324,9 +324,9 @@ class CostiGeneraliState extends State<CostiGenerali>{
                           if (snapshot.hasData) {
                             final recap = snapshot.data!;
                             if(recap.isNotEmpty) {
-                              return ListView(
-                                  padding: EdgeInsets.symmetric(vertical: 0),
-                                  shrinkWrap: true,
+                              return Column(
+                                  //padding: EdgeInsets.symmetric(vertical: 0),
+                                  //shrinkWrap: true,
                                   children: recap.map(buildCardRecapScadenze).toList()
                               );
                             }

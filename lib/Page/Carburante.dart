@@ -23,7 +23,6 @@ class Carburante extends StatefulWidget {
 class _CarburanteState extends State<Carburante> {
 
   //FocusNode myFocusNode = FocusNode();
-
   final GlobalKey<FormState> _formKeyCosto = GlobalKey<FormState>();
   final GlobalKey<FormState> _formKeyCostoAlLitro = GlobalKey<FormState>();
   final GlobalKey<FormState> _formKeyKm = GlobalKey<FormState>();
@@ -95,7 +94,7 @@ class _CarburanteState extends State<Carburante> {
       countRifornimento = value.docs[0].get('countRifornimento');
       countLitri = value.docs[0].get('countLitri');
       consumoMedio = value.docs[0].get('consumoMedio');
-      debugPrint("Old Km è ${oldKilometers.toString()}");
+      //debugPrint("Old Km è ${oldKilometers.toString()}");
     });
   }
 
@@ -623,8 +622,10 @@ class _CarburanteState extends State<Carburante> {
                                 'mese', isEqualTo: months[current_month! - 1])
                                 .get();
                             var docs1 = doc1.docs;
-                            double sum1 = 0.0;
+                            double sum1 = 0;
                             sum1 += docs1[0]['costo'];
+
+                            print('Costo sum1 carburante $sum1');
 
                             await FirebaseFirestore.instance.collection(
                                 'CostiTotali').doc('2022')
@@ -632,11 +633,14 @@ class _CarburanteState extends State<Carburante> {
                                 .doc('${months[current_month! - 1]}')
                                 .update({"costoRifornimento": sum + costoRifornimento!, "totaleLitri": sumLitri + double.tryParse(labelLitri!)!});
 
+                            print(sum1 + costoRifornimento!);
+
                             await FirebaseFirestore.instance.collection(
                                 'CostiGenerali').doc('2022')
                                 .collection(user.uid)
                                 .doc('${months[current_month! - 1]}')
-                                .update({"costo": costoRifornimento! + sum1});
+                                .update({"costo": sum1 + costoRifornimento!});
+
 
                             Navigator.of(context, rootNavigator: true).pop();
                           }

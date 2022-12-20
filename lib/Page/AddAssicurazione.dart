@@ -64,7 +64,9 @@ class _BoxNotificaState extends State<BoxNotifica>{
 }
 
 class AddAssicurazione extends StatefulWidget{
+
   static const routeName = '/add-Assicurazione';
+
 
   static List<Map<String,dynamic>> assicurazioni = [];
   static var info = null;
@@ -87,6 +89,9 @@ class AddAssicurazione extends StatefulWidget{
 }
 
 class _AddAssicurazioneState extends State<AddAssicurazione> {
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   String prezzo = '';
   String tipoScad = '';
   DateTime date = DateTime.now();
@@ -374,6 +379,7 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
       ),
     ];
     return Scaffold(
+      key: _scaffoldKey,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         iconTheme: IconThemeData(
@@ -458,15 +464,11 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
             ],
           ),
           //height: MediaQuery.of(context).size.height * 0.58,
-        child: ListView(
-          //physics: NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          //padding: EdgeInsets.all(16),
-        children: [
+           child:
         Form(
           key: _formKey,
-          child: ListView(
-            shrinkWrap: true,
+          child: Column(
+            //shrinkWrap: true,
             children: [
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
@@ -1207,12 +1209,10 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
             ],
           ),
         ),
+         ),
           ],
       ),
         ),
-      ],
-    ),
-      ),
-    );
+      );
   }
 }

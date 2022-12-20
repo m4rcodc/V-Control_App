@@ -14,6 +14,7 @@ class DetailsCarCard extends StatelessWidget {
       elevation: 8,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
+        side: BorderSide(color: Colors.blueAccent,width: 2),
         /*side: const BorderSide(
           width: 1.0,
           color: Colors.blue,

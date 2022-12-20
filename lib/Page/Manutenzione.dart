@@ -50,6 +50,7 @@ class _ManutenzioneState extends State<Manutenzione>{
   String? motore = 'Motore';
   String? freni = 'Impianto frenante';
   String? altro = 'Altro';
+  double? indexTable = 0;
   int? userPoints;
   DateTime now = new DateTime.now();
   var formatter = new DateFormat('dd-MM-yyyy');
@@ -94,7 +95,7 @@ class _ManutenzioneState extends State<Manutenzione>{
           child:
           Image.asset(
             'images/ImageManutenzione.png',
-            height: 410,
+            height: MediaQuery.of(context).size.height * 0.518,
             width: MediaQuery.of(context).size.width,
             scale: 1.75,
           ),
@@ -552,6 +553,23 @@ class _ManutenzioneState extends State<Manutenzione>{
                       sum += docs[i]['costo'];
                     }
 
+                    //Indexing
+                    final indexing = await FirebaseFirestore.instance
+                        .collection('CostiManutenzione')
+                        .where('uid', isEqualTo: user?.uid)
+                        .orderBy('index', descending: true)
+                        .limit(1)
+                        .get();
+                    var docsIndexing = indexing.docs;
+                    if(docsIndexing.isEmpty){
+                      indexTable = 0;
+                    }
+                    else{
+                      var index = docsIndexing[0]['index'];
+                      indexTable = index;
+                    }
+
+
                     if(test.docs.isEmpty) {
                       final docu = await FirebaseFirestore.instance.collection('CostiTotaliManutenzione').doc('2022').collection(user!.uid);
                       for(int i = 0; i < 12; i++) {
@@ -594,6 +612,7 @@ class _ManutenzioneState extends State<Manutenzione>{
                       'mese': months[current_month! - 1],
                       'year': now.year.toString(),
                       'uid': user?.uid,
+                      'index': indexTable! + 1
                     });
 
                     await readPoints();

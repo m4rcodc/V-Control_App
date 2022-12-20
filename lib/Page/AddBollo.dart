@@ -417,17 +417,10 @@ class _AddBolloState extends State<AddBollo> {
             ],
           ),
           child:
-              Container(
-          //margin: const EdgeInsets.symmetric(vertical: 20.0,horizontal: 10.0),
-          child:
-            ListView(
-              shrinkWrap: true,
-              children: [
                 Form(
                     key: _formKey,
-                    child: ListView(
-                      shrinkWrap: true,
-                      children: [
+                  child: Column(
+                    children: [
                         Container(
                           margin: const EdgeInsets.symmetric(vertical: 25.0,horizontal: 15.0),
                           child: ElevatedButton(
@@ -566,13 +559,10 @@ class _AddBolloState extends State<AddBollo> {
                 ]
               )
         ),
+        ),
         ],
       ),
     ),
-      ),
-      ],
-      ),
-    ),
-    );
+      );
   }
 }

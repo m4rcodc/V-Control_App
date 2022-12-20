@@ -18,17 +18,18 @@ class Scadenze extends StatefulWidget {
   static const routeName = '/scadenze';
 
   static late List<AnimationWidget> lista = [];
-
+  static int kmAttual = 1;
   static bool resetAnimation = false;
 
   static String uid = FirebaseAuth.instance.currentUser!.uid;
 
-  static void modifica(String titolo,String nome,String prezzo, Timestamp data,String tipoScad,String notif){
+  static void modifica(String titolo,String nome,String prezzo,int km ,Timestamp data,String tipoScad,String notif){
     var info= {
       'nome': nome,
       'titolo': titolo,
       'prezzo': prezzo,
       'data': data,
+      'km': km,
       'tipoScad': tipoScad,
       'notifiche': notif
     };
@@ -141,8 +142,21 @@ class Scadenze extends StatefulWidget {
         .doc('${month}')
         .update({"costo": double.tryParse(prezzo)! + sum1});
 
-    deleteAfterPay(titolo);
+    //print(colore.toString());
 
+    //deleteAfterPay(titolo);
+
+  }
+
+  static Future<String> getKmAttual() async{
+    var ref = FirebaseFirestore.instance.collection("vehicle")
+        .where('uid',isEqualTo: uid);
+    var query = await ref.get();
+    for (var queryDocumentSnapshot in query.docs) {
+      Map<String, dynamic> data = queryDocumentSnapshot.data();
+      kmAttual = data['kilometers'];
+    }
+    return '';
   }
 
   static Future<List<AnimationWidget>> getScadenze() async{
@@ -152,6 +166,8 @@ class Scadenze extends StatefulWidget {
     for (var queryDocumentSnapshot in query.docs) {
       Map<String, dynamic> data = queryDocumentSnapshot.data();
       Timestamp timestamp = data['dataScad'];
+      int km = 0;
+      if(data['titolo'] == 'Tagliando') km = data['km'];
       lista.add(
           AnimationWidget(
               BoxScadenza(
@@ -160,8 +176,9 @@ class Scadenze extends StatefulWidget {
                 DateTime.fromMillisecondsSinceEpoch(timestamp.seconds*1000),
                 getIcon(data['titolo']),
                 data['prezzo'],
-                pagamento: () => pagamento(data['prezzo'], data['titolo']),
-                modifica: () => modifica(data['titolo'],data['nome'],data['prezzo'],timestamp,data['tipoScad'],data['notifiche']),
+                km,
+                pagamento: ()  => pagamento(data['prezzo'], data['titolo']),
+                modifica: () => modifica(data['titolo'],data['nome'],data['prezzo'],km,timestamp,data['tipoScad'],data['notifiche']),
                 delete: () => delete(data['titolo']),
               ),
               false)
@@ -182,6 +199,10 @@ class Scadenze extends StatefulWidget {
 
   static void insert(var info,bool mod){
     Timestamp timestamp = Timestamp.fromDate(info['dataScad']);
+    int km = 0;
+    if(info['titolo'] == 'Tagliando') {
+      km = info['km'];
+    }
     lista.add(
         AnimationWidget(BoxScadenza(
           info['titolo'],
@@ -189,8 +210,9 @@ class Scadenze extends StatefulWidget {
           info['dataScad'],
           getIcon(info['titolo']),
           info['prezzo'],
-          pagamento: () => pagamento(info['prezzo'], info['titolo']),
-          modifica: () => modifica(info['titolo'],info['nome'],info['prezzo'],timestamp,info['tipoScad'],info['notifiche']),
+          km,
+          pagamento: () =>  pagamento(info['prezzo'], info['titolo']),
+          modifica: () => modifica(info['titolo'],info['nome'],info['prezzo'],km,timestamp,info['tipoScad'],info['notifiche']),
           delete: () => delete(info['titolo']),
         ),
             true
@@ -208,6 +230,7 @@ class Scadenze extends StatefulWidget {
             'titolo': info['titolo'],
             'dataScad': info['dataScad'],
             'prezzo': info['prezzo'],
+            'km': km,
             'tipoScad': info['tipoScad'],
             'notifiche': info['notifiche'],
             'uid': uid,
@@ -221,6 +244,7 @@ class Scadenze extends StatefulWidget {
           'titolo': info['titolo'],
           'dataScad': info['dataScad'],
           'prezzo': info['prezzo'],
+          'km': km,
           'tipoScad': info['tipoScad'],
           'notifiche': info['notifiche'],
           'uid': uid,
@@ -273,9 +297,10 @@ class Scadenze extends StatefulWidget {
         doc.reference.delete();
       }
     }
-      );
+    );
   }
 
+  /*
   static void deleteAfterPay(String titolo){
     if(titolo == 'Assicurazione') AddAssicurazione.info = null;
     if(titolo == 'Bollo') AddBollo.info = null;
@@ -304,7 +329,7 @@ class Scadenze extends StatefulWidget {
     }
     );
   }
-
+*/
   static void sortLista(){
     var repeat = true;
     var temp;
@@ -327,7 +352,7 @@ class Scadenze extends StatefulWidget {
 
   @override
   _ScadenzeState createState() => _ScadenzeState(lista,resetAnimation);
-  }
+}
 
 
 class _ScadenzeState extends State<Scadenze>{
@@ -439,7 +464,7 @@ class _ScadenzeState extends State<Scadenze>{
         actions: <Widget>[
           Container(
             margin: EdgeInsets.symmetric(horizontal: 10),
-             child: SpeedDial(
+            child: SpeedDial(
               foregroundColor: Colors.white,
               backgroundColor: Colors.transparent,
               direction: SpeedDialDirection.down,
@@ -452,8 +477,8 @@ class _ScadenzeState extends State<Scadenze>{
               children: itemsAddScadenze,
             ),
 
-             )
-    ],
+          )
+        ],
         title: Text('Scadenze', style: TextStyle(color: Colors.white)),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -479,28 +504,28 @@ class _ScadenzeState extends State<Scadenze>{
         ),
         child:
         Stack(
-            children: [
-               Timeline.tileBuilder(
-                  padding: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.91, top: MediaQuery.of(context).size.height * 0.11),
-                    builder: TimelineTileBuilder.fromStyle(
-                      contentsAlign: ContentsAlign.basic,
-                      contentsBuilder: (context, index) => Padding(
-                        padding:  EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.18, bottom: 20),
-                      ),
-                      itemCount: 4,
-                      indicatorStyle: IndicatorStyle.dot,
-                      connectorStyle: ConnectorStyle.solidLine
-                      ),
-                      theme: TimelineThemeData(
-                        color: Colors.blue.shade500
-                      ),
-                    ),
-              ListView(
-                children:
-                listaScadenze,
+          children: [
+            Timeline.tileBuilder(
+              padding: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.91, top: MediaQuery.of(context).size.height * 0.11),
+              builder: TimelineTileBuilder.fromStyle(
+                  contentsAlign: ContentsAlign.basic,
+                  contentsBuilder: (context, index) => Padding(
+                    padding:  EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.16, bottom: MediaQuery.of(context).size.height * 0.05),
+                  ),
+                  itemCount: 4,
+                  indicatorStyle: IndicatorStyle.dot,
+                  connectorStyle: ConnectorStyle.solidLine
+              ),
+              theme: TimelineThemeData(
+                  color: Colors.blue.shade500
+              ),
+            ),
+            ListView(
+              children:
+              listaScadenze,
             )
           ],
-      ),
+        ),
       ),
     );
   }

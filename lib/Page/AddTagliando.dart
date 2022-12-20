@@ -74,6 +74,8 @@ class AddTagliando extends StatefulWidget{
 
 class _AddTagliandoState extends State<AddTagliando> {
   String prezzo ="";
+  int km = 0;
+  int kmAttuali = 0;
   String tipoScad ="";
   DateTime date = DateTime.now();
   bool mod = false;
@@ -91,6 +93,7 @@ class _AddTagliandoState extends State<AddTagliando> {
   _AddTagliandoState(info){
     if(info != null){
       prezzo = info['prezzo'];
+      km = info['km'];
       Timestamp timestamp = info['data'];
       date = DateTime.fromMillisecondsSinceEpoch(timestamp.seconds*1000);
       if(info['notifiche'] != ''){
@@ -153,7 +156,8 @@ class _AddTagliandoState extends State<AddTagliando> {
         'prezzo': prezzo,
         'dataScad': date,
         'notifiche': stringNotifiche,
-        'tipoScad': ''
+        'tipoScad': '',
+        'km': km
       };
       if(mod){
         Scadenze.update(info,'Tagliando');
@@ -390,254 +394,227 @@ class _AddTagliandoState extends State<AddTagliando> {
         child:
         ListView(
           children: [
-        Container(
-            margin: EdgeInsets.only(top: 15),
-            child:
-            Image.asset(
-              'images/Tagliando.png',
-              //scale:1,
-              //fit: BoxFit.contain,
-              height: MediaQuery.of(context).size.height * 0.30,
-              width: MediaQuery.of(context).size.width,
+            Container(
+              margin: EdgeInsets.only(top: 15),
+              child:
+              Image.asset(
+                'images/Tagliando.png',
+                //scale:1,
+                //fit: BoxFit.contain,
+                height: MediaQuery.of(context).size.height * 0.30,
+                width: MediaQuery.of(context).size.width,
+              ),
             ),
-         ),
-          Container(
-            margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.03, bottom: 30, left: 30, right: 30),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(25)),
-              color: Color(0xFF90CAF9),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black54,
-                  blurRadius: 6.0,
-                ),
-              ],
-            ),
-          child:
-              Container(
-        //margin: const EdgeInsets.symmetric(vertical: 20.0,horizontal: 10.0),
-        child:
-          ListView(
-            shrinkWrap: true,
-          children: [
-           Form(
-          key: _formKey,
-          child: ListView(
-            shrinkWrap: true,
-            children: [
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 18.0,horizontal: 15.0),
-                child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        elevation: 10,
-                        backgroundColor: Colors.blue,
-                        shape: StadiumBorder()
-                    ),
-                    onPressed: () async {
-                      DateTime? newDate = await showDatePicker(
-                          context: context,
-                          initialDate: date,
-                          firstDate: DateTime(1900),
-                          lastDate: DateTime(2100),
-                          builder: (conext,child) {
-                            return Theme(
-                              data: Theme.of(context).copyWith(
-                                  colorScheme: const  ColorScheme.light(
-                                    primary: Colors.lightBlue,
-                                    onPrimary: Colors.white,
-                                    onSurface: Colors.blueAccent,
-                                  ),
-                                  textButtonTheme: TextButtonThemeData(
-                                      style: TextButton.styleFrom(
-                                        backgroundColor: Colors.lightBlue.shade50,
-                                      )
-                                  )
-                              ),
-                              child: child!,
-                            );
-                          }
-                      );
-                      if (newDate == null) return;
-                      setState(() => date = newDate);
-                    },
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 15,horizontal: 15),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+            Container(
+              margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.03, bottom: 30, left: 30, right: 30),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(25)),
+                color: Color(0xFF90CAF9),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black54,
+                    blurRadius: 6.0,
+                  ),
+                ],
+              ),
+              child:
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        //shrinkWrap: true,
                         children: [
-                          Icon(Icons.calendar_month),
-                          Text(" Data scadenza: ${formatter.format(date)}")
+                          Container(
+                            margin: const EdgeInsets.symmetric(vertical: 18.0,horizontal: 15.0),
+                            child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    elevation: 10,
+                                    backgroundColor: Colors.blue,
+                                    shape: StadiumBorder()
+                                ),
+                                onPressed: () async {
+                                  DateTime? newDate = await showDatePicker(
+                                      context: context,
+                                      initialDate: date,
+                                      firstDate: DateTime(1900),
+                                      lastDate: DateTime(2100),
+                                      builder: (conext,child) {
+                                        return Theme(
+                                          data: Theme.of(context).copyWith(
+                                              colorScheme: const  ColorScheme.light(
+                                                primary: Colors.lightBlue,
+                                                onPrimary: Colors.white,
+                                                onSurface: Colors.blueAccent,
+                                              ),
+                                              textButtonTheme: TextButtonThemeData(
+                                                  style: TextButton.styleFrom(
+                                                    backgroundColor: Colors.lightBlue.shade50,
+                                                  )
+                                              )
+                                          ),
+                                          child: child!,
+                                        );
+                                      }
+                                  );
+                                  if (newDate == null) return;
+                                  setState(() => date = newDate);
+                                },
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 15,horizontal: 15),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.calendar_month),
+                                      Text(" Data scadenza: ${formatter.format(date)}")
+                                    ],
+                                  ),
+                                )
+                            ),
+                          ),
+                          Container(
+                            margin: const EdgeInsets.symmetric(vertical: 20.0,horizontal: 15.0),
+                            child: TextFormField(
+                              initialValue: prezzo,
+                              keyboardType: TextInputType.number,
+                              onChanged: (value) {
+                                setState(() {
+                                  prezzo = value;
+                                });
+                              },
+                              decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 20,
+                                ),
+                                hintText: "Inserisci il prezzo",
+                                hintStyle: const TextStyle(fontSize: 14),
+                                filled: true,
+                                fillColor: Colors.white,
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                  borderSide: BorderSide(color: Colors.grey),
+                                ),
+                                focusedBorder:  OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.indigoAccent),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.red),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.red),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                              ),
+                              validator: (String? value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Inserisci il prezzo';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          Container(
+                            margin: const EdgeInsets.symmetric(vertical: 20.0,horizontal: 15.0),
+                            child: TextFormField(
+                              initialValue: km!=0 ? km.toString(): null,
+                              keyboardType: TextInputType.number,
+                              onChanged: (value) {
+                                setState(() {
+                                  km = int.parse(value);
+                                });
+                              },
+                              decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 20,
+                                ),
+                                hintText: "Chilometri prossimo tagliando",
+                                hintStyle: const TextStyle(fontSize: 14),
+                                filled: true,
+                                fillColor: Colors.white,
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                  borderSide: BorderSide(color: Colors.grey),
+                                ),
+                                focusedBorder:  OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.indigoAccent),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.red),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.red),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                              ),
+                              validator: (String? value) {
+                                if (value == null || value.isEmpty || int.parse(value!) <= Scadenze.kmAttual) {
+                                  String mess = 'Inserisci i chilometri';
+                                  if(int.parse(value!) <= Scadenze.kmAttual){
+                                    mess = 'La soglia dei chilometri è minore di quelli attuali.\n'
+                                        'Il tuo tagiando è già scaduto?';
+                                  }
+                                  return mess;
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          Container(
+                            child: Column(
+                                children: _notifiche
+                            ),
+                          ),
+                          Container(
+                            margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 80.0),
+                            child: ElevatedButton(
+                              onPressed: () => {
+                                _submit()
+                              },
+                              style: ElevatedButton.styleFrom(
+                                elevation: 10,
+                                backgroundColor: Colors.blue.shade200,
+                                shape: const StadiumBorder(),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                  horizontal: 0,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  // crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: const [
+                                    Icon(
+                                      Icons.add,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(
+                                      width: 8,
+                                    ),
+                                    Text(
+                                      "Aggiungi",
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                    )
+                    ),
+                    ),
+                  ],
                 ),
               ),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 20.0,horizontal: 15.0),
-                child: TextFormField(
-                  initialValue: prezzo,
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    setState(() {
-                      prezzo = value;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 20,
-                    ),
-                    hintText: "Inserisci il prezzo",
-                    hintStyle: const TextStyle(fontSize: 14),
-                    filled: true,
-                    fillColor: Colors.white,
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25),
-                      borderSide: BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder:  OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.indigoAccent),
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.red),
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.red),
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                  ),
-                  validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Inserisci il prezzo';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
-                child: DropdownButtonFormField2(
-                  decoration: InputDecoration(
-                    //Add isDense true and zero Padding.
-                    //Add Horizontal padding using buttonPadding and Vertical padding by increasing buttonHeight instead of add Padding here so that The whole TextField Button become clickable, and also the dropdown menu open under The whole TextField Button.
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide(color: Colors.grey),
-                      ),
-                      focusedBorder:  OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.indigoAccent),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.red),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.red),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white
-                  ),
-                  isExpanded: true,
-                  hint: const Text(
-                    'Tipologia scadenza',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                  icon: const Icon(
-                    Icons.arrow_drop_down,
-                    color: Colors.black45,
-                  ),
-                  iconSize: 30,
-                  buttonHeight: 60,
-                  buttonPadding: const EdgeInsets.only(left: 20, right: 10),
-                  dropdownDecoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  items: choiceScad
-                      .map((item) =>
-                      DropdownMenuItem<String>(
-                        value: item,
-                        child: Text(
-                          item,
-                          style: const TextStyle(
-                            fontSize: 14,
-                          ),
-                        ),
-                      ))
-                      .toList(),
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Seleziona tipologia scadenza';
-                    }
-                  },
-                  onChanged: (value) {
-                    tipoScad = value.toString();
-                  },
-                  onSaved: (value) {
-                    tipoScad = value.toString();
-                  },
-                ),
-              ),
-              Container(
-                child: Column(
-                    children: _notifiche
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 80.0),
-                child: ElevatedButton(
-                  onPressed: () => {
-                    _submit()
-                  },
-                  style: ElevatedButton.styleFrom(
-                    elevation: 10,
-                    backgroundColor: Colors.blue.shade200,
-                    shape: const StadiumBorder(),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 12,
-                      horizontal: 0,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      // crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: const [
-                        Icon(
-                          Icons.add,
-                          color: Colors.white,
-                        ),
-                        SizedBox(
-                          width: 8,
-                        ),
-                        Text(
-                          "Aggiungi",
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.white,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-      ),
-    ),
-          ),
-      ],
-    ),
-      ),
-    );
+            );
   }
 }
 

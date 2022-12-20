@@ -412,15 +412,9 @@ class _AddRevisioneState extends State<AddRevisione> {
             ],
           ),
           child:
-              Container(
-        child:
-            ListView(
-        shrinkWrap: true,
-          children: [
           Form(
           key: _formKey,
-          child: ListView(
-            shrinkWrap: true,
+          child: Column(
             children: [
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 25.0,horizontal: 15.0),
@@ -560,13 +554,10 @@ class _AddRevisioneState extends State<AddRevisione> {
             ],
           ),
         ),
+        ),
         ],
       ),
     ),
-        ),
-      ],
-    ),
-      ),
-    );
+        );
   }
 }
