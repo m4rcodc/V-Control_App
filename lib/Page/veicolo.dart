@@ -370,6 +370,58 @@ class _VeicoloState extends State<Veicolo>{
 
       setPoints(userPoints);
 
+      final docRif = await FirebaseFirestore.instance
+          .collection('CostiRifornimento')
+          .where('uid', isEqualTo: FirebaseAuth.instance
+          .currentUser!.uid)
+          .get();
+      int sizeRif = docRif.size;
+      print(sizeRif);
+      for (int i = 0; i < sizeRif; i++) {
+        docRif.docs[i].reference.delete();
+      }
+
+      final docMtz = await FirebaseFirestore.instance
+          .collection('CostiManutenzione')
+          .where('uid', isEqualTo: FirebaseAuth.instance
+          .currentUser!.uid)
+          .get();
+      int sizeMtz = docMtz.size;
+      print(sizeMtz);
+      for (int i = 0; i < sizeMtz; i++) {
+        docMtz.docs[i].reference.delete();
+      }
+
+      //Cancello Costi Totali Rifornimento
+      var docTotaliRifornimenti = await FirebaseFirestore.instance
+          .collection('CostiTotali').doc('2022')
+          .collection(FirebaseAuth.instance.currentUser!.uid).get();
+      int sizeDocTotalRif = docTotaliRifornimenti.size;
+      print('Questa è la taglia $sizeDocTotalRif');
+      for(int i = 0; i < sizeDocTotalRif; i++){
+        docTotaliRifornimenti.docs[i].reference.update({"costoRifornimento": 0, "totaleLitri": 0});
+      }
+
+      //Cancello Costi Totali Manutenzione
+      var docTotaliManutenzioni = await FirebaseFirestore.instance
+          .collection('CostiTotaliManutenzione').doc('2022')
+          .collection(FirebaseAuth.instance.currentUser!.uid).get();
+      int sizeDocTotalMtz = docTotaliManutenzioni.size;
+      for(int i = 0; i < sizeDocTotalMtz; i++){
+        docTotaliManutenzioni.docs[i].reference.update({"costoManutenzione": 0});
+      }
+
+      //Cancello Costi Generali
+      var docCostiGenerali = await FirebaseFirestore.instance
+          .collection('CostiGenerali').doc('2022')
+          .collection(FirebaseAuth.instance.currentUser!.uid).get();
+      int sizeCostiGenerali = docCostiGenerali.size;
+      for(int i = 0; i < sizeCostiGenerali; i++){
+        docCostiGenerali.docs[i].reference.update({"costo": 0});
+      }
+
+
+
       },
       ).show();
     }}
