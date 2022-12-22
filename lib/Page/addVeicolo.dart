@@ -54,11 +54,13 @@ class _AddVeicoloState extends State<AddVeicolo> {
   String? imageFuelUrl;
   int? userPoints;
   int? consumoMedio;
-  var setDefaultMake = true, setDefaultModel = true, setDefaultType = true;
+  var setDefaultMake = false, setDefaultModel = false, setDefaultType;
+  bool isInFocus = false;
 
   File? image;
   String? imageUrl;
 
+  /*
   void makeSelected(value){
     debugPrint('selected onchange: $value');
     setState(() {
@@ -77,6 +79,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
       setDefaultModel = false;
     });
   }
+*/
 
   String? selectedValue;
 
@@ -210,81 +213,141 @@ class _AddVeicoloState extends State<AddVeicolo> {
                             if (!snapshot.hasData) {
                               return Container();
                             }
-                            if (setDefaultType) {
-                            }
-                            return Form(
-                              key: _formKeyType,
-                              child: DropdownButtonFormField2(
-                                decoration: InputDecoration(
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.zero,
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(25),
-                                      borderSide: BorderSide(color: Colors.grey),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.indigoAccent),
-                                      borderRadius: BorderRadius.circular(25),
-                                    ),
-                                    errorBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(color: Colors.red),
-                                      borderRadius: BorderRadius.circular(25),
-                                    ),
-                                    focusedErrorBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(color: Colors.red),
-                                      borderRadius: BorderRadius.circular(25),
-                                    ),
-                                    filled: true,
-                                    fillColor: Colors.white70
-                                ),
-                                isExpanded: true,
-                                value: type,
-                                hint: const Text(
-                                  'Seleziona tipo di veicolo',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                                icon: const Icon(
-                                  Icons.arrow_drop_down,
-                                  color: Colors.black45,
-                                ),
-                                iconSize: 30,
-                                buttonHeight: 50,
-                                buttonPadding: const EdgeInsets.only(
-                                    left: 20, right: 10),
-                                dropdownDecoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                items: snapshot.data.docs.map<DropdownMenuItem<String>>((value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value.get('type'),
-                                    child: Text(
-                                      '${value.get('type')}',
-                                      style: const TextStyle(
-                                        fontSize: 14,
+                            return ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  padding: EdgeInsets.only(top: 10, bottom: 10),
+                                  elevation: 3,
+                                  backgroundColor: Colors.white70,
+                                  shadowColor: Colors.blue.withOpacity(0.09),
+                                  shape: StadiumBorder(),
+                                  side: BorderSide(color: Colors.grey, width: 1)
+                              ),
+                              onFocusChange: (hasFocus) {
+                                setState(() {
+                                  isInFocus = hasFocus;
+                                });
+                                print('Prova');
+                              },
+                              onPressed: () async {
+                                AwesomeDialog(
+                                  context: context,
+                                  headerAnimationLoop: false,
+                                  dialogType: DialogType.noHeader,
+                                  padding: EdgeInsets.zero,
+                                  dialogBackgroundColor: Colors.blue.shade200,
+                                  //width: 300,
+                                  body:
+                                  Table(
+                                    children:  [
+                                      TableRow(
+                                          children: [
+                                            Container(
+                                              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 40),
+                                              height: 180,
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  elevation: 10,
+                                                  backgroundColor: Colors.white,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(12),
+                                                    //side: BorderSide(color: Colors.blue,width: 1.5),
+                                                  ),
+                                                ),
+                                                onPressed:  () => {
+                                                  setState(() {
+                                                    type = 'Auto';
+                                                    //setDefaultType = false;
+                                                    setDefaultMake = true;
+                                                    //setDefaultModel = true;
+                                                  }
+                                                  ),
+                                                  Navigator.pop(context),
+                                                },
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: <Widget>[
+                                                    Align(
+                                                      heightFactor: 1.3,
+                                                      alignment: Alignment.center,
+                                                      child: Image.asset('images/AddCar.png',scale: 5),
+                                                    ),
+                                                    Container(
+                                                      padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
+                                                      alignment: Alignment.bottomCenter,
+                                                      child: Text('Auto', style: const TextStyle(
+                                                        fontSize: 20.0,
+                                                        color: Color(0xFF1A1316),
+                                                      ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              //child: Text(prova!, style: TextStyle(color: Colors.grey)),
+                                            ),
+                                          ]
                                       ),
-                                    ),
-                                  );
-                                }).toList(),
-                                validator: (value) {
-                                  if(value == null) {
-                                    return 'Seleziona un tipo di veicolo';
-                                  }
-                                  return null;
-                                },
-                                onChanged: (value) {
-                                  debugPrint('selected onchange: $value');
-                                  setState(() {
-                                    debugPrint('make selected: $value');
-                                    type = value;
-                                    setDefaultType = false;
-                                    setDefaultMake = true;
-                                    setDefaultModel = true;
-                                  });
-                                },
-                                /*onSaved: (value) {
-                  selectedValue = value.toString();
-                },*/
+                                      TableRow(
+                                          children: [
+                                            Container(
+                                              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 40),
+                                              height: 180,
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                    elevation: 10,
+                                                    backgroundColor: Colors.white,
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.circular(12),
+                                                      //side: BorderSide(color: Colors.blue,width: 1.5),
+                                                    )
+                                                ),
+                                                onPressed:  () => {
+                                                  setState(() {
+                                                    type = 'Moto';
+                                                    //setDefaultType = false;
+                                                    setDefaultMake = true;
+                                                    //setDefaultModel = true;
+                                                    },
+                                                  ),
+                                                  Navigator.pop(context),
+                                                },
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: <Widget>[
+                                                    Align(
+                                                      heightFactor: 1.4,
+                                                      alignment: Alignment.center,
+                                                      child: Image.asset('images/AddMoto.png',scale: 4),
+                                                    ),
+                                                    Container(
+                                                      padding: EdgeInsets.symmetric(vertical:2,horizontal: 2),
+                                                      alignment: Alignment.bottomCenter,
+                                                      child: Text('Moto', style: const TextStyle(
+                                                        fontSize: 20.0,
+                                                        color: Color(0xFF1A1316),
+
+                                                      ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ]
+                                      ),
+                                    ],
+                                  ),
+                                ).show();
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8,horizontal: 15),
+                                child: Row(
+                                  //mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    //Icon(Icons.calendar_month),
+                                    type == null ? Text('Seleziona il tipo di veicolo', style: TextStyle(color: Colors.black54),) : Text('$type', style: TextStyle(color: Colors.black54),)
+                                  ],
+                                ),
                               ),
                             );
                           },
@@ -303,11 +366,6 @@ class _AddVeicoloState extends State<AddVeicolo> {
                             if (!snapshot.hasData) {
                               return Container();
                             }
-                            if (setDefaultMake) {
-                              //make = snapshot.data.docs[0].get('nome');
-                              debugPrint('setDefault make: $make');
-                            }
-
                             return ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.only(top: 10, bottom: 10),
@@ -317,7 +375,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                   shape: StadiumBorder(),
                                   side: BorderSide(color: Colors.grey, width: 1)
                               ),
-                              onPressed: () async {
+                              onPressed: setDefaultMake == false ? null :
+                                  () async {
                                 AwesomeDialog(
                                   context: context,
                                   headerAnimationLoop: false,
@@ -345,7 +404,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                   setState(() {
                                                     make = snapshot.data.docs[0]['name'];
                                                     url = snapshot.data.docs[0]['logo'];
-
+                                                    setDefaultModel = true;
                                                   }
                                                   ),
                                                   Navigator.pop(context),
@@ -388,7 +447,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                   setState(() {
                                                     make = snapshot.data.docs[1]['name'];
                                                     url = snapshot.data.docs[1]['logo'];
-
+                                                    setDefaultModel = true;
                                                   }
                                                   ),
                                                   Navigator.pop(context),
@@ -397,12 +456,12 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: <Widget>[
                                                     Align(
-                                                      heightFactor: 2.5,
+                                                      heightFactor: 1.8,
                                                       alignment: Alignment.center,
-                                                      child: Image.network('${snapshot.data.docs[1]['logo']}',scale: 8.5),
+                                                      child: Image.network('${snapshot.data.docs[1]['logo']}',scale: 7.5),
                                                     ),
                                                     Container(
-                                                      padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
+                                                      padding: EdgeInsets.symmetric(vertical:4,horizontal: 10),
                                                       alignment: Alignment.bottomCenter,
                                                       child: Text('${snapshot.data.docs[1]['name']}', style: const TextStyle(
                                                         fontSize: 12.0,
@@ -436,7 +495,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                   setState(() {
                                                     make = snapshot.data.docs[2]['name'];
                                                     url = snapshot.data.docs[2]['logo'];
-
+                                                    setDefaultModel = true;
                                                   }
                                                   ),
                                                   Navigator.pop(context),
@@ -479,6 +538,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                   setState(() {
                                                     make = snapshot.data.docs[3]['name'];
                                                     url = snapshot.data.docs[3]['logo'];
+                                                    setDefaultModel = true;
 
                                                   }
                                                   ),
@@ -490,7 +550,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                     Align(
                                                       heightFactor: 1.3,
                                                       alignment: Alignment.center,
-                                                      child: Image.network('${snapshot.data.docs[3]['logo']}',scale: 7),
+                                                      child: Image.network('${snapshot.data.docs[3]['logo']}',scale: 7.2),
                                                     ),
                                                     Container(
                                                       padding: EdgeInsets.symmetric(vertical:2,horizontal: 8),
@@ -526,6 +586,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                   setState(() {
                                                     make = snapshot.data.docs[4]['name'];
                                                     url = snapshot.data.docs[4]['logo'];
+                                                    setDefaultModel = true;
 
                                                   }
                                                   ),
@@ -602,7 +663,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                     Align(
                                                       heightFactor: 1.4,
                                                       alignment: Alignment.center,
-                                                      child: Image.asset('images/AddCar.png',scale: 8),
+                                                      child: type == 'Auto' ?  Image.asset('images/AddCar.png',scale: 8) : Image.asset('images/AddMoto.png',scale: 6.5),
                                                     ),
                                                     Container(
                                                       padding: EdgeInsets.symmetric(vertical:2,horizontal: 6),
@@ -656,9 +717,6 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                     'snapshot empty make: $make makeModel: $model'),
                               );
                             }
-                            if (setDefaultModel) {
-                              //carMake = snapshot.data.docs[0].get('makeModel');
-                            }
                             return ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.only(top: 10, bottom: 10),
@@ -668,7 +726,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                   shape: StadiumBorder(),
                                   side: BorderSide(color: Colors.grey, width: 1)
                               ),
-                              onPressed: () async {
+                              onPressed: setDefaultModel == false ? null :
+                                  () async {
                                 url == null ?
                                 showDialog(
                                     context: context,
@@ -712,11 +771,13 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                       Container(
                                         //padding: EdgeInsets.symmetric(vertical:10, horizontal:10),
                                           alignment: Alignment.topCenter,
-                                          child: Image.network('$url', scale: 7)
+                                          child: Image.network('$url', scale: 5)
                                       ),
                                       Container(
                                           padding: EdgeInsets.symmetric(vertical: 6),
-                                          child: Table(
+                                          child:
+                                          type == 'Auto' ?
+                                          Table(
                                               children: [
                                                 TableRow(
                                                     children: [
@@ -856,6 +917,149 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                             },
                                                             child:
                                                             Text('${snapshot.data.docs[4]['model']}', style: TextStyle(
+                                                                fontSize: 20,
+                                                                color: Color(0xFF1A1316)
+                                                            )),
+
+                                                          )
+                                                      ),
+                                                      Container(
+                                                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                                          height: 80,
+                                                          child: ElevatedButton(
+                                                            style: ElevatedButton.styleFrom(
+                                                              elevation: 10,
+                                                              backgroundColor: Colors.white,
+                                                              shape: RoundedRectangleBorder(
+                                                                borderRadius: BorderRadius.circular(12),
+                                                              ),
+                                                            ),
+                                                            onPressed:  () => {
+                                                              showDialog(
+                                                                  context: context,
+                                                                  builder: (context) => AlertDialog(
+                                                                      shape: RoundedRectangleBorder(
+                                                                          borderRadius: BorderRadius.all(Radius.circular(32.0))),
+                                                                      title: Text('Inserisci il modello del tuo veicolo'),
+                                                                      content: TextFormField(
+                                                                        autofocus: true,
+                                                                        decoration: InputDecoration(hintText: 'Inserisci qui'),
+                                                                        onChanged: (value) {
+                                                                          setState(() {
+                                                                            model = value;
+                                                                          });
+                                                                        },
+                                                                      ),
+                                                                      actions: [
+                                                                        TextButton(
+                                                                          child: Text('Inserisci'),
+                                                                          onPressed: () {
+                                                                            var nav =  Navigator.of(context);
+                                                                            nav.pop();
+                                                                            nav.pop();
+                                                                          },
+                                                                        )
+                                                                      ]
+                                                                  )
+                                                              )
+                                                            },
+                                                            child: Container(
+                                                              child: Text('Altro' , style: TextStyle(
+                                                                  fontSize: 20,
+                                                                  color: Color(0xFF1A1316)
+                                                              )),
+                                                            ),
+                                                          )
+                                                      )
+                                                    ]
+                                                )
+                                              ]
+                                          )
+                                          :
+                                          Table(
+                                              children: [
+                                                TableRow(
+                                                    children: [
+                                                      Container(
+                                                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+                                                          height: 80,
+                                                          child: ElevatedButton(
+                                                            style: ElevatedButton.styleFrom(
+                                                              elevation: 10,
+                                                              backgroundColor: Colors.white,
+                                                              shape: RoundedRectangleBorder(
+                                                                borderRadius: BorderRadius.circular(12),
+                                                                //side: BorderSide(color: Colors.blue,width: 1.5),
+                                                              ),
+                                                            ),
+                                                            onPressed: (){
+                                                              setState(() {
+                                                                model = snapshot.data.docs[0]['model'];
+                                                                //consumoMedio = snapshot.data.docs[0]['consumoMedio'];
+                                                              });
+                                                              Navigator.pop(context);
+                                                            },
+
+                                                            child:
+                                                            Text('${snapshot.data.docs[0]['model']}', style: TextStyle(
+                                                                fontSize: 20,
+                                                                color: Color(0xFF1A1316)
+                                                            )),
+
+                                                          )
+                                                      ),
+                                                      Container(
+                                                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                                                          height: 80,
+                                                          child: ElevatedButton(
+                                                            style: ElevatedButton.styleFrom(
+                                                              elevation: 10,
+                                                              backgroundColor: Colors.white,
+                                                              shape: RoundedRectangleBorder(
+                                                                borderRadius: BorderRadius.circular(12),
+                                                                //side: BorderSide(color: Colors.blue,width: 1.5),
+                                                              ),
+                                                            ),
+                                                            onPressed: (){
+                                                              setState(() {
+                                                                model = snapshot.data.docs[1]['model'];
+                                                                //consumoMedio = snapshot.data.docs[1]['consumoMedio'];
+                                                              });
+                                                              Navigator.pop(context);
+                                                            },
+                                                            child: Container(
+                                                              child: Text('${snapshot.data.docs[1]['model']}', style: TextStyle(
+                                                                  fontSize: 18,
+                                                                  color: Color(0xFF1A1316)
+                                                              )),
+                                                            ),
+                                                          )
+                                                      )
+                                                    ]
+                                                ),
+                                                TableRow(
+                                                    children: [
+                                                      Container(
+                                                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+                                                          height: 80,
+                                                          child: ElevatedButton(
+                                                            style: ElevatedButton.styleFrom(
+                                                              elevation: 10,
+                                                              backgroundColor: Colors.white,
+                                                              shape: RoundedRectangleBorder(
+                                                                borderRadius: BorderRadius.circular(12),
+                                                                //side: BorderSide(color: Colors.blue,width: 1.5),
+                                                              ),
+                                                            ),
+                                                            onPressed: (){
+                                                              setState(() {
+                                                                model = snapshot.data.docs[2]['model'];
+                                                                //consumoMedio = snapshot.data.docs[2]['consumoMedio'];
+                                                              });
+                                                              Navigator.pop(context);
+                                                            },
+                                                            child:
+                                                            Text('${snapshot.data.docs[2]['model']}', style: TextStyle(
                                                                 fontSize: 20,
                                                                 color: Color(0xFF1A1316)
                                                             )),

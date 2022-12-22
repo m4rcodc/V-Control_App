@@ -325,8 +325,9 @@ class _VeicoloState extends State<Veicolo>{
       animType: AnimType.topSlide,
       title: 'Attenzione!',
       desc:
-      'Sicuro di voler elminare il veicolo?',
-      btnCancelText: 'Cancella',
+      'Sicuro di voler elminare il veicolo? \n\n Perderai tutto il tracciamento dei costi.',
+      btnCancelText: 'No',
+      btnOkText: 'Si',
       btnCancelOnPress: () {},
       btnOkOnPress: () async {
       await deleteVehicle();
