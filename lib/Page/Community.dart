@@ -6,10 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/communityModel.dart';
 
 String? modelV;
-String infoPunteggioRifornimento = "L'assegnazione del punteggio mediante rifornimento seguirà le seguenti regole ed avverrà ogni 100km percorsi:\n"
-                                   "verranno assegnati 10 punti se l'utente si trova al di sotto del consumo medio del proprio veicolo di una certa soglia (2 litri),\n"
-                                   "viceversa verranno sottratti 8 punti dallo score. ";
-
+String infoPunteggioRifornimento = "L'assegnazione del punteggio mediante rifornimento seguirà le seguenti regole ed avverrà ogni 100km percorsi.\n"
+                                   "La soglia di riferimento è 2 litri, se l'utente si troverà dopo 100 km percorsi al di sotto di tale soglia\n"
+    "gli verranno assegnati 10 punti, viceversa gli verranno sottratti 8 punti dallo score. ";
 class Community extends StatefulWidget {
 
   @override
@@ -284,15 +283,65 @@ class _CommunityState extends State<Community>{
                               body:
                               ListView(
                                 shrinkWrap: true,
-                                padding: EdgeInsets.symmetric(vertical: 2,horizontal:12),
+                                padding: EdgeInsets.symmetric(vertical: 15,horizontal:20),
                                 children: [
                                   Container(
-                                    //padding: EdgeInsets.symmetric(vertical:10, horizontal:10),
-                                      alignment: Alignment.topCenter,
-                                      child: Text('Classifica', style: TextStyle(fontSize: 20),)
+                                    padding: EdgeInsets.only(bottom: 20),
+                                  child:
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Image(
+                                        image: AssetImage('images/podium.png'),
+                                        height: 35,
+                                        width: 35,
+                                      ),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          //border: Border.all(color: Colors.white),
+                                          borderRadius: BorderRadius.circular(20),
+                                          color: Colors.lightBlue.shade200,
+                                        ),
+                                        child:
+                                        Container(
+                                          padding: EdgeInsets.all(10),
+                                          child:
+                                          const Text(
+                                              "Classifica",
+                                              style: TextStyle(
+                                                  fontSize: 20, color: Colors.white)),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      const Image(
+                                        image: AssetImage('images/podium.png'),
+                                        height: 35,
+                                        width: 35,
+                                      ),
+                                    ],
+                                  ),
                                   ),
                                   Container(
-                                    height: 400, //margin: EdgeInsets.all(20),
+                                    height: 400,
+                                    //margin: EdgeInsets.all(20),
+                                    padding: EdgeInsets.symmetric(vertical:10),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(25),
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black54,
+                                          blurRadius: 6.0,
+                                        ),
+                                      ],
+                                    ),
                                     child: ListView.separated(
                                         padding: const EdgeInsets.only(
                                             top: 12, left: 12, right: 12),
@@ -308,21 +357,21 @@ class _CommunityState extends State<Community>{
                                                 SizedBox(
                                                   width: 3,
                                                 ),
-                                                Text(communityProfile[index].name!)
+                                                Text(communityProfile[index].name!, style: TextStyle(color: Colors.black54, fontWeight: FontWeight.w500),)
                                               ],
                                             ),
                                             leading: Text("${index + 1}.",
                                               style: const TextStyle(
-                                                  fontWeight: FontWeight.bold),),
+                                                  color: Colors.black54, fontWeight: FontWeight.w500),),
                                             trailing:
                                             Text(
                                                 (communityProfile[index].points.toString()), style: const TextStyle(
-                                                fontWeight: FontWeight.bold)),
+                                                color: Colors.black54, fontWeight: FontWeight.w500)),
                                           );
                                         },
                                         separatorBuilder: (context, index) => const Divider(
                                           thickness: 2.5,
-                                          color: Colors.white,
+                                          color: Color(0xFF90CAF9),
                                           indent: 10,
                                           endIndent: 10,),
                                         itemCount: communityProfile.length),
@@ -372,7 +421,7 @@ class _CommunityState extends State<Community>{
                         Container(
                             padding: EdgeInsets.only(top: 6),
                             child:
-                            Text( namePodium[0])
+                            Text(namePodium[0])
                         ),
                         Container(
                             padding: EdgeInsets.only(top: 4),
@@ -458,7 +507,7 @@ class _CommunityState extends State<Community>{
             ),
               Container(
                   padding: EdgeInsets.symmetric(vertical:10, horizontal: 32),
-                  child: Text('N.B: la classifica visualizza solo gli utenti lo stesso modello di veicolo. ', style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w500),
+                  child: Text('N.B: la classifica visualizza solo gli utenti con lo stesso modello di veicolo. ', style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w500),
                   textAlign: TextAlign.center,)
               ),
               Container(
@@ -522,7 +571,7 @@ class _CommunityState extends State<Community>{
                               Text('Benzina:', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
                           ),
                           SizedBox(
-                            width: 30,
+                            width: 72,
                           ),
                           Container(
                               child:
@@ -556,7 +605,7 @@ class _CommunityState extends State<Community>{
                                 Text('Diesel:', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
                             ),
                             SizedBox(
-                              width: 44,
+                              width: 86,
                             ),
                             Container(
                                 child:
@@ -580,7 +629,7 @@ class _CommunityState extends State<Community>{
                           children: [
                             Container(
                                 child:
-                                Image.asset('images/GasMetano.png', scale:5.5,)
+                                Image.asset('images/GasMetano.png', scale: 5.5,)
                             ),
                             SizedBox(
                               width: 6,
@@ -590,7 +639,7 @@ class _CommunityState extends State<Community>{
                                 Text('Gas:', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
                             ),
                             SizedBox(
-                              width: 63,
+                              width: 104,
                             ),
                             Container(
                                 child:
@@ -624,7 +673,7 @@ class _CommunityState extends State<Community>{
                                 Text('Metano:', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
                             ),
                             SizedBox(
-                              width: 33,
+                              width: 74,
                             ),
                             Container(
                                 child:
@@ -651,14 +700,14 @@ class _CommunityState extends State<Community>{
                                 Image.asset('images/Elettrica.png', scale:5.8,)
                             ),
                             SizedBox(
-                              width: 9,
+                              width: 10,
                             ),
                             Container(
                                 child:
                                 Text('Elettrica:', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
                             ),
                             SizedBox(
-                              width: 32,
+                              width: 73,
                             ),
                             Container(
                                 child:
@@ -692,7 +741,7 @@ class _CommunityState extends State<Community>{
                                 Text('Ibrida:', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
                             ),
                             SizedBox(
-                              width: 43,
+                              width: 85,
                             ),
                             Container(
                                 child:
@@ -957,7 +1006,9 @@ class _CommunityState extends State<Community>{
                       Container(
                         margin: EdgeInsets.symmetric(vertical:10),
                         child:
-                          Text(infoPunteggioRifornimento, style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                          Text("L'assegnazione del punteggio mediante rifornimento seguirà le seguenti regole ed avverrà ogni 100km percorsi.\n"
+                              "La soglia di riferimento è 2 litri, se l'utente si troverà dopo 100 km percorsi al di sotto di tale soglia"
+                              "gli verranno assegnati 10 punti, viceversa gli verranno sottratti 8 punti dallo score. ", style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
                       )
                     ],
 
