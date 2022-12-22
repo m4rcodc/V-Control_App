@@ -18,7 +18,7 @@ const int ibridPoints = 300;
 const int metanPoints = 200;
 const int gplPoints = 150;
 const int benzPoints = 100;
-const int dieselPoints = 0;
+const int dieselPoints = 100;
 int sceltaPoints=0;
 
 class AddVeicolo extends StatefulWidget{
@@ -56,6 +56,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
   int? consumoMedio;
   var setDefaultMake = false, setDefaultModel = false, setDefaultType;
   bool isInFocus = false;
+  int countClick = 0;
+  int count = 0;
 
   File? image;
   String? imageUrl;
@@ -222,12 +224,6 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                   shape: StadiumBorder(),
                                   side: BorderSide(color: Colors.grey, width: 1)
                               ),
-                              onFocusChange: (hasFocus) {
-                                setState(() {
-                                  isInFocus = hasFocus;
-                                });
-                                print('Prova');
-                              },
                               onPressed: () async {
                                 AwesomeDialog(
                                   context: context,
@@ -259,6 +255,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                     //setDefaultType = false;
                                                     setDefaultMake = true;
                                                     //setDefaultModel = true;
+                                                    //isInFocus = true;
                                                   }
                                                   ),
                                                   Navigator.pop(context),
@@ -307,6 +304,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                     //setDefaultType = false;
                                                     setDefaultMake = true;
                                                     //setDefaultModel = true;
+                                                    //isInFocus = true;
                                                     },
                                                   ),
                                                   Navigator.pop(context),
@@ -1498,8 +1496,6 @@ class _AddVeicoloState extends State<AddVeicolo> {
                           onPressed: () => {
                             if(image == null) {
                               displayCenterMotionToast()
-                            }
-                            else if(!_formKeyType.currentState!.validate()){
                             }
                             else if(!_formKeyKm.currentState!.validate()){
                               }

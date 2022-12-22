@@ -6,11 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/communityModel.dart';
 
 String? modelV;
-String infoCommunity = "Per partecipare alla community bisogna registrare un veicolo."
-    "Nel podio e nella classifica vedrai solo il punteggio degli utenti che hanno il tuo stesso modello di veicolo,"
-    'prova a batterli!\nGuadagnare punti è facilissimo!\nRiceverai punti ogni volta che guiderai in modo efficiente oppure ogni volta'
-    "che farai manutenzione e controlli al tuo veicolo! Inoltre acquistando un veicolo ibrido,elettrico o a metano riceverai dei punti extra!"
-    "\nScala la classifica e raggiungi la vetta! E cosa fondamentale: divertiti!";
+String infoPunteggioRifornimento = "L'assegnazione del punteggio mediante rifornimento seguirà le seguenti regole ed avverrà ogni 100km percorsi:\n"
+                                   "verranno assegnati 10 punti se l'utente si trova al di sotto del consumo medio del proprio veicolo di una certa soglia (2 litri),\n"
+                                   "viceversa verranno sottratti 8 punti dallo score. ";
 
 class Community extends StatefulWidget {
 
@@ -448,32 +446,525 @@ class _CommunityState extends State<Community>{
             padding: EdgeInsets.zero,
             dialogBackgroundColor: Colors.blue.shade200,
             body:
-            ListView(
-            shrinkWrap: true,
-            padding: EdgeInsets.symmetric(vertical: 2,horizontal:12),
+            Container(
+            height: 550,
+            child:
+            Column(
             children: [
             Container(
             //padding: EdgeInsets.symmetric(vertical:10, horizontal:10),
             alignment: Alignment.topCenter,
-            child: Text('📙 Info Community ❤', style: TextStyle(fontSize: 20),)
+            child: Text('📙 Info Community ❤', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.w500),)
             ),
               Container(
-                height: 360, //margin: EdgeInsets.all(20),
+                  padding: EdgeInsets.symmetric(vertical:10, horizontal: 32),
+                  child: Text('N.B: la classifica visualizza solo gli utenti lo stesso modello di veicolo. ', style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w500),
+                  textAlign: TextAlign.center,)
+              ),
+              Container(
+                  padding: EdgeInsets.symmetric(vertical:15, horizontal:4),
+                  //alignment: Alignment.topCenter,
+                  child: Text('Modalità di punteggio:', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.w500),)
+              ),
+              Container(
+                height: 400,
+                width: 280,
+                padding: EdgeInsets.symmetric(vertical:15),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(25),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black54,
+                      blurRadius: 6.0,
+                    ),
+                  ],
+                ),
                 child: ListView(
-                    padding: const EdgeInsets.only(
-                        top: 20, left: 12, right: 12),
-                    shrinkWrap: true,
+                  padding: EdgeInsets.symmetric(vertical: 6, horizontal: 10),
                     children: [
+                      //Tipologia Veicolo
                       Container(
-                        //padding: EdgeInsets.symmetric(vertical:10, horizontal:10),
-                          //alignment: Alignment.topCenter,
-                          child: Text(infoCommunity, style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic, fontFamily: 'Open Sans'),)
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          //border: Border.all(width: 1, color: Colors.red),
+                          borderRadius: BorderRadius.all(Radius.circular(25)),
+                          color: Colors.blue.shade200,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.blueGrey,
+                              blurRadius: 3.0,
+                              //spreadRadius: 0.0,
+                              //offset: Offset(-2.0, 2.0,), // shadow direction: bottom right
+                            )
+                          ],
+                        ),
+                          child:
+                          Text('Tipologia di veicolo', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.w500), textAlign: TextAlign.center,),
                       ),
+                      //Benzina
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                        child:
+                      Row(
+                        children: [
+                          Container(
+                            child:
+                              Image.asset('images/Benzina.png', scale: 6)
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Container(
+                              child:
+                              Text('Benzina:', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                          ),
+                          SizedBox(
+                            width: 30,
+                          ),
+                          Container(
+                              child:
+                              Image.asset('images/Coin.png', scale: 12)
+                          ),
+                          Container(
+                              child:
+                              Text('100', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                          ),
+
+                        ],
+                      ),
+
+
+                      ),
+                      //Diesel
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+                        child:
+                        Row(
+                          children: [
+                            Container(
+                                child:
+                                Image.asset('images/Diesel.png', scale: 5)
+                            ),
+                            SizedBox(
+                              width: 13,
+                            ),
+                            Container(
+                                child:
+                                Text('Diesel:', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+                            SizedBox(
+                              width: 44,
+                            ),
+                            Container(
+                                child:
+                                Image.asset('images/Coin.png', scale: 12)
+                            ),
+                            Container(
+                                child:
+                                Text('100', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+
+                          ],
+                        ),
+
+
+                      ),
+                      //Gas
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+                        child:
+                        Row(
+                          children: [
+                            Container(
+                                child:
+                                Image.asset('images/GasMetano.png', scale:5.5,)
+                            ),
+                            SizedBox(
+                              width: 6,
+                            ),
+                            Container(
+                                child:
+                                Text('Gas:', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+                            SizedBox(
+                              width: 63,
+                            ),
+                            Container(
+                                child:
+                                Image.asset('images/Coin.png', scale: 12)
+                            ),
+                            Container(
+                                child:
+                                Text('150', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+
+                          ],
+                        ),
+
+
+                      ),
+                      //Metano
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+                        child:
+                        Row(
+                          children: [
+                            Container(
+                                child:
+                                Image.asset('images/GasMetano.png', scale:5.5,)
+                            ),
+                            SizedBox(
+                              width: 6,
+                            ),
+                            Container(
+                                child:
+                                Text('Metano:', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+                            SizedBox(
+                              width: 33,
+                            ),
+                            Container(
+                                child:
+                                Image.asset('images/Coin.png', scale: 12)
+                            ),
+                            Container(
+                                child:
+                                Text('200', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+
+                          ],
+                        ),
+
+
+                      ),
+                      //Elettrica
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+                        child:
+                        Row(
+                          children: [
+                            Container(
+                                child:
+                                Image.asset('images/Elettrica.png', scale:5.8,)
+                            ),
+                            SizedBox(
+                              width: 9,
+                            ),
+                            Container(
+                                child:
+                                Text('Elettrica:', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+                            SizedBox(
+                              width: 32,
+                            ),
+                            Container(
+                                child:
+                                Image.asset('images/Coin.png', scale: 12)
+                            ),
+                            Container(
+                                child:
+                                Text('500', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+
+                          ],
+                        ),
+
+
+                      ),
+                      //Ibrida
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+                        child:
+                        Row(
+                          children: [
+                            Container(
+                                child:
+                                Image.asset('images/Ibrida.png', scale:6,)
+                            ),
+                            SizedBox(
+                              width: 9,
+                            ),
+                            Container(
+                                child:
+                                Text('Ibrida:', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+                            SizedBox(
+                              width: 43,
+                            ),
+                            Container(
+                                child:
+                                Image.asset('images/Coin.png', scale: 12)
+                            ),
+                            Container(
+                                child:
+                                Text('300', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+
+                          ],
+                        ),
+
+
+                      ),
+                      //Tipologia Manutenzioni
+                      Container(
+                        //padding: EdgeInsets.symmetric(vertical:15),
+                        margin: EdgeInsets.symmetric(vertical:10),
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          //border: Border.all(width: 1, color: Colors.red),
+                          borderRadius: BorderRadius.all(Radius.circular(25)),
+                          color: Colors.blue.shade200,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.blueGrey,
+                              blurRadius: 3.0,
+                              //spreadRadius: 0.0,
+                              //offset: Offset(-2.0, 2.0,), // shadow direction: bottom right
+                            )
+                          ],
+                        ),
+                        child:
+                        Text('Tipologia di manutenzione', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.w500), textAlign: TextAlign.center),
+                      ),
+                      //Cambio Gomme
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                        child:
+                        Row(
+                          children: [
+                            Container(
+                                child:
+                                Image.asset('images/wheel.png', scale: 12)
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Container(
+                                child:
+                                Text('Cambio gomme:', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+                            SizedBox(
+                              width: 15,
+                            ),
+                            Container(
+                                child:
+                                Image.asset('images/Coin.png', scale: 12)
+                            ),
+                            Container(
+                                child:
+                                Text('100', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+
+                          ],
+                        ),
+
+
+                      ),
+                      //Cambio olio
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                        child:
+                        Row(
+                          children: [
+                            Container(
+                                child:
+                                Image.asset('images/oil.png', scale: 12)
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Container(
+                                child:
+                                Text('Cambio olio:', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+                            SizedBox(
+                              width: 47,
+                            ),
+                            Container(
+                                child:
+                                Image.asset('images/Coin.png', scale: 12)
+                            ),
+                            Container(
+                                child:
+                                Text('50', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+
+                          ],
+                        ),
+
+
+                      ),
+                      //Cambio batteria
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                        child:
+                        Row(
+                          children: [
+                            Container(
+                                child:
+                                Image.asset('images/battery.png', scale: 12)
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Container(
+                                child:
+                                Text('Cambio batteria:', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+                            SizedBox(
+                              width: 15,
+                            ),
+                            Container(
+                                child:
+                                Image.asset('images/Coin.png', scale: 12)
+                            ),
+                            Container(
+                                child:
+                                Text('50', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+
+                          ],
+                        ),
+
+
+                      ),
+                      //Motore
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                        child:
+                        Row(
+                          children: [
+                            Container(
+                                child:
+                                Image.asset('images/Engine.png', scale: 12)
+                            ),
+                            SizedBox(
+                              width: 11,
+                            ),
+                            Container(
+                                child:
+                                Text('Motore:', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+                            SizedBox(
+                              width: 84,
+                            ),
+                            Container(
+                                child:
+                                Image.asset('images/Coin.png', scale: 12)
+                            ),
+                            Container(
+                                child:
+                                Text('100', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+
+                          ],
+                        ),
+
+
+                      ),
+                      //Impianto frenante
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                        child:
+                        Row(
+                          children: [
+                            Container(
+                                child:
+                                Image.asset('images/Brakes.png', scale: 12)
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Container(
+                                child:
+                                Text('Impianto frenante:', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+                            SizedBox(
+                              width: 1,
+                            ),
+                            Container(
+                                child:
+                                Image.asset('images/Coin.png', scale: 12)
+                            ),
+                            Container(
+                                child:
+                                Text('150', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+
+                          ],
+                        ),
+
+
+                      ),
+                      //Altro
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                        child:
+                        Row(
+                          children: [
+                            Container(
+                                child:
+                                Image.asset('images/OtherMaintenance.png', scale: 12)
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Container(
+                                child:
+                                Text('Altro:', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+                            SizedBox(
+                              width: 107,
+                            ),
+                            Container(
+                                child:
+                                Image.asset('images/Coin.png', scale: 12)
+                            ),
+                            Container(
+                                child:
+                                Text('5', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                            ),
+
+                          ],
+                        ),
+
+
+                      ),
+                      //Punteggio dai rifornimenti
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical:10),
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          //border: Border.all(width: 1, color: Colors.red),
+                          borderRadius: BorderRadius.all(Radius.circular(25)),
+                          color: Colors.blue.shade200,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.blueGrey,
+                              blurRadius: 3.0,
+                              //spreadRadius: 0.0,
+                              //offset: Offset(-2.0, 2.0,), // shadow direction: bottom right
+                            )
+                          ],
+                        ),
+                        child:
+                        Text('Rifornimenti', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.w500), textAlign: TextAlign.center,),
+                      ),
+                      //Modalità assegnazione punteggio rifornimenti
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical:10),
+                        child:
+                          Text(infoPunteggioRifornimento, style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                      )
                     ],
 
               ),
               )
             ],
+            ),
             ),
             ).show()
             }, //end

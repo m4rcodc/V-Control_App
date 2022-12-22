@@ -432,6 +432,7 @@ class _AddBolloState extends State<AddBollo> {
                               onPressed: () async {
                                 DateTime? newDate = await showDatePicker(
                                     context: context,
+                                    locale: const Locale("it", "IT"),
                                     initialDate: date,
                                     firstDate: DateTime(1900),
                                     lastDate: DateTime(2100),

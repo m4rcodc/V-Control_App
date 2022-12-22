@@ -13,10 +13,11 @@ import 'package:flutter/services.dart';
 import 'Page/addVeicolo.dart';
 import 'Page/welcome_page.dart';
 import 'Page/login_page.dart';
-import 'Page/signup_page.dart';
+import 'package:car_control/Page/signup_page.dart';
 import 'Page/home_page.dart';
 import 'Page/AddScadenza.dart';
 import 'Page/Carburante.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,6 +41,12 @@ class MyApp extends StatelessWidget {
         bottomSheetTheme: BottomSheetThemeData(
             backgroundColor: Colors.cyan.shade100),
       ),
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate
+      ],
+      supportedLocales: [
+        Locale('it', 'IT'),
+      ],
       home: WelcomePage(),
       routes: {
         WelcomePage.routeName: (context) => WelcomePage(),

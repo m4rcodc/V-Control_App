@@ -1,20 +1,13 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
-import 'package:car_control/Page/Costi.dart';
-import 'package:car_control/Widgets/DetailsCarCard.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ftoast/ftoast.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../models/userModel.dart';
-
 const cambioGommePoints = 100;
 const cambioOlioPoints = 50;
-const autolavaggioPoints = 0;
 const cambioBatteriaPoints = 50;
 const motorePoints = 100;
 const impiantoFrenantePoints = 150;
@@ -34,11 +27,6 @@ class Manutenzione extends StatefulWidget {
 
 class _ManutenzioneState extends State<Manutenzione>{
 
-  final List<String> ChoiceManutenzione = [
-    'Cambio olio',
-    'Cambio gomme',
-    'Autolavaggio'
-  ];
 
   String? typeManutention = 'Tipo di manutenzione';
   double? costoManutenzione;
@@ -134,6 +122,7 @@ class _ManutenzioneState extends State<Manutenzione>{
                   onPressed: () async {
                     DateTime? newDate = await showDatePicker(
                         context: context,
+                        locale: const Locale("it", "IT"),
                         initialDate: now,
                         firstDate: DateTime(1900),
                         lastDate: DateTime(2100),
