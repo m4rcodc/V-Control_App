@@ -37,9 +37,11 @@ class _VeicoloState extends State<Veicolo>{
     if(doc.docs.isNotEmpty){
       state = true;
       String model = doc.docs[0].get('model');
+      String fuel = doc.docs[0].get('fuel');
       debugPrint("Il model è $model");
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('modelV', model);
+      await prefs.setString('fuelV', fuel);
       print(state);
       state1 = true;
     }

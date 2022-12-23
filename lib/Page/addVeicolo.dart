@@ -58,6 +58,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
   bool isInFocus = false;
   int countClick = 0;
   int count = 0;
+  int? consumoMedioBenzina;
+  int? consumoMedioDiesel;
 
   File? image;
   String? imageUrl;
@@ -795,6 +797,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                               setState(() {
                                                                 model = snapshot.data.docs[0]['model'];
                                                                 consumoMedio = snapshot.data.docs[0]['consumoMedio'];
+                                                                consumoMedioBenzina = snapshot.data.docs[0]['consumoMedioBenzina'];
+                                                                consumoMedioDiesel = snapshot.data.docs[0]['consumoMedioDiesel'];
                                                               });
                                                               Navigator.pop(context);
                                                             },
@@ -823,6 +827,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                               setState(() {
                                                                 model = snapshot.data.docs[1]['model'];
                                                                 consumoMedio = snapshot.data.docs[1]['consumoMedio'];
+                                                                consumoMedioBenzina = snapshot.data.docs[1]['consumoMedioBenzina'];
+                                                                consumoMedioDiesel = snapshot.data.docs[1]['consumoMedioDiesel'];
                                                               });
                                                               Navigator.pop(context);
                                                             },
@@ -854,6 +860,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                               setState(() {
                                                                 model = snapshot.data.docs[2]['model'];
                                                                 consumoMedio = snapshot.data.docs[2]['consumoMedio'];
+                                                                consumoMedioBenzina = snapshot.data.docs[2]['consumoMedioBenzina'];
+                                                                consumoMedioDiesel = snapshot.data.docs[2]['consumoMedioDiesel'];
                                                               });
                                                               Navigator.pop(context);
                                                             },
@@ -881,6 +889,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                               setState(() {
                                                                 model = snapshot.data.docs[3]['model'];
                                                                 consumoMedio = snapshot.data.docs[3]['consumoMedio'];
+                                                                consumoMedioBenzina = snapshot.data.docs[3]['consumoMedioBenzina'];
+                                                                consumoMedioDiesel = snapshot.data.docs[3]['consumoMedioDiesel'];
                                                               });
                                                               Navigator.pop(context);
                                                             },
@@ -910,6 +920,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                               setState(() {
                                                                 model = snapshot.data.docs[4]['model'];
                                                                 consumoMedio = snapshot.data.docs[4]['consumoMedio'];
+                                                                consumoMedioBenzina = snapshot.data.docs[4]['consumoMedioBenzina'];
+                                                                consumoMedioDiesel = snapshot.data.docs[4]['consumoMedioDiesel'];
                                                               });
                                                               Navigator.pop(context);
                                                             },
@@ -993,7 +1005,9 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                             onPressed: (){
                                                               setState(() {
                                                                 model = snapshot.data.docs[0]['model'];
-                                                                //consumoMedio = snapshot.data.docs[0]['consumoMedio'];
+                                                                consumoMedio = snapshot.data.docs[0]['consumoMedio'];
+                                                                consumoMedioBenzina = snapshot.data.docs[0]['consumoMedioBenzina'];
+                                                                consumoMedioDiesel = snapshot.data.docs[0]['consumoMedioDiesel'];
                                                               });
                                                               Navigator.pop(context);
                                                             },
@@ -1021,7 +1035,9 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                             onPressed: (){
                                                               setState(() {
                                                                 model = snapshot.data.docs[1]['model'];
-                                                                //consumoMedio = snapshot.data.docs[1]['consumoMedio'];
+                                                                consumoMedio = snapshot.data.docs[1]['consumoMedio'];
+                                                                consumoMedioBenzina = snapshot.data.docs[1]['consumoMedioBenzina'];
+                                                                consumoMedioDiesel = snapshot.data.docs[1]['consumoMedioDiesel'];
                                                               });
                                                               Navigator.pop(context);
                                                             },
@@ -1052,7 +1068,9 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                             onPressed: (){
                                                               setState(() {
                                                                 model = snapshot.data.docs[2]['model'];
-                                                                //consumoMedio = snapshot.data.docs[2]['consumoMedio'];
+                                                                consumoMedio = snapshot.data.docs[2]['consumoMedio'];
+                                                                consumoMedioBenzina = snapshot.data.docs[2]['consumoMedioBenzina'];
+                                                                consumoMedioDiesel = snapshot.data.docs[2]['consumoMedioDiesel'];
                                                               });
                                                               Navigator.pop(context);
                                                             },
@@ -1503,6 +1521,17 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                   FirebaseAuth.instance.authStateChanges().listen((User? user) async {
 
                                     final vehicle = FirebaseFirestore.instance.collection('vehicle').doc(FirebaseAuth.instance.currentUser?.uid);
+
+                                    if(fuel == 'Benzina')
+                                      {
+                                        consumoMedio = consumoMedioBenzina;
+                                      }
+                                    if(fuel == 'Diesel')
+                                      {
+                                        consumoMedio = consumoMedioDiesel;
+                                      }
+
+                                    debugPrint("Consumo medio è $consumoMedio");
 
 
                                     vehicle.set({

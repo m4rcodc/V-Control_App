@@ -9,7 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 const bonusGuide = 10;
 const malusGuide = 8;
-const kBound = 3;
+const kBound = 2;
 
 class Carburante extends StatefulWidget {
 
@@ -409,7 +409,10 @@ class _CarburanteState extends State<Carburante> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Inserisci il costo al litro';
+                      return 'Inserisci il chilometraggio attuale';
+                    }
+                    else if(int.parse(value) <= oldKilometers!){
+                      return "Il valore dev'essere superiore al chilometraggio attuale";
                     }
                     else {
                       return null;
@@ -526,10 +529,9 @@ class _CarburanteState extends State<Carburante> {
                               }
                             }
 
-                            final vehicle = FirebaseFirestore.instance
-                                .collection('vehicle').doc(user?.uid).update({
-                              'kilometers': kmVeicolo! + oldKilometers!
-                            });
+                            debugPrint("I km attuali digitati sono: $kmVeicolo");
+
+
 
                             costi.add({
                               'costo': costoRifornimento,
@@ -548,27 +550,34 @@ class _CarburanteState extends State<Carburante> {
 
                             await readPoints();
 
+
                             diffKilometers = (kmVeicolo! - oldKilometers!)!;
+
+                            debugPrint("Diffkilometers: $diffKilometers");
 
 
                             countRifornimento =
                             (countRifornimento! + diffKilometers!)!;
+
+                            debugPrint("Countrifornimento: $countRifornimento");
 
                             double? consumoEffettuato;
 
                             if (countRifornimento! >= 100) {
                               consumoEffettuato =
                                   (countLitri! / countRifornimento!) * 100;
+                              debugPrint("Consumo Effettuato $consumoEffettuato");
                               countRifornimento = 0;
-                              if (consumoEffettuato >
-                                  (consumoMedio! + kBound)) {
+                              debugPrint("Count litri $countLitri");
+
+                              if (consumoEffettuato > (consumoMedio! + kBound)) {
                                 userPoints = (userPoints! - malusGuide)!;
                                 await AwesomeDialog(
                                   context: context,
                                   dialogType: DialogType.warning,
                                   headerAnimationLoop: false,
                                   animType: AnimType.topSlide,
-                                  title: 'Complimenti!',
+                                  title: 'Attenzione!',
                                   desc:
                                   'Ci dispiace, ti sono stati sottratti $malusGuide punti per non aver guidato efficientemente la tua auto.',
                                   btnOkOnPress: () {},
@@ -600,6 +609,7 @@ class _CarburanteState extends State<Carburante> {
                                   .collection('vehicle')
                                   .doc(FirebaseAuth.instance.currentUser?.uid)
                                   .update({
+                                'kilometers': kmVeicolo,
                                 'countLitri': double.tryParse(labelLitri!),
                                 'countRifornimento': 0
                               });
@@ -611,6 +621,7 @@ class _CarburanteState extends State<Carburante> {
                                   .collection('vehicle')
                                   .doc(FirebaseAuth.instance.currentUser?.uid)
                                   .update({
+                                'kilometers': kmVeicolo,
                                 'countLitri': countLitri,
                                 'countRifornimento': countRifornimento
                               });

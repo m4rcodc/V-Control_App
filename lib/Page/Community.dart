@@ -6,8 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/communityModel.dart';
 
 String? modelV;
+String? fuelV;
 String infoPunteggioRifornimento = "L'assegnazione del punteggio mediante rifornimento seguirà le seguenti regole ed avverrà ogni 100km percorsi.\n"
-                                   "La soglia di riferimento è 2 litri, se l'utente si troverà dopo 100 km percorsi al di sotto di tale soglia\n"
+                                   "La soglia di riferimento è 2 litri rispetto al consumo medio del veicolo, se l'utente si troverà dopo 100 km percorsi al di sotto di tale soglia\n"
     "gli verranno assegnati 10 punti, viceversa gli verranno sottratti 8 punti dallo score. ";
 class Community extends StatefulWidget {
 
@@ -31,8 +32,7 @@ class _CommunityState extends State<Community>{
 
 
   Stream<List<CommunityModel>> readCommunityPoints() {
-    debugPrint(modelV);
-    if(modelV == ' ')
+    if(modelV == null || modelV == ' ')
       {
         return FirebaseFirestore.instance
             .collection('community')
@@ -43,7 +43,7 @@ class _CommunityState extends State<Community>{
         );
       }else{
       return FirebaseFirestore.instance
-          .collection('community').where('model', isEqualTo: modelV)
+          .collection('community').where('model', isEqualTo: modelV).where('fuel', isEqualTo: fuelV)
           .orderBy('points', descending: true)
           .snapshots()
           .map((snapshot) =>
@@ -63,7 +63,7 @@ class _CommunityState extends State<Community>{
 
   getModelV() async {
     final prefs = await SharedPreferences.getInstance();
-
+    fuelV = prefs.getString('fuelV') ?? ' ';
     modelV = prefs.getString('modelV') ?? ' ';
 
   }
@@ -1059,6 +1059,7 @@ class _CommunityState extends State<Community>{
                       }
                     }
 
+                    //Se nella classifica ci sono meno di 3 persone, riempio il podio (l'array) con valori vuoti.
                     int j = 3;
 
                     for(int i = 0; i<communityProfile.length ; i++)
@@ -1075,8 +1076,9 @@ class _CommunityState extends State<Community>{
                         imagePodium.add('https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/defaultImage%2FLogoApp.png?alt=media&token=815b924d-e981-4fb6-ad76-483a2f591310');
                       }
 
-                    debugPrint("count è $count");
                     List<CommunityModel> singleProfile = [];
+
+                    //communityProfile[count] corrisponde allo user loggato nell'app
                     singleProfile.add(communityProfile[count]);
                     return Column(
                       children: singleProfile.map(buildCommunity).toList(),
