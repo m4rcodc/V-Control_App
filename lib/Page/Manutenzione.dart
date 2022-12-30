@@ -45,13 +45,14 @@ class _ManutenzioneState extends State<Manutenzione>{
 
 
   readPoints() async {
-    SharedPreferences.getInstance().then((value) { userPoints = value.getInt('points');});
+    final doc =  await FirebaseFirestore.instance
+        .collection('community')
+        .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+        .get();
+    userPoints = doc.docs[0].get('points'); //Prelevo il valore di fuel
   }
 
-  setPoints(int? userPoints) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('points', userPoints!);
-  }
+
 
 
   List months =
@@ -643,17 +644,13 @@ class _ManutenzioneState extends State<Manutenzione>{
 
                     }
 
-                    final ref = FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser?.uid);
-                    ref.update({
-                      'points' : userPoints
-                    }).then((value) => debugPrint("Il nuovo userpoint dovrebbe essere $userPoints"));
+
 
                     final comm = FirebaseFirestore.instance.collection("community").doc(FirebaseAuth.instance.currentUser?.uid);
                     comm.update({
                       'points' : userPoints
                     }).then((value) => debugPrint("update community!"));
 
-                    setPoints(userPoints);
 
                     await AwesomeDialog(
                       context: context,

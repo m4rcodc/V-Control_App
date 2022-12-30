@@ -54,14 +54,11 @@ class _CarburanteState extends State<Carburante> {
   int? consumoMedio;
 
   readPoints() async {
-    SharedPreferences.getInstance().then((value) {
-      userPoints = value.getInt('points');
-    });
-  }
-
-  setPoints(int? userPoints) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('points', userPoints!);
+    final doc =  await FirebaseFirestore.instance
+        .collection('community')
+        .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+        .get();
+    userPoints = doc.docs[0].get('points'); //Prelevo il valore di fuel
   }
 
 
@@ -553,7 +550,8 @@ class _CarburanteState extends State<Carburante> {
 
                             diffKilometers = (kmVeicolo! - oldKilometers!)!;
 
-                            debugPrint("Diffkilometers: $diffKilometers");
+                            //L'efficienza di guida relativa al rifornimento che farà il cliente verrà valutata al prossimo rifornimento
+                            //contando i chilometri consumati relativi ai litri di benzina precedentemente immessi.
 
 
                             countRifornimento =
@@ -568,6 +566,7 @@ class _CarburanteState extends State<Carburante> {
                                   (countLitri! / countRifornimento!) * 100;
                               debugPrint("Consumo Effettuato $consumoEffettuato");
                               countRifornimento = 0;
+
                               debugPrint("Count litri $countLitri");
 
                               if (consumoEffettuato > (consumoMedio! + kBound)) {
@@ -602,7 +601,7 @@ class _CarburanteState extends State<Carburante> {
                               comm.update({
                                 'points': userPoints
                               });
-                              setPoints(userPoints);
+
 
 
                               final upVehicle = FirebaseFirestore.instance

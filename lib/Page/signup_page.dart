@@ -393,7 +393,7 @@ class _SignupPageState extends State<SignupPage> {
                                 email: email,
                                 password: password,
                               ).then((value) {
-                                FirebaseFirestore.instance.collection('users').doc(auth.currentUser?.uid).set({'name': name, 'surname': surname, 'email' : email, 'points' : 0, 'uid' : auth.currentUser?.uid});
+                                FirebaseFirestore.instance.collection('users').doc(auth.currentUser?.uid).set({'name': name, 'surname': surname, 'email' : email, 'uid' : auth.currentUser?.uid});
                                 FirebaseFirestore.instance.collection('community').doc(auth.currentUser?.uid).set({'name': name, 'uid' : auth.currentUser?.uid, 'points' : 0, 'make' : '', 'model' : '', 'fuel' : '', 'image' : 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/defaultImage%2FLogoApp.png?alt=media&token=815b924d-e981-4fb6-ad76-483a2f591310'});
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(

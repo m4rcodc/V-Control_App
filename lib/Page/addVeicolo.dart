@@ -60,6 +60,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
   int count = 0;
   int? consumoMedioBenzina;
   int? consumoMedioDiesel;
+  int? consumoMedioDefault;
 
   File? image;
   String? imageUrl;
@@ -90,17 +91,25 @@ class _AddVeicoloState extends State<AddVeicolo> {
 
   readUserPoints() async{
     final doc =  await FirebaseFirestore.instance
-        .collection('users')
+        .collection('community')
         .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
         .get();
-    userPoints = doc.docs[0].get('points'); //Prelevo il valore di fuel
-    setPoints(userPoints);
+    userPoints = doc.docs[0].get('points'); //Prelevo il valore di fuel//Prelevo il valore di fuel
   }
 
-  setPoints(int? userPoints) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('points', userPoints!);
+  readConsumoMedio (String fuel) async{
+    final doc = await FirebaseFirestore.instance
+        .collection('Model')
+        .where('model', isEqualTo: model)
+        .get().then((value) {
+      consumoMedioDefault = value.docs[0].get('consumoMedio');
+      consumoMedio = value.docs[0].get('consumoMedio$fuel');
+
+    }).onError((error, stackTrace) {
+      consumoMedio = consumoMedioDefault;
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -802,9 +811,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                             onPressed: (){
                                                               setState(() {
                                                                 model = snapshot.data.docs[0]['model'];
-                                                                consumoMedio = snapshot.data.docs[0]['consumoMedio'];
-                                                                consumoMedioBenzina = snapshot.data.docs[0]['consumoMedioBenzina'];
-                                                                consumoMedioDiesel = snapshot.data.docs[0]['consumoMedioDiesel'];
+
                                                               });
                                                               Navigator.pop(context);
                                                             },
@@ -832,9 +839,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                             onPressed: (){
                                                               setState(() {
                                                                 model = snapshot.data.docs[1]['model'];
-                                                                consumoMedio = snapshot.data.docs[1]['consumoMedio'];
-                                                                consumoMedioBenzina = snapshot.data.docs[1]['consumoMedioBenzina'];
-                                                                consumoMedioDiesel = snapshot.data.docs[1]['consumoMedioDiesel'];
+
                                                               });
                                                               Navigator.pop(context);
                                                             },
@@ -865,9 +870,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                             onPressed: (){
                                                               setState(() {
                                                                 model = snapshot.data.docs[2]['model'];
-                                                                consumoMedio = snapshot.data.docs[2]['consumoMedio'];
-                                                                consumoMedioBenzina = snapshot.data.docs[2]['consumoMedioBenzina'];
-                                                                consumoMedioDiesel = snapshot.data.docs[2]['consumoMedioDiesel'];
+
                                                               });
                                                               Navigator.pop(context);
                                                             },
@@ -894,9 +897,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                             onPressed: (){
                                                               setState(() {
                                                                 model = snapshot.data.docs[3]['model'];
-                                                                consumoMedio = snapshot.data.docs[3]['consumoMedio'];
-                                                                consumoMedioBenzina = snapshot.data.docs[3]['consumoMedioBenzina'];
-                                                                consumoMedioDiesel = snapshot.data.docs[3]['consumoMedioDiesel'];
+
                                                               });
                                                               Navigator.pop(context);
                                                             },
@@ -925,9 +926,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                             onPressed: (){
                                                               setState(() {
                                                                 model = snapshot.data.docs[4]['model'];
-                                                                consumoMedio = snapshot.data.docs[4]['consumoMedio'];
-                                                                consumoMedioBenzina = snapshot.data.docs[4]['consumoMedioBenzina'];
-                                                                consumoMedioDiesel = snapshot.data.docs[4]['consumoMedioDiesel'];
+
                                                               });
                                                               Navigator.pop(context);
                                                             },
@@ -1011,9 +1010,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                             onPressed: (){
                                                               setState(() {
                                                                 model = snapshot.data.docs[0]['model'];
-                                                                consumoMedio = snapshot.data.docs[0]['consumoMedio'];
-                                                                consumoMedioBenzina = snapshot.data.docs[0]['consumoMedioBenzina'];
-                                                                consumoMedioDiesel = snapshot.data.docs[0]['consumoMedioDiesel'];
+
                                                               });
                                                               Navigator.pop(context);
                                                             },
@@ -1041,9 +1038,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                             onPressed: (){
                                                               setState(() {
                                                                 model = snapshot.data.docs[1]['model'];
-                                                                consumoMedio = snapshot.data.docs[1]['consumoMedio'];
-                                                                consumoMedioBenzina = snapshot.data.docs[1]['consumoMedioBenzina'];
-                                                                consumoMedioDiesel = snapshot.data.docs[1]['consumoMedioDiesel'];
+
                                                               });
                                                               Navigator.pop(context);
                                                             },
@@ -1074,9 +1069,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                             onPressed: (){
                                                               setState(() {
                                                                 model = snapshot.data.docs[2]['model'];
-                                                                consumoMedio = snapshot.data.docs[2]['consumoMedio'];
-                                                                consumoMedioBenzina = snapshot.data.docs[2]['consumoMedioBenzina'];
-                                                                consumoMedioDiesel = snapshot.data.docs[2]['consumoMedioDiesel'];
+
                                                               });
                                                               Navigator.pop(context);
                                                             },
@@ -1197,6 +1190,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                               setState(() {
                                                 fuel = 'Benzina';
                                                 imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FBenzina.png?alt=media&token=c846afd4-5011-4e78-ab0a-8eea3011b9f6';
+                                                readConsumoMedio(fuel!);
+
                                               }
                                               ),
                                               Navigator.pop(context),
@@ -1238,6 +1233,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                               setState(() {
                                                 fuel = 'Diesel';
                                                 imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FDiesel.png?alt=media&token=0dd1ea68-8ed5-46d0-a112-00bba2a138b8';
+                                                readConsumoMedio(fuel!);
                                               }
                                               ),
                                               Navigator.pop(context),
@@ -1285,6 +1281,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                               setState(() {
                                                 fuel = 'Gas';
                                                 imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FGasMetano.png?alt=media&token=cfcb9719-5ea6-4755-be38-d2c7c17bea00';
+                                                readConsumoMedio(fuel!);
+
                                               }
                                               ),
                                               Navigator.pop(context),
@@ -1324,9 +1322,11 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                 )
                                             ),
                                             onPressed:  () => {
+
                                               setState(() {
                                                 fuel = 'Metano';
                                                 imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FGasMetano.png?alt=media&token=cfcb9719-5ea6-4755-be38-d2c7c17bea00';
+                                                readConsumoMedio(fuel!);
 
                                               }
                                               ),
@@ -1374,6 +1374,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                               setState(() {
                                                 fuel = 'Elettrica';
                                                 imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FElettrica.png?alt=media&token=3d76e48f-26f5-4a7c-882c-ea593f809ba2';
+                                                readConsumoMedio(fuel!);
+
                                               }
                                               ),
                                               Navigator.pop(context),
@@ -1416,6 +1418,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                               setState(() {
                                                 fuel = 'Ibrida';
                                                 imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FIbrida.png?alt=media&token=91494a2c-2e3b-4270-a79f-a553fef1c408';
+                                                readConsumoMedio(fuel!);
+
                                               }
                                               ),
                                               Navigator.pop(context),
@@ -1528,17 +1532,9 @@ class _AddVeicoloState extends State<AddVeicolo> {
 
                                     final vehicle = FirebaseFirestore.instance.collection('vehicle').doc(FirebaseAuth.instance.currentUser?.uid);
 
-                                    if(fuel == 'Benzina')
-                                      {
-                                        consumoMedio = consumoMedioBenzina;
-                                      }
-                                    if(fuel == 'Diesel')
-                                      {
-                                        consumoMedio = consumoMedioDiesel;
-                                      }
+                                    debugPrint("Il consumo medio registrato è $consumoMedio");
 
                                     debugPrint("User 1 ${user?.uid} userpoints: $userPoints");
-
 
 
                                     vehicle.set({
@@ -1556,9 +1552,6 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                     });
 
                                     debugPrint("Il consumo medio è ${consumoMedio.toString()}");
-
-
-
 
 
                                     if(fuel == 'Metano')
@@ -1592,11 +1585,6 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                       userPoints = (userPoints! + ibridPoints)!;
                                     }
 
-                                    final ref = FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser?.uid);
-                                    ref.update({
-                                      'points' : userPoints
-                                    }).then((value) => debugPrint("Il nuovo userpoint dovrebbe essere $userPoints"));
-
                                     final comm = FirebaseFirestore.instance.collection("community").doc(user?.uid);
                                     comm.update({
                                       'points' : userPoints,
@@ -1606,7 +1594,6 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                       'fuel' : fuel
                                     }).then((value) => debugPrint("Aggiunta community!"));
 
-                                    setPoints(userPoints);
 
                                     await AwesomeDialog(
                                       context: context,
@@ -1619,7 +1606,6 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                       btnOkOnPress: () {
                                       },
                                     ).show();
-
 
                                     Navigator.of(context).pushNamed(HomePage.routeName);
                                   })
@@ -1668,6 +1654,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
       ),
     );
   }
+
+
 
   Future pickMedia(ImageSource source) async {
     //XFile? file;

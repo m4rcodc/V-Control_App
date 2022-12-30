@@ -54,19 +54,19 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
   int? userPoints;
 
   readPoints() async{
-    SharedPreferences.getInstance().then((value) { userPoints = value.getInt('points');});
+    final doc =  await FirebaseFirestore.instance
+        .collection('community')
+        .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+        .get();
+      userPoints = doc.docs[0].get('points');
   }
 
   readCheckCar() async {
-    SharedPreferences.getInstance().then((value) { checkCar = value.getBool('checkCar');});
+    await SharedPreferences.getInstance().then((value) { checkCar = value.getBool('checkCar');});
     //print(checkCar);
 
   }
 
-  setPoints(int? points) async{
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('points', points!);
-  }
 
   final _headerStyle = const TextStyle(
       color: Color(0xffffffff), fontSize: 15, fontWeight: FontWeight.bold);
@@ -429,12 +429,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                             userPoints = (userPoints! - altroPoints)!;
                                           }
 
-                                          setPoints(userPoints);
-                                          final upd = FirebaseFirestore.instance.collection("users")
-                                              .doc(FirebaseAuth.instance.currentUser?.uid);
-                                          upd.update({
-                                            'points': userPoints
-                                          });
+
                                           final comm = FirebaseFirestore.instance.collection("community").doc(FirebaseAuth.instance.currentUser?.uid);
                                           comm.update({
                                             'points' : userPoints

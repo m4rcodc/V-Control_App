@@ -83,27 +83,17 @@ class _VeicoloState extends State<Veicolo>{
   );
 
 
-  //Leggo i punti dalla variabile condivisa
-  readPoints() async{
-    SharedPreferences.getInstance().then((value) { userPoints = value.getInt('points');});
-  }
-
-
   //Leggo i punti dal db
   readUserPoints() async{
     final doc =  await FirebaseFirestore.instance
-        .collection('users')
+        .collection('community')
         .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
         .get();
     userPoints = doc.docs[0].get('points'); //Prelevo il valore di fuel
-    setPoints(userPoints);
 
   }
 
-  setPoints(int? points) async{
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('points', points!);
-  }
+
 //ciao
   Widget buildVehicle(Vehicle vehicle) => Stack(
     children: [
@@ -251,13 +241,8 @@ class _VeicoloState extends State<Veicolo>{
       Navigator.pushReplacement(context, MaterialPageRoute(
           builder: (context) => const LoginPage()));
     }
-    if(userPoints == null)
-    {
-      readUserPoints();
-    }
-    else{
-      readPoints();
-    }
+    readUserPoints();
+
     return Scaffold(
       extendBody: true,
       extendBodyBehindAppBar: true,
@@ -353,12 +338,6 @@ class _VeicoloState extends State<Veicolo>{
       }
 
 
-      final upd = FirebaseFirestore.instance.collection("users")
-          .doc(FirebaseAuth.instance.currentUser?.uid);
-      upd.update({
-      'points': userPoints
-      }).then((value) => debugPrint(
-      "Il nuovo userpoint dovrebbe essere $userPoints"));
 
       final comm = FirebaseFirestore.instance.collection(
       "community").doc(
@@ -371,7 +350,6 @@ class _VeicoloState extends State<Veicolo>{
       'fuel': ''
       }).then((value) => debugPrint("update community!"));
 
-      setPoints(userPoints);
 
       final docRif = await FirebaseFirestore.instance
           .collection('CostiRifornimento')
