@@ -42,7 +42,8 @@ class MyApp extends StatelessWidget {
             backgroundColor: Colors.cyan.shade100),
       ),
       localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: [
         Locale('it', 'IT'),

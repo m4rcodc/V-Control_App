@@ -1,26 +1,19 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:car_control/Page/signup_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_signin_button/button_list.dart';
 import 'package:flutter_signin_button/button_view.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:convert' show JsonEncoder, json;
 import 'package:http/http.dart' as http;
 import 'package:lottie/lottie.dart';
 import 'home_page.dart';
 import 'package:page_transition/page_transition.dart';
 
-/*
-GoogleSignIn _googleSignIn = GoogleSignIn(
-  // Optional clientId
-  clientId: "1097648256893-jjbeembce6fed4ar22m5dn3kjhqsmh8o.apps.googleusercontent.com",
-  scopes: <String>[
-    'email',
-    'https://www.googleapis.com/auth/contacts.readonly',
-  ],
-);
-*/
+
 
 
 
@@ -52,82 +45,6 @@ class _LoginPageState extends State<LoginPage> {
   bool passValid = false;
   var credential;
 
-
-
-/*
-  GoogleSignInAccount? _currentUser;
-  @override
-  void initState() {
-    super.initState();
-    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
-      setState(() {
-        _currentUser = account;
-      });
-      if (_currentUser != null) {
-        _handleGetContact(_currentUser!);
-      }
-    });
-    _googleSignIn.signInSilently();
-  }
-
-  Future<void> _handleGetContact(GoogleSignInAccount user) async {
-    setState(() {
-      _contactText = 'Loading contact info...';
-    });
-    final http.Response response = await http.get(
-      Uri.parse('https://people.googleapis.com/v1/people/me/connections'
-          '?requestMask.includeField=person.names'),
-      headers: await user.authHeaders,
-    );
-    if (response.statusCode != 200) {
-      setState(() {
-        _contactText = 'People API gave a ${response.statusCode} '
-            'response. Check logs for details.';
-      });
-      debugPrint('People API ${response.statusCode} response: ${response.body}');
-      return;
-    }
-    final Map<String, dynamic> data =
-    json.decode(response.body) as Map<String, dynamic>;
-    final String? namedContact = _pickFirstNamedContact(data);
-    setState(() {
-      if (namedContact != null) {
-        _contactText = 'I see you know $namedContact!';
-      } else {
-        _contactText = 'No contacts to display.';
-      }
-    });
-  }
-
-  String? _pickFirstNamedContact(Map<String, dynamic> data) {
-    final List<dynamic>? connections = data['connections'] as List<dynamic>?;
-    final Map<String, dynamic>? contact = connections?.firstWhere(
-          (dynamic contact) => contact['names'] != null,
-      orElse: () => null,
-    ) as Map<String, dynamic>?;
-    if (contact != null) {
-      final Map<String, dynamic>? name = contact['names'].firstWhere(
-            (dynamic name) => name['displayName'] != null,
-        orElse: () => null,
-      ) as Map<String, dynamic>?;
-      if (name != null) {
-        return name['displayName'] as String?;
-      }
-    }
-    return null;
-  }
-
-  Future<void> _handleSignIn() async {
-    try {
-      await _googleSignIn.signIn();
-    } catch (error) {
-      debugPrint(error.toString());
-    }
-  }
-
-  Future<void> _handleSignOut() => _googleSignIn.disconnect();
-
-*/
 
 
   Widget login(IconData icon)
@@ -381,8 +298,28 @@ class _LoginPageState extends State<LoginPage> {
                                   SignInButton(
                                     Buttons.Google,
                                     text: "Accedi con Google",
-                                    onPressed: () {},
+                                    onPressed: () async{
+                                      // Trigger the authentication flow
+                                      final GoogleSignInAccount? googleUser = await GoogleSignIn(
+                                          scopes: <String>["email"]).signIn();
 
+                                      // Obtain the auth details from the request
+                                      final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
+
+                                      // Create a new credential
+                                      final credential = GoogleAuthProvider.credential(
+                                          accessToken: googleAuth.accessToken,
+                                          idToken: googleAuth.idToken
+                                      );
+                                      await FirebaseAuth.instance.signInWithCredential(credential);
+
+                                      debugPrint("Il nome è ${googleUser.displayName}, l'email è ${googleUser.email} l'id token è ${FirebaseAuth.instance.currentUser?.uid}");
+                                      FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser?.uid).set({'name': googleUser.displayName, 'email' : googleUser.email, 'points' : 0, 'uid' : FirebaseAuth.instance.currentUser?.uid});
+                                      FirebaseFirestore.instance.collection('community').doc(FirebaseAuth.instance.currentUser?.uid).set({'name': googleUser.displayName, 'uid' : FirebaseAuth.instance.currentUser?.uid, 'points' : 0, 'make' : '', 'model' : '', 'fuel' : '', 'image' : googleUser.photoUrl});
+
+                                      Navigator.pushNamedAndRemoveUntil(context, HomePage.routeName, (route) => false);
+
+                                    }
 
                                   ),
                                   SignInButton(

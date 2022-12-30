@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:car_control/Page/addVeicolo.dart';
 import 'package:car_control/Page/home_page.dart';
@@ -89,16 +91,13 @@ class _VeicoloState extends State<Veicolo>{
 
   //Leggo i punti dal db
   readUserPoints() async{
+    final doc =  await FirebaseFirestore.instance
+        .collection('users')
+        .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+        .get();
+    userPoints = doc.docs[0].get('points'); //Prelevo il valore di fuel
+    setPoints(userPoints);
 
-    FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser?.uid).withConverter(
-      fromFirestore: UserModel.fromFirestore,
-      toFirestore: (UserModel user, _) => user.toFirestore(),
-    ).get().then((value) {
-      userPoints = value.data()?.points;
-      SharedPreferences.getInstance().then((value) => value.setInt('points', userPoints!));
-    }).onError((error, stackTrace) {
-      debugPrint(error.toString());
-    });
   }
 
   setPoints(int? points) async{
@@ -246,6 +245,7 @@ class _VeicoloState extends State<Veicolo>{
 
   @override
   Widget build(BuildContext context){
+
     if(uid == null)
     {
       Navigator.pushReplacement(context, MaterialPageRoute(
@@ -422,8 +422,6 @@ class _VeicoloState extends State<Veicolo>{
       for(int i = 0; i < sizeCostiGenerali; i++){
         docCostiGenerali.docs[i].reference.update({"costo": 0});
       }
-
-
 
       },
       ).show();

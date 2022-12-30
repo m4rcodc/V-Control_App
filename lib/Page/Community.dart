@@ -4,9 +4,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/communityModel.dart';
+String? modelV='';
+String? fuelV='';
 
-String? modelV;
-String? fuelV;
+
 String infoPunteggioRifornimento = "L'assegnazione del punteggio mediante rifornimento seguirà le seguenti regole ed avverrà ogni 100km percorsi.\n"
                                    "La soglia di riferimento è 2 litri rispetto al consumo medio del veicolo, se l'utente si troverà dopo 100 km percorsi al di sotto di tale soglia\n"
     "gli verranno assegnati 10 punti, viceversa gli verranno sottratti 8 punti dallo score. ";
@@ -29,27 +30,29 @@ class _CommunityState extends State<Community>{
   List<CommunityModel> communityProfile = [];
 
 
-
+readModel(){
+  FirebaseFirestore.instance
+      .collection('community')
+      .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+      .get().then((value){
+    modelV = value.docs[0].get('model');
+    fuelV = value.docs[0].get('fuel');
+  });
+}
 
   Stream<List<CommunityModel>> readCommunityPoints() {
-    if(modelV == null || modelV == ' ')
-      {
-        return FirebaseFirestore.instance
-            .collection('community')
+
+    readModel();
+    debugPrint("Il modello è: $modelV");
+
+    return FirebaseFirestore.instance
+            .collection('community').where('model', isEqualTo: modelV).where(
+            'fuel', isEqualTo: fuelV)
             .orderBy('points', descending: true)
             .snapshots()
             .map((snapshot) =>
-            snapshot.docs.map((doc) => CommunityModel.fromJson(doc.data())).toList()
-        );
-      }else{
-      return FirebaseFirestore.instance
-          .collection('community').where('model', isEqualTo: modelV).where('fuel', isEqualTo: fuelV)
-          .orderBy('points', descending: true)
-          .snapshots()
-          .map((snapshot) =>
-          snapshot.docs.map((doc) => CommunityModel.fromJson(doc.data())).toList()
-      );
-    }
+            snapshot.docs.map((doc) => CommunityModel.fromJson(doc.data()))
+                .toList());
 
   }
 
@@ -61,12 +64,6 @@ class _CommunityState extends State<Community>{
     super.initState();
   }
 
-  getModelV() async {
-    final prefs = await SharedPreferences.getInstance();
-    fuelV = prefs.getString('fuelV') ?? ' ';
-    modelV = prefs.getString('modelV') ?? ' ';
-
-  }
 
 
   Widget buildCommunity(CommunityModel comm) {
@@ -472,7 +469,6 @@ class _CommunityState extends State<Community>{
 
   @override
   Widget build(BuildContext context) {
-    getModelV();
 
     return Scaffold(
       //extendBody: true,
@@ -1064,14 +1060,14 @@ class _CommunityState extends State<Community>{
 
                     for(int i = 0; i<communityProfile.length ; i++)
                       {
-                        namePodium.add(communityProfile[i].name ?? 'empty');
+                        namePodium.add(communityProfile[i].name ?? 'nothing');
                         pointsPodium.add(communityProfile[i].points ?? 0);
                         imagePodium.add(communityProfile[i].image ?? '');
                         j--;
                       }
                     for(;j>0;j--)
                       {
-                        namePodium.add('empty');
+                        namePodium.add('nothing');
                         pointsPodium.add(0);
                         imagePodium.add('https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/defaultImage%2FLogoApp.png?alt=media&token=815b924d-e981-4fb6-ad76-483a2f591310');
                       }

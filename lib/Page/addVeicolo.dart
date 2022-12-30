@@ -87,8 +87,14 @@ class _AddVeicoloState extends State<AddVeicolo> {
 
   String? selectedValue;
 
-  readPoints() async {
-    SharedPreferences.getInstance().then((value) { userPoints = value.getInt('points');});
+
+  readUserPoints() async{
+    final doc =  await FirebaseFirestore.instance
+        .collection('users')
+        .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+        .get();
+    userPoints = doc.docs[0].get('points'); //Prelevo il valore di fuel
+    setPoints(userPoints);
   }
 
   setPoints(int? userPoints) async {
@@ -98,7 +104,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
 
   @override
   Widget build(BuildContext context) {
-    readPoints();
+    readUserPoints();
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -1531,11 +1537,12 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                         consumoMedio = consumoMedioDiesel;
                                       }
 
-                                    debugPrint("Consumo medio è $consumoMedio");
+                                    debugPrint("User 1 ${user?.uid} userpoints: $userPoints");
+
 
 
                                     vehicle.set({
-                                      'uid': user?.uid,
+                                      'uid': FirebaseAuth.instance.currentUser?.uid,
                                       'make': make,
                                       'model': model,
                                       'kilometers' : kilometers,
@@ -1549,6 +1556,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                     });
 
                                     debugPrint("Il consumo medio è ${consumoMedio.toString()}");
+
+
 
 
 

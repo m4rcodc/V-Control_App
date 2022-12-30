@@ -31,9 +31,12 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
   String? month;
   String? year;
   String? fullNameMonth;
+  String? newNameMonth;
+  String? lastData;
+  String? beforeNameMonth;
   double? newCostoRifornimento;
   double? newLitri;
-  String? newDate;
+  String? newDateChange;
   double? costoAgg = 0;
   double? litriAgg = 0;
   DateTime? prova;
@@ -42,8 +45,9 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
   var date2;
   var dateTotal;
   bool flagCosto = false;
-  bool? flagLitri = false;
-  bool? flagDate = false;
+  bool flagLitri = false;
+  bool flagData = false;
+  bool activateFlag = false;
   bool? checkCar;
   String? a;
   DateTime now = new DateTime.now();
@@ -98,420 +102,632 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
             textAlign: TextAlign.right)),
         DataCell(IconButton(
             onPressed: () =>
-            {
-              /*a = cost.data,
-              date = a?.substring(6,10),
-              date1 = a?.substring(3,5),
-              date2 = a?.substring(0,2),
-              dateTotal = '$date-$date1-$date2',
-              prova = DateTime.parse(dateTotal),
-              */
-              a = cost.data,
-              datePostfix = a?.substring(2,10)!,
-              print(datePostfix),
-              //testMethod();
-              AwesomeDialog(
-                context: context,
-                headerAnimationLoop: false,
-                dialogType: DialogType.noHeader,
-                dialogBackgroundColor: Colors.blue.shade200,
-                body:
-                Container(
-                    height: 400,
-                    child:
-                    Column(
-                      children: [
-                        Container(
-                            alignment: Alignment.center,
-                            child: Text('Modifica data')
-                        ),
-                        Container(
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 15.0, horizontal: 15.0),
-                          child:
-                          TextFormField(
-                            autovalidateMode: AutovalidateMode
-                                .onUserInteraction,
-                            keyboardType: TextInputType.numberWithOptions(
-                                decimal: true),
-                            inputFormatters: [FilteringTextInputFormatter.allow(
-                                RegExp('[0-9.,-]+')),
-                            /*inputFormatters: [FilteringTextInputFormatter.allow(
-                            RegExp('[0-9.,-]+')),*/
-                            ],
-                            decoration: InputDecoration(
-                              alignLabelWithHint: true,
-                              hintText: cost.data,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 16,
-                              ),
-                              labelStyle: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.black54,
-                              ),
-                              filled: true,
-                              fillColor: Colors.white,
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide(color: Colors.grey),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Colors.indigoAccent),
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                              errorBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.red),
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                              focusedErrorBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.red),
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                            ),
-                            controller: _textController,
-                            onChanged: (value) {
-                              setState(() {
-                                if (value == datePostfix) {
-                                  _textController.text = "";
-                                  return;
-                                }
-                                value.endsWith(datePostfix!)
-                                    ? _textController.text = value
-                                    : _textController.text = value + datePostfix!;
-                                _textController.selection = TextSelection.fromPosition(
-                                    TextPosition(
-                                        offset: _textController.text.length! -
-                                            datePostfix!.length));
-                               /* print('sono qui');
-                                newDate = value;
-                                print(newDate);
-                                flagDate == true;
-                                */
-                              });
-                            },
-                          ),
-                        ),
-                        Container(
-                            margin: EdgeInsets.only(top: 20),
-                            alignment: Alignment.center,
-                            child: Text('Modifica costo rifornimento')
-                        ),
-                        Container(
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 15.0, horizontal: 15.0),
-                          child:
-                          TextFormField(
-                            initialValue: '${cost.costo}',
-                            autovalidateMode: AutovalidateMode
-                                .onUserInteraction,
-                            keyboardType: TextInputType.numberWithOptions(
-                                decimal: true),
-                            inputFormatters: [FilteringTextInputFormatter.allow(
-                                RegExp('[0-9.,]+')),
-                            ],
-                            decoration: InputDecoration(
-                              alignLabelWithHint: true,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 16,
-                              ),
-                              labelStyle: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.black54,
-                              ),
-                              filled: true,
-                              fillColor: Colors.white,
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide(color: Colors.grey),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Colors.indigoAccent),
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                              errorBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.red),
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                              focusedErrorBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.red),
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                newCostoRifornimento = double.tryParse(value);
-                                if(newCostoRifornimento! > cost.costo!) {
-                                  costoAgg = newCostoRifornimento! - cost.costo!;
-                                  //print(costoAgg);
-                                }
-                                if(newCostoRifornimento! < cost.costo!){
-                                  costoAgg = newCostoRifornimento! - cost.costo!;
-                                  //print(costoAgg);
-                                }
-                                if(newCostoRifornimento == cost.costo){
-                                  costoAgg = 0;
-                                }
-                                flagCosto = true;
-                              });
-                            },
-                          ),
-                        ),
-                        Container(
-                            margin: EdgeInsets.only(top: 20),
-                            alignment: Alignment.center,
-                            child: Text('Modifica litri')
-                        ),
-                        Container(
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 15.0, horizontal: 15.0),
-                          child:
-                          TextFormField(
-                            initialValue: '${cost.litri}',
-                            autovalidateMode: AutovalidateMode
-                                .onUserInteraction,
-                            keyboardType: TextInputType.numberWithOptions(
-                                decimal: true),
-                            inputFormatters: [FilteringTextInputFormatter.allow(
-                                RegExp('[0-9.,]+')),
-                            ],
-                            decoration: InputDecoration(
-                              alignLabelWithHint: true,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 16,
-                              ),
-                              labelStyle: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.black54,
-                              ),
-                              filled: true,
-                              fillColor: Colors.white,
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide(color: Colors.grey),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Colors.indigoAccent),
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                              errorBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.red),
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                              focusedErrorBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.red),
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                newLitri = double.tryParse(value);
-                                if((newLitri! > litriAgg!) || (newLitri! < litriAgg!)) {
-                                  litriAgg = newLitri! - cost.litri!;
-                                }
-                                if(newLitri == litriAgg){
-                                  litriAgg = 0;
-                                }
-                                flagLitri = true;
-                              });
-                            },
-                          ),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 6.0, horizontal: 80.0),
-                          child: ElevatedButton(
-                            onPressed:
-                                () async
-                            {
-                              AwesomeDialog(
-                                context: context,
-                                dialogType: DialogType.warning,
-                                headerAnimationLoop: false,
-                                animType: AnimType.topSlide,
-                                title: 'Attenzione!',
-                                desc:
-                                'Sicuro di voler procedere con l\' eliminazione?',
-                                btnCancelText: 'No',
-                                btnOkText: 'Si',
-                                btnCancelOnPress: () {},
-                                btnOkOnPress: () async {
+    {
+      a = cost.data,
+      date = a?.substring(6,10),
+      date1 = a?.substring(3,5),
+      date2 = a?.substring(0,2),
+      dateTotal = '$date-$date1-$date2',
+      prova = DateTime.parse(dateTotal),
+      datePostfix = a?.substring(2,10)!,
+    showDialog(
+    context: context,
+    builder: (context){
+    //headerAnimationLoop: false,
+    //dialogType: DialogType.noHeader,
+    //dialogBackgroundColor: Colors.blue.shade200,
+    body:
+    return StatefulBuilder(builder: (context,setState){
+    return AlertDialog(
+      backgroundColor: Colors.blue.shade200,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(25),
+      ),
+      content:
+    Container(
+    height: 400,
+    child:
+    Column(
+    children: [
+    Container(
+    alignment: Alignment.center,
+    child: Text('Modifica data')
+    ),
+    Container(
+    margin: const EdgeInsets.symmetric(
+    vertical: 10.0, horizontal: 6.0),
+    child:
+    ElevatedButton(
+    style: ElevatedButton.styleFrom(
+    elevation: 10,
+    backgroundColor: Colors.blue,
+    shape: StadiumBorder()
+    ),
+    onPressed: () async {
+    DateTime? newDate = await showDatePicker(
+    context: context,
+    locale: const Locale("it", "IT"),
+    initialDate: prova!,
+    firstDate: DateTime(1900),
+    lastDate: DateTime(2100),
+    builder: (context, child) {
+    return Theme(
+    data: Theme.of(context).copyWith(
+    colorScheme: const ColorScheme.light(
+    primary: Colors.lightBlue,
+    onPrimary: Colors.white,
+    onSurface: Colors.blueAccent,
+    ),
+    textButtonTheme: TextButtonThemeData(
+    style: TextButton.styleFrom(
+    backgroundColor: Colors.lightBlue.shade50,
+    )
+    )
+    ),
+    child: child!,
+    );
+    }
+    );
+    if (newDate == null) return;
+    setState(() {
+    now = newDate;
+    newDateChange = formatter.format(now);
+    var month = now.month;
+    newNameMonth = months[month - 1];
+    print(newNameMonth);
+    lastData = cost.data;
+    var support = lastData!.substring(3,5);
+    int index = int.parse(support);
+    beforeNameMonth = months[index - 1];
+    print(beforeNameMonth);
+    flagData = true;
+    });
+    },
+    child: Padding(
+    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+    child: Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+    Icon(Icons.calendar_month),
+     flagData == true ?
+      Text("Data rifornimento: ${formatter.format(now)}")
+         :
+     Text("Data rifornimento: ${formatter.format(prova!)}")
+          ],
+         ),
+        )
+      ),
+    ),
+    Container(
+    margin: EdgeInsets.only(top: 8),
+    alignment: Alignment.center,
+    child: Text('Modifica costo rifornimento')
+    ),
+    Container(
+    margin: const EdgeInsets.symmetric(
+    vertical: 10.0, horizontal: 15.0),
+    child:
+    TextFormField(
+    initialValue: '${cost.costo}',
+    autovalidateMode: AutovalidateMode
+        .onUserInteraction,
+    keyboardType: TextInputType.numberWithOptions(
+    decimal: true),
+    inputFormatters: [FilteringTextInputFormatter.allow(
+    RegExp('[0-9.,]+')),
+    ],
+    decoration: InputDecoration(
+    alignLabelWithHint: true,
+    contentPadding: const EdgeInsets.symmetric(
+    horizontal: 16,
+    vertical: 12,
+    ),
+    labelStyle: const TextStyle(
+    fontSize: 14,
+    color: Colors.black54,
+    ),
+    filled: true,
+    fillColor: Colors.white,
+    enabledBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(25),
+    borderSide: BorderSide(color: Colors.grey),
+    ),
+    focusedBorder: OutlineInputBorder(
+    borderSide: BorderSide(
+    color: Colors.indigoAccent),
+    borderRadius: BorderRadius.circular(25),
+    ),
+    errorBorder: OutlineInputBorder(
+    borderSide: BorderSide(color: Colors.red),
+    borderRadius: BorderRadius.circular(25),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+    borderSide: BorderSide(color: Colors.red),
+    borderRadius: BorderRadius.circular(25),
+    ),
+    ),
+    onChanged: (value) {
+    setState(() {
+    newCostoRifornimento = double.tryParse(value);
+    if(newCostoRifornimento! > cost.costo!) {
+    costoAgg = newCostoRifornimento! - cost.costo!;
+    //print(costoAgg);
+    }
+    if(newCostoRifornimento! < cost.costo!){
+    costoAgg = newCostoRifornimento! - cost.costo!;
+    //print(costoAgg);
+    }
+    if(newCostoRifornimento == cost.costo){
+    costoAgg = 0;
+    }
+    flagCosto = true;
+    });
+    },
+    ),
+    ),
+    Container(
+    margin: EdgeInsets.only(top: 8),
+    alignment: Alignment.center,
+    child: Text('Modifica litri')
+    ),
+    Container(
+    margin: const EdgeInsets.symmetric(
+    vertical: 10.0, horizontal: 15.0),
+    child:
+    TextFormField(
+    initialValue: '${cost.litri}',
+    autovalidateMode: AutovalidateMode
+        .onUserInteraction,
+    keyboardType: TextInputType.numberWithOptions(
+    decimal: true),
+    inputFormatters: [FilteringTextInputFormatter.allow(
+    RegExp('[0-9.,]+')),
+    ],
+    decoration: InputDecoration(
+    alignLabelWithHint: true,
+    contentPadding: const EdgeInsets.symmetric(
+    horizontal: 16,
+    vertical: 12
+    ),
+    labelStyle: const TextStyle(
+    fontSize: 14,
+    color: Colors.black54,
+    ),
+    filled: true,
+    fillColor: Colors.white,
+    enabledBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(25),
+    borderSide: BorderSide(color: Colors.grey),
+    ),
+    focusedBorder: OutlineInputBorder(
+    borderSide: BorderSide(
+    color: Colors.indigoAccent),
+    borderRadius: BorderRadius.circular(25),
+    ),
+    errorBorder: OutlineInputBorder(
+    borderSide: BorderSide(color: Colors.red),
+    borderRadius: BorderRadius.circular(25),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+    borderSide: BorderSide(color: Colors.red),
+    borderRadius: BorderRadius.circular(25),
+    ),
+    ),
+    onChanged: (value) {
+    setState(() {
+    newLitri = double.tryParse(value);
+    if((newLitri! > litriAgg!) || (newLitri! < litriAgg!)) {
+    litriAgg = newLitri! - cost.litri!;
+    }
+    if(newLitri == litriAgg){
+    litriAgg = 0;
+    }
+    flagLitri = true;
+    });
+    },
+    ),
+    ),
+    Container(
+    margin: const EdgeInsets.symmetric(
+    vertical: 3.0, horizontal: 60.0),
+    child: ElevatedButton(
+    onPressed:
+    () async
+    {
+    AwesomeDialog(
+    context: context,
+    dialogType: DialogType.warning,
+    headerAnimationLoop: false,
+    animType: AnimType.topSlide,
+    title: 'Attenzione!',
+    desc:
+    'Sicuro di voler procedere con l\' eliminazione?',
+    btnCancelText: 'No',
+    btnOkText: 'Si',
+    btnCancelOnPress: () {},
+    btnOkOnPress: () async {
 
-                                  int indexMonth = now.month;
-                                  String month = months[indexMonth - 1];
+    //int indexMonth = now.month;
+    //String month = months[indexMonth - 1];
 
-                                  final doc = await FirebaseFirestore.instance
-                                      .collection('CostiRifornimento')
-                                      .where(
-                                      'mese', isEqualTo: month)
-                                      .where('uid', isEqualTo: uid)
-                                      .get();
-                                  var docs = doc.docs;
-                                  double sum = 0.0;
-                                  double sumLitri = 0.0;
-                                  for (int i = 0; i < docs.length; i++) {
-                                    sum += docs[i]['costo'];
-                                    print('costo $sum');
-                                  }
-                                  for (int i = 0; i < docs.length; i++) {
-                                    sumLitri += docs[i]['litri'];
-                                    print('litri $sumLitri');
-                                  }
+      final docMonth = await FirebaseFirestore.instance.collection('CostiRifornimento').where('uid', isEqualTo: uid).where('index', isEqualTo: cost.index).get();
+      var docsMonth = docMonth.docs;
+      String month = docsMonth[0]['mese'];
 
-                                  final docGeneral = await FirebaseFirestore.instance
-                                      .collection('CostiGenerali').doc('2022')
-                                      .collection(uid).where(
-                                      'mese', isEqualTo: month)
-                                      .get();
-                                  var docs1 = docGeneral.docs;
-                                  double sum1 = 0.0;
-                                  sum1 += docs1[0]['costo'];
+    final doc = await FirebaseFirestore.instance
+        .collection('CostiRifornimento')
+        .where(
+    'mese', isEqualTo: month)
+        .where('uid', isEqualTo: uid)
+        .get();
+    var docs = doc.docs;
+    double sum = 0.0;
+    double sumLitri = 0.0;
+    for (int i = 0; i < docs.length; i++) {
+    sum += docs[i]['costo'];
+    print('costo $sum');
+    }
+    for (int i = 0; i < docs.length; i++) {
+    sumLitri += docs[i]['litri'];
+    print('litri $sumLitri');
+    }
 
-                                  print('Costi generale $sum1');
+    final docGeneral = await FirebaseFirestore.instance
+        .collection('CostiGenerali').doc('2022')
+        .collection(uid).where(
+    'mese', isEqualTo: month)
+        .get();
+    var docs1 = docGeneral.docs;
+    double sum1 = 0.0;
+    sum1 += docs1[0]['costo'];
 
-                                  await FirebaseFirestore.instance.collection(
-                                      'CostiTotali').doc('2022')
-                                      .collection(uid)
-                                      .doc(month)
-                                      .update({"costoRifornimento": sum - (cost.costo!), "totaleLitri": sumLitri - cost.litri!});
 
-                                 print(sum1 - cost.costo!);
+    await FirebaseFirestore.instance.collection(
+    'CostiTotali').doc('2022')
+        .collection(uid)
+        .doc(month)
+        .update({"costoRifornimento": sum - (cost.costo!), "totaleLitri": sumLitri - cost.litri!});
 
-                                  await FirebaseFirestore.instance.collection(
-                                      'CostiGenerali').doc('2022')
-                                      .collection(uid)
-                                      .doc(month)
-                                      .update({"costo": sum1 - (cost.costo!)});
 
-                                  final docDeleted = await FirebaseFirestore.instance.collection('CostiRifornimento').where('uid', isEqualTo: uid).where('index', isEqualTo: cost.index).get();
-                                  DocumentReference docu =  docDeleted.docs[0].reference;
-                                  docu.delete();
+    await FirebaseFirestore.instance.collection(
+    'CostiGenerali').doc('2022')
+        .collection(uid)
+        .doc(month)
+        .update({"costo": sum1 - (cost.costo!)});
 
-                                  Navigator.of(context, rootNavigator: true).pop();
-                                },
-                              ).show();
-                              },
-                            style: ElevatedButton.styleFrom(
-                              elevation: 10,
-                              backgroundColor: Colors.red.shade300,
-                              shape: const StadiumBorder(),
+    final docDeleted = await FirebaseFirestore.instance.collection('CostiRifornimento').where('uid', isEqualTo: uid).where('index', isEqualTo: cost.index).get();
+    DocumentReference docu = docDeleted.docs[0].reference;
+    docu.delete();
 
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 8,
-                                horizontal: 0,
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Icon(
-                                    Icons.remove,
-                                    color: Colors.white,
-                                  ),
-                                  SizedBox(
-                                    width: 14,
-                                  ),
-                                  Text(
-                                    "Rimuovi",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
+    Navigator.of(context, rootNavigator: true).pop();
+    },
+    ).show();
+    },
+    style: ElevatedButton.styleFrom(
+    elevation: 10,
+    backgroundColor: Colors.red.shade300,
+    shape: const StadiumBorder(),
 
+    ),
+                  child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 0,
+                  ),
+                    child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                    Icon(
+                    Icons.remove,
+                    color: Colors.white,
+                    ),
+                    SizedBox(
+                    width: 14,
+                    ),
+                    Text(
+                    "Rimuovi",
+                    style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                         ),
+                )
+            ],
+          ),
+         ),
+       ),
+      ),
+    Container(
+      padding: EdgeInsets.only(top: 6),
+      child:
+      Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          padding: EdgeInsets.only(top: 2),
+          child:
+              FloatingActionButton.extended(
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).pop();
+                  },
+                  icon: Icon( // <-- Icon
+                    Icons.cancel_outlined,
+                    size: 18.0,
+                  ),
+                label: Text('Annulla'),
+                backgroundColor: Colors.red,
                 ),
-                btnOkOnPress: () async{
+              ),
+        Container(
+          width: 120,
+          child:
+          FloatingActionButton.extended(
+            onPressed: () async{
 
-                  int indexMonth = now.month;
-                  String month = months[indexMonth - 1];
+              //int indexMonth = now.month;
+              //String month = months[indexMonth - 1];
+              //print('Mese qui $month');
 
-                  if(flagCosto == false) {
-                    newCostoRifornimento = cost.costo;
-                    costoAgg = 0;
+              if(flagCosto == false) {
+                newCostoRifornimento = cost.costo;
+                costoAgg = 0;
+              }
 
+              if(flagLitri == false) {
+                newLitri = cost.litri;
+                litriAgg = 0;
+              }
+
+              if(flagData == false) {
+                print(cost.data);
+                newDateChange = cost.data;
+                newNameMonth = cost.mese;
+              }
+
+                /*final doc = await FirebaseFirestore.instance
+                    .collection('CostiRifornimento')
+                    .where(
+                    'mese', isEqualTo: newNameMonth)
+                    .where('uid', isEqualTo: uid)
+                    .get();
+                var docs = doc.docs;
+                for (int i = 0; i < docs.length; i++) {
+                  sum += docs[i]['costo'];
+                }
+                for (int i = 0; i < docs.length; i++) {
+                  sumLitri += docs[i]['litri'];
+                }
+              print('costo $sum');
+              print('litri $sumLitri');
+
+                final docGeneral = await FirebaseFirestore.instance
+                    .collection('CostiGenerali').doc('2022')
+                    .collection(uid).where(
+                    'mese', isEqualTo: newNameMonth)
+                    .get();
+                var docs1 = docGeneral.docs;
+                sum1 += docs1[0]['costo'];
+
+
+              final doc1 = await FirebaseFirestore.instance.collection('CostiRifornimento').where('uid', isEqualTo: uid).where('index', isEqualTo: cost.index).get();
+              DocumentReference docu = doc1.docs[0].reference;
+              docu.update({'costo': newCostoRifornimento, 'recapRifornimento': newCostoRifornimento, 'litri': newLitri, 'recapLitri': newLitri, "data": newDateChange, "mese": newNameMonth});
+*/
+              if(flagData == true) {
+                //Caso in cui cambio data ma scelgo un mese diverso
+                if(newNameMonth! != beforeNameMonth!){
+                  double beforeSum = 0.0;
+                  double beforeSumLitri = 0.0;
+                  double newSum = 0.0;
+                  double newSumLitri = 0.0;
+                  double sum1Before = 0.0;
+                  double sum1New = 0.0;
+                  final doc = await FirebaseFirestore.instance
+                      .collection('CostiRifornimento')
+                      .where(
+                      'mese', isEqualTo: beforeNameMonth)
+                      .where('uid', isEqualTo: uid)
+                      .get();
+                  var docs = doc.docs;
+                  for (int i = 0; i < docs.length; i++) {
+                    beforeSum += docs[i]['costo'];
                   }
-                  if(flagLitri == false) {
-                    newLitri = cost.litri;
-                    litriAgg = 0;
+                  for (int i = 0; i < docs.length; i++) {
+                    beforeSumLitri += docs[i]['litri'];
                   }
+                  print('costo old $beforeSum');
+                  print('litri old $beforeSumLitri');
 
-                  if(flagDate == false) {
-                    newDate = cost.data;
-                    print(newDate);
+                  print('before month $beforeNameMonth');
+                  final docGeneralBefore = await FirebaseFirestore.instance
+                      .collection('CostiGenerali').doc('2022')
+                      .collection(uid).where(
+                      'mese', isEqualTo: beforeNameMonth)
+                      .get();
+                  var docs1Before = docGeneralBefore.docs;
+                  sum1Before += docs1Before[0]['costo'];
+                  print('sum1Before $sum1Before');
+
+                  final doc1 = await FirebaseFirestore.instance.collection('CostiRifornimento').where('uid', isEqualTo: uid).where('index', isEqualTo: cost.index).get();
+                  DocumentReference docu = doc1.docs[0].reference;
+                  docu.update({'costo': newCostoRifornimento, 'recapRifornimento': newCostoRifornimento, 'litri': newLitri, 'recapLitri': newLitri, "data": newDateChange, "mese": newNameMonth});
+
+                  final docNew = await FirebaseFirestore.instance
+                      .collection('CostiRifornimento')
+                      .where(
+                      'mese', isEqualTo: newNameMonth)
+                      .where('uid', isEqualTo: uid)
+                      .get();
+                  var docsNew = docNew.docs;
+                  print('lunghezza ${docsNew.length}');
+                  for (int i = 0; i < docsNew.length; i++) {
+                    newSum += docsNew[i]['costo'];
                   }
+                  for (int i = 0; i < docsNew.length; i++) {
+                    newSumLitri += docsNew[i]['litri'];
+                  }
+                  print('costo new quiqui $newSum');
+                  print('litri new qui qui $newSumLitri');
+
+                  final docGeneralAfter = await FirebaseFirestore.instance
+                      .collection('CostiGenerali').doc('2022')
+                      .collection(uid).where(
+                      'mese', isEqualTo: newNameMonth)
+                      .get();
+                  var docs1After = docGeneralAfter.docs;
+                  sum1New += docs1After[0]['costo'];
+                  print('sum1New $sum1New');
+
+                await FirebaseFirestore.instance.collection(
+                    'CostiTotali').doc('2022')
+                    .collection(uid)
+                    .doc(beforeNameMonth)
+                    .update({"costoRifornimento": beforeSum - (newCostoRifornimento! - costoAgg!), "totaleLitri": beforeSumLitri - (newLitri! - litriAgg!)});
+
+                  await FirebaseFirestore.instance.collection(
+                      'CostiTotali').doc('2022')
+                      .collection(uid)
+                      .doc(newNameMonth)
+                      .update({
+                    "costoRifornimento": newSum,
+                    "totaleLitri": newSumLitri
+                  });
+
+                  await FirebaseFirestore.instance.collection(
+                      'CostiGenerali').doc('2022')
+                      .collection(uid)
+                      .doc(beforeNameMonth)
+                      .update({"costo": sum1Before - (newCostoRifornimento! - costoAgg!)});
+
+                  await FirebaseFirestore.instance.collection(
+                      'CostiGenerali').doc('2022')
+                      .collection(uid)
+                      .doc(newNameMonth)
+                      .update({"costo": sum1New + newCostoRifornimento!});
+
+                }
+                else {
+                  //Caso in cui cambio data ma scelgo sempre lo stesso mese
+                  double sum = 0.0;
+                  double sumLitri = 0.0;
+                  double sum1 = 0.0;
+
+                  print('Cambio data ma stesso mese $newNameMonth');
+
+                  final doc1 = await FirebaseFirestore.instance.collection('CostiRifornimento').where('uid', isEqualTo: uid).where('index', isEqualTo: cost.index).get();
+                  DocumentReference docu = doc1.docs[0].reference;
+                  docu.update({'costo': newCostoRifornimento, 'recapRifornimento': newCostoRifornimento, 'litri': newLitri, 'recapLitri': newLitri, "data": newDateChange, "mese": newNameMonth});
 
                   final doc = await FirebaseFirestore.instance
                       .collection('CostiRifornimento')
                       .where(
-                      'mese', isEqualTo: month)
+                      'mese', isEqualTo: newNameMonth)
                       .where('uid', isEqualTo: uid)
                       .get();
                   var docs = doc.docs;
-                  double sum = 0.0;
-                  double sumLitri = 0.0;
                   for (int i = 0; i < docs.length; i++) {
                     sum += docs[i]['costo'];
-                    print('costo $sum');
                   }
                   for (int i = 0; i < docs.length; i++) {
                     sumLitri += docs[i]['litri'];
-                    print('litri $sumLitri');
                   }
 
                   final docGeneral = await FirebaseFirestore.instance
                       .collection('CostiGenerali').doc('2022')
                       .collection(uid).where(
-                      'mese', isEqualTo: month)
+                      'mese', isEqualTo: newNameMonth)
                       .get();
                   var docs1 = docGeneral.docs;
-                  double sum1 = 0.0;
                   sum1 += docs1[0]['costo'];
-
-                  //print('somma precedente $sum1');
-
-
-                  final doc1 = await FirebaseFirestore.instance.collection('CostiRifornimento').where('uid', isEqualTo: uid).where('index', isEqualTo: cost.index).get();
-                  DocumentReference docu =  doc1.docs[0].reference;
-                  docu.update({'costo': newCostoRifornimento, 'recapRifornimento': newCostoRifornimento, 'litri': newLitri, 'recapLitri': newLitri, "data": newDate});
-
-                  //print('somma precedente $sum');
-
-                  //print(sum1 + (costoAgg!));
+                  print('Cambio data ma stesso mese costi gen $sum1');
 
                   await FirebaseFirestore.instance.collection(
                       'CostiTotali').doc('2022')
                       .collection(uid)
-                      .doc(month)
-                      .update({"costoRifornimento": sum + (costoAgg!), "totaleLitri": sumLitri + (litriAgg!)});
-
+                      .doc(newNameMonth)
+                      .update({
+                    "costoRifornimento": sum ,
+                    "totaleLitri": sumLitri
+                  });
 
                   await FirebaseFirestore.instance.collection(
                       'CostiGenerali').doc('2022')
                       .collection(uid)
-                      .doc(month)
-                      .update({"costo": sum1 + (costoAgg!)});
+                      .doc(newNameMonth)
+                      .update({"costo": sum1 + costoAgg! });
+                }
+              }
+              //Caso in cui non cambio data
+              else {
 
+                double sum = 0.0;
+                double sumLitri = 0.0;
+                double sum1 = 0.0;
 
-                },
-                btnCancelOnPress: () {},
-                btnCancelText: 'Annulla',
-                btnCancelIcon: Icons.cancel_outlined,
-                btnOkIcon: Icons.check_circle,
-              ).show()
+                final doc = await FirebaseFirestore.instance
+                    .collection('CostiRifornimento')
+                    .where(
+                    'mese', isEqualTo: newNameMonth)
+                    .where('uid', isEqualTo: uid)
+                    .get();
+                var docs = doc.docs;
+                for (int i = 0; i < docs.length; i++) {
+                  sum += docs[i]['costo'];
+                }
+                for (int i = 0; i < docs.length; i++) {
+                  sumLitri += docs[i]['litri'];
+                }
+
+                final docGeneral = await FirebaseFirestore.instance
+                    .collection('CostiGenerali').doc('2022')
+                    .collection(uid).where(
+                    'mese', isEqualTo: newNameMonth)
+                    .get();
+                var docs1 = docGeneral.docs;
+                sum1 += docs1[0]['costo'];
+
+                final doc1 = await FirebaseFirestore.instance.collection('CostiRifornimento').where('uid', isEqualTo: uid).where('index', isEqualTo: cost.index).get();
+                DocumentReference docu = doc1.docs[0].reference;
+                docu.update({'costo': newCostoRifornimento, 'recapRifornimento': newCostoRifornimento, 'litri': newLitri, 'recapLitri': newLitri, "data": newDateChange, "mese": newNameMonth});
+
+                await FirebaseFirestore.instance.collection(
+                    'CostiTotali').doc('2022')
+                    .collection(uid)
+                    .doc(newNameMonth)
+                    .update({
+                  "costoRifornimento": sum + (costoAgg!),
+                  "totaleLitri": sumLitri + (litriAgg!)
+                });
+
+                await FirebaseFirestore.instance.collection(
+                    'CostiGenerali').doc('2022')
+                    .collection(uid)
+                    .doc(newNameMonth)
+                    .update({"costo": sum1 + (costoAgg!)});
+              }
+
+              Navigator.of(context, rootNavigator: true).pop();
+
             },
+            icon: Icon( // <-- Icon
+              Icons.check_circle,
+              size: 18.0,
+            ),
+            label: Text('Ok'),
+            backgroundColor: Colors.green.shade400,
+                             ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        }
+      ),
+    },
             icon: Icon(Icons.edit, color: Colors.grey,)
           ),
         ),

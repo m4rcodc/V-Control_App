@@ -30,9 +30,18 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
   String? year;
   String? fullNameMonth;
   double? newCostoManutenzione;
+  String? beforeNameMonth;
   String? newNote;
   String? newDate;
+  String? newDateChange;
+  String? newNameMonth;
+  String? lastData;
   double? costoAgg = 0;
+  DateTime? prova;
+  var date;
+  var date1;
+  var date2;
+  var dateTotal;
   bool flagCosto = false;
   bool? flagNote = false;
   bool? flagDate = false;
@@ -113,421 +122,636 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
               onPressed: () =>
               {
                 a = cost.data,
+                date = a?.substring(6,10),
+                date1 = a?.substring(3,5),
+                date2 = a?.substring(0,2),
+                dateTotal = '$date-$date1-$date2',
+                prova = DateTime.parse(dateTotal),
                 datePostfix = a?.substring(2,10)!,
-                print(datePostfix),
-                AwesomeDialog(
-                  context: context,
-                  headerAnimationLoop: false,
-                  dialogType: DialogType.noHeader,
-                  dialogBackgroundColor: Colors.blue.shade200,
-                  body:
-                  Container(
-                      height: 400,
-                      child:
-                      Column(
-                        children: [
-                          Container(
-                              alignment: Alignment.center,
-                              child: Text('Modifica data')
+                showDialog(
+                    context: context,
+                    builder: (context){
+                      //headerAnimationLoop: false,
+                      //dialogType: DialogType.noHeader,
+                      //dialogBackgroundColor: Colors.blue.shade200,
+                      body:
+                      return StatefulBuilder(builder: (context,setState){
+                        return AlertDialog(
+                          backgroundColor: Colors.blue.shade200,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
                           ),
+                          content:
                           Container(
-                            margin: const EdgeInsets.symmetric(
-                                vertical: 15.0, horizontal: 15.0),
+                            height: 400,
                             child:
-                            TextFormField(
-                              autovalidateMode: AutovalidateMode
-                                  .onUserInteraction,
-                              keyboardType: TextInputType.numberWithOptions(
-                                  decimal: true),
-                              inputFormatters: [FilteringTextInputFormatter.allow(
-                                  RegExp('[0-9.,-]+')),
-                              ],
-                              decoration: InputDecoration(
-                                alignLabelWithHint: true,
-                                hintText: cost.data,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 16,
+                            Column(
+                              children: [
+                                Container(
+                                    alignment: Alignment.center,
+                                    child: Text('Modifica data')
                                 ),
-                                labelStyle: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.black54,
-                                ),
-                                filled: true,
-                                fillColor: Colors.white,
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(25),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.indigoAccent),
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
-                                errorBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.red),
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
-                                focusedErrorBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.red),
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
-                              ),
-                              controller: _textController,
-                              onChanged: (value) {
-                                setState(() {
-                                  if (value == datePostfix) {
-                                    _textController.text = "";
-                                    return;
-                                  }
-                                  value.endsWith(datePostfix!)
-                                      ? _textController.text = value
-                                      : _textController.text = value + datePostfix!;
-                                  _textController.selection = TextSelection.fromPosition(
-                                      TextPosition(
-                                          offset: _textController.text.length! -
-                                              datePostfix!.length));
-                                  /* print('sono qui');
-                                newDate = value;
-                                print(newDate);
-                                flagDate == true;
-                                */
-                                });
-                              },
-                            ),
-                          ),
-                          Container(
-                              margin: EdgeInsets.only(top: 20),
-                              alignment: Alignment.center,
-                              child: Text('Modifica costo manutenzione')
-                          ),
-                          Container(
-                            margin: const EdgeInsets.symmetric(
-                                vertical: 15.0, horizontal: 15.0),
-                            child:
-                            TextFormField(
-                              initialValue: '${cost.costo}',
-                              autovalidateMode: AutovalidateMode
-                                  .onUserInteraction,
-                              keyboardType: TextInputType.numberWithOptions(
-                                  decimal: true),
-                              inputFormatters: [FilteringTextInputFormatter.allow(
-                                  RegExp('[0-9.,]+')),
-                              ],
-                              decoration: InputDecoration(
-                                alignLabelWithHint: true,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 16,
-                                ),
-                                labelStyle: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.black54,
-                                ),
-                                filled: true,
-                                fillColor: Colors.white,
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(25),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.indigoAccent),
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
-                                errorBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.red),
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
-                                focusedErrorBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.red),
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
-                              ),
-                              onChanged: (value) {
-                                setState(() {
-                                  newCostoManutenzione = double.tryParse(value);
-                                  if(newCostoManutenzione! > cost.costo!) {
-                                    costoAgg = newCostoManutenzione! - cost.costo!;
-                                    //print(costoAgg);
-                                  }
-                                  if(newCostoManutenzione! < cost.costo!){
-                                    costoAgg = newCostoManutenzione! - cost.costo!;
-                                    //print(costoAgg);
-                                  }
-                                  if(newCostoManutenzione == cost.costo){
-                                    costoAgg = 0;
-                                  }
-                                  flagCosto = true;
-                                });
-                              },
-                            ),
-                          ),
-                          Container(
-                              margin: EdgeInsets.only(top: 20),
-                              alignment: Alignment.center,
-                              child: Text('Modifica note')
-                          ),
-                          Container(
-                            margin: const EdgeInsets.symmetric(
-                                vertical: 15.0, horizontal: 15.0),
-                            child:
-                            TextFormField(
-                              initialValue: cost.note,
-                              autovalidateMode: AutovalidateMode
-                                  .onUserInteraction,
-                              decoration: InputDecoration(
-                                alignLabelWithHint: true,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 16,
-                                ),
-                                labelStyle: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.black54,
-                                ),
-                                filled: true,
-                                fillColor: Colors.white,
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(25),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.indigoAccent),
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
-                                errorBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.red),
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
-                                focusedErrorBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.red),
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
-                              ),
-                              onChanged: (value) {
-                                setState(() {
-                                  newNote = value;
-                                  flagNote = true;
-                                });
-                              },
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.symmetric(
-                                vertical: 6.0, horizontal: 80.0),
-                            child: ElevatedButton(
-                              onPressed:
-                                  () async
-                              {
-                                AwesomeDialog(
-                                  context: context,
-                                  dialogType: DialogType.warning,
-                                  headerAnimationLoop: false,
-                                  animType: AnimType.topSlide,
-                                  title: 'Attenzione!',
-                                  desc:
-                                  'Sicuro di voler procedere con l\' eliminazione?',
-                                  btnCancelText: 'No',
-                                  btnOkText: 'Si',
-                                  btnCancelOnPress: () {},
-                                  btnOkOnPress: () async {
-
-                                    int indexMonth = now.month;
-                                    String month = months[indexMonth - 1];
-
-                                    await readPoints();
-
-                                    final doc = await FirebaseFirestore.instance
-                                        .collection('CostiManutenzione')
-                                        .where(
-                                        'mese', isEqualTo: month)
-                                        .where('uid', isEqualTo: uid)
-                                        .get();
-                                    var docs = doc.docs;
-                                    double sum = 0.0;
-                                    for (int i = 0; i < docs.length; i++) {
-                                      sum += docs[i]['costo'];
-                                      print('costo $sum');
-                                    }
-                                    final docGeneral = await FirebaseFirestore.instance
-                                        .collection('CostiGenerali').doc('2022')
-                                        .collection(uid).where(
-                                        'mese', isEqualTo: month)
-                                        .get();
-                                    var docs1 = docGeneral.docs;
-                                    double sum1 = 0.0;
-                                    sum1 += docs1[0]['costo'];
-
-                                    await FirebaseFirestore.instance.collection(
-                                        'CostiTotaliManutenzione').doc('2022')
-                                        .collection(uid)
-                                        .doc(month)
-                                        .update({"costoManutenzione": sum - (cost.costo!)});
-
-                                    await FirebaseFirestore.instance.collection(
-                                        'CostiGenerali').doc('2022')
-                                        .collection(uid)
-                                        .doc(month)
-                                        .update({"costo": sum1 - (cost.costo!)});
-
-                                    final docDeleted = await FirebaseFirestore.instance.collection('CostiManutenzione').where('uid', isEqualTo: uid).where('index', isEqualTo: cost.index).get();
-                                    String typeManutention = docDeleted.docs[0].get('type');
-                                    DocumentReference docu =  docDeleted.docs[0].reference;
-                                    docu.delete();
-
-
-                                    if(typeManutention == 'Cambio ruote')
-                                    {
-                                      userPoints = (userPoints! - cambioGommePoints)!;
-
-                                    }
-                                    else if(typeManutention == 'Cambio olio')
-                                    {
-                                      userPoints = (userPoints! - cambioOlioPoints)!;
-
-                                    }
-                                    else if(typeManutention == 'Cambio batteria')
-                                    {
-                                      userPoints = (userPoints! - cambioBatteriaPoints)!;
-
-                                    }
-                                    else if(typeManutention == 'Impianto frenante')
-                                    {
-                                      userPoints = (userPoints! - impiantoFrenantePoints)!;
-                                    }
-                                    else if(typeManutention == 'Motore')
-                                    {
-                                      userPoints = (userPoints! - motorePoints)!;
-                                    }
-                                    else
-                                    {
-                                      userPoints = (userPoints! - altroPoints)!;
-                                    }
-
-
-                                    setPoints(userPoints);
-                                    final upd = FirebaseFirestore.instance.collection("users")
-                                        .doc(FirebaseAuth.instance.currentUser?.uid);
-                                    upd.update({
-                                      'points': userPoints
-                                    });
-                                    final comm = FirebaseFirestore.instance.collection("community").doc(FirebaseAuth.instance.currentUser?.uid);
-                                    comm.update({
-                                      'points' : userPoints
-                                    });
-
-                                    Navigator.of(context, rootNavigator: true).pop();
-                                  },
-                                ).show();
-
-                              },
-                              style: ElevatedButton.styleFrom(
-                                elevation: 10,
-                                backgroundColor: Colors.red.shade300,
-                                shape: const StadiumBorder(),
-
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 8,
-                                  horizontal: 0,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Icon(
-                                      Icons.remove,
-                                      color: Colors.white,
-                                    ),
-                                    SizedBox(
-                                      width: 14,
-                                    ),
-                                    Text(
-                                      "Rimuovi",
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.white,
+                                Container(
+                                  margin: const EdgeInsets.symmetric(
+                                      vertical: 10.0, horizontal: 6.0),
+                                  child:
+                                  ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          elevation: 10,
+                                          backgroundColor: Colors.blue,
+                                          shape: StadiumBorder()
                                       ),
-                                    )
-                                  ],
+                                      onPressed: () async {
+                                        DateTime? newDate = await showDatePicker(
+                                            context: context,
+                                            locale: const Locale("it", "IT"),
+                                            initialDate: prova!,
+                                            firstDate: DateTime(1900),
+                                            lastDate: DateTime(2100),
+                                            builder: (context, child) {
+                                              return Theme(
+                                                data: Theme.of(context).copyWith(
+                                                    colorScheme: const ColorScheme.light(
+                                                      primary: Colors.lightBlue,
+                                                      onPrimary: Colors.white,
+                                                      onSurface: Colors.blueAccent,
+                                                    ),
+                                                    textButtonTheme: TextButtonThemeData(
+                                                        style: TextButton.styleFrom(
+                                                          backgroundColor: Colors.lightBlue.shade50,
+                                                        )
+                                                    )
+                                                ),
+                                                child: child!,
+                                              );
+                                            }
+                                        );
+                                        if (newDate == null) return;
+                                        setState(() {
+                                          now = newDate;
+                                          newDateChange = formatter.format(now);
+                                          var month = now.month;
+                                          newNameMonth = months[month - 1];
+                                          print(newNameMonth);
+                                          lastData = cost.data;
+                                          var support = lastData!.substring(3,5);
+                                          int index = int.parse(support);
+                                          beforeNameMonth = months[index - 1];
+                                          print(beforeNameMonth);
+                                          flagDate = true;
+                                        });
+                                      },
+                                      child: Padding(
+                                        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.calendar_month),
+                                            flagDate == true ?
+                                            Text("Data rifornimento: ${formatter.format(now)}")
+                                                :
+                                            Text("Data rifornimento: ${formatter.format(prova!)}")
+                                          ],
+                                        ),
+                                      )
+                                  ),
                                 ),
-                              ),
+                                Container(
+                                    margin: EdgeInsets.only(top: 8),
+                                    alignment: Alignment.center,
+                                    child: Text('Modifica costo manutenzione')
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.symmetric(
+                                      vertical: 10.0, horizontal: 15.0),
+                                  child:
+                                  TextFormField(
+                                    initialValue: '${cost.costo}',
+                                    autovalidateMode: AutovalidateMode
+                                        .onUserInteraction,
+                                    keyboardType: TextInputType.numberWithOptions(
+                                        decimal: true),
+                                    inputFormatters: [FilteringTextInputFormatter.allow(
+                                        RegExp('[0-9.,]+')),
+                                    ],
+                                    decoration: InputDecoration(
+                                      alignLabelWithHint: true,
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 12,
+                                      ),
+                                      labelStyle: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black54,
+                                      ),
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(25),
+                                        borderSide: BorderSide(color: Colors.grey),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Colors.indigoAccent),
+                                        borderRadius: BorderRadius.circular(25),
+                                      ),
+                                      errorBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.red),
+                                        borderRadius: BorderRadius.circular(25),
+                                      ),
+                                      focusedErrorBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.red),
+                                        borderRadius: BorderRadius.circular(25),
+                                      ),
+                                    ),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        newCostoManutenzione = double.tryParse(value);
+                                        if(newCostoManutenzione! > cost.costo!) {
+                                          costoAgg = newCostoManutenzione! - cost.costo!;
+                                          //print(costoAgg);
+                                        }
+                                        if(newCostoManutenzione! < cost.costo!){
+                                          costoAgg = newCostoManutenzione! - cost.costo!;
+                                          //print(costoAgg);
+                                        }
+                                        if(newCostoManutenzione == cost.costo){
+                                          costoAgg = 0;
+                                        }
+                                        flagCosto = true;
+                                      });
+                                    },
+                                  ),
+                                ),
+                                Container(
+                                    margin: EdgeInsets.only(top: 8),
+                                    alignment: Alignment.center,
+                                    child: Text('Modifica note')
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.symmetric(
+                                      vertical: 10.0, horizontal: 15.0),
+                                  child:
+                                  TextFormField(
+                                    initialValue: '${cost.note}',
+                                    autovalidateMode: AutovalidateMode
+                                        .onUserInteraction,
+                                    decoration: InputDecoration(
+                                      alignLabelWithHint: true,
+                                      contentPadding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 12
+                                      ),
+                                      labelStyle: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black54,
+                                      ),
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(25),
+                                        borderSide: BorderSide(color: Colors.grey),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Colors.indigoAccent),
+                                        borderRadius: BorderRadius.circular(25),
+                                      ),
+                                      errorBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.red),
+                                        borderRadius: BorderRadius.circular(25),
+                                      ),
+                                      focusedErrorBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.red),
+                                        borderRadius: BorderRadius.circular(25),
+                                      ),
+                                    ),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        newNote = value;
+                                        flagNote = true;
+                                      });
+                                    },
+                                  ),
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.symmetric(
+                                      vertical: 3.0, horizontal: 60.0),
+                                  child: ElevatedButton(
+                                    onPressed:
+                                        () async
+                                    {
+                                      AwesomeDialog(
+                                        context: context,
+                                        dialogType: DialogType.warning,
+                                        headerAnimationLoop: false,
+                                        animType: AnimType.topSlide,
+                                        title: 'Attenzione!',
+                                        desc:
+                                        'Sicuro di voler procedere con l\' eliminazione?',
+                                        btnCancelText: 'No',
+                                        btnOkText: 'Si',
+                                        btnCancelOnPress: () {},
+                                        btnOkOnPress: () async {
+
+                                          //int indexMonth = now.month;
+                                          //String month = months[indexMonth - 1];
+
+                                          final docMonth = await FirebaseFirestore.instance.collection('CostiManutenzione').where('uid', isEqualTo: uid).where('index', isEqualTo: cost.index).get();
+                                          var docsMonth = docMonth.docs;
+                                          String month = docsMonth[0]['mese'];
+
+                                          final doc = await FirebaseFirestore.instance
+                                              .collection('CostiManutenzione')
+                                              .where(
+                                              'mese', isEqualTo: month)
+                                              .where('uid', isEqualTo: uid)
+                                              .get();
+                                          var docs = doc.docs;
+                                          double sum = 0.0;
+                                          for (int i = 0; i < docs.length; i++) {
+                                            sum += docs[i]['costo'];
+                                            print('costo $sum');
+                                          }
+
+                                          final docGeneral = await FirebaseFirestore.instance
+                                              .collection('CostiGenerali').doc('2022')
+                                              .collection(uid).where(
+                                              'mese', isEqualTo: month)
+                                              .get();
+                                          var docs1 = docGeneral.docs;
+                                          double sum1 = 0.0;
+                                          sum1 += docs1[0]['costo'];
+
+                                          await FirebaseFirestore.instance.collection(
+                                              'CostiTotaliManutenzione').doc('2022')
+                                              .collection(uid)
+                                              .doc(month)
+                                              .update({"costoManutenzione": sum - (cost.costo!)});
+
+                                          await FirebaseFirestore.instance.collection(
+                                              'CostiGenerali').doc('2022')
+                                              .collection(uid)
+                                              .doc(month)
+                                              .update({"costo": sum1 - (cost.costo!)});
+
+                                          final docDeleted = await FirebaseFirestore.instance.collection('CostiManutenzione').where('uid', isEqualTo: uid).where('index', isEqualTo: cost.index).get();
+
+                                          String typeManutention = docDeleted.docs[0].get('type');
+                                          DocumentReference docu = docDeleted.docs[0].reference;
+                                          docu.delete();
+
+                                          if(typeManutention == 'Cambio ruote')
+                                          {
+                                            userPoints = (userPoints! - cambioGommePoints)!;
+
+                                          }
+                                          else if(typeManutention == 'Cambio olio')
+                                          {
+                                            userPoints = (userPoints! - cambioOlioPoints)!;
+
+                                          }
+                                          else if(typeManutention == 'Cambio batteria')
+                                          {
+                                            userPoints = (userPoints! - cambioBatteriaPoints)!;
+
+                                          }
+                                          else if(typeManutention == 'Impianto frenante')
+                                          {
+                                            userPoints = (userPoints! - impiantoFrenantePoints)!;
+                                          }
+                                          else if(typeManutention == 'Motore')
+                                          {
+                                            userPoints = (userPoints! - motorePoints)!;
+                                          }
+                                          else
+                                          {
+                                            userPoints = (userPoints! - altroPoints)!;
+                                          }
+
+                                          setPoints(userPoints);
+                                          final upd = FirebaseFirestore.instance.collection("users")
+                                              .doc(FirebaseAuth.instance.currentUser?.uid);
+                                          upd.update({
+                                            'points': userPoints
+                                          });
+                                          final comm = FirebaseFirestore.instance.collection("community").doc(FirebaseAuth.instance.currentUser?.uid);
+                                          comm.update({
+                                            'points' : userPoints
+                                          });
+
+                                          Navigator.of(context, rootNavigator: true).pop();
+                                        },
+                                      ).show();
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      elevation: 10,
+                                      backgroundColor: Colors.red.shade300,
+                                      shape: const StadiumBorder(),
+
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 8,
+                                        horizontal: 0,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: const [
+                                          Icon(
+                                            Icons.remove,
+                                            color: Colors.white,
+                                          ),
+                                          SizedBox(
+                                            width: 14,
+                                          ),
+                                          Text(
+                                            "Rimuovi",
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.only(top: 6),
+                                  child:
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.only(top: 2),
+                                        child:
+                                        FloatingActionButton.extended(
+                                          onPressed: () {
+                                            Navigator.of(context, rootNavigator: true).pop();
+                                          },
+                                          icon: Icon( // <-- Icon
+                                            Icons.cancel_outlined,
+                                            size: 18.0,
+                                          ),
+                                          label: Text('Annulla'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 120,
+                                        child:
+                                        FloatingActionButton.extended(
+                                          onPressed: () async{
+
+                                            //int indexMonth = now.month;
+                                            //String month = months[indexMonth - 1];
+                                            //print('Mese qui $month');
+
+                                            if(flagCosto == false) {
+                                              newCostoManutenzione = cost.costo;
+                                              costoAgg = 0;
+                                            }
+
+                                            if(flagNote == false) {
+                                              newNote = cost.note;
+                                            }
+
+
+                                            if(flagDate == false) {
+                                              print(cost.data);
+                                              newDateChange = cost.data;
+                                              newNameMonth = cost.mese;
+                                            }
+
+                                            /*final doc = await FirebaseFirestore.instance
+                    .collection('CostiRifornimento')
+                    .where(
+                    'mese', isEqualTo: newNameMonth)
+                    .where('uid', isEqualTo: uid)
+                    .get();
+                var docs = doc.docs;
+                for (int i = 0; i < docs.length; i++) {
+                  sum += docs[i]['costo'];
+                }
+                for (int i = 0; i < docs.length; i++) {
+                  sumLitri += docs[i]['litri'];
+                }
+              print('costo $sum');
+              print('litri $sumLitri');
+
+                final docGeneral = await FirebaseFirestore.instance
+                    .collection('CostiGenerali').doc('2022')
+                    .collection(uid).where(
+                    'mese', isEqualTo: newNameMonth)
+                    .get();
+                var docs1 = docGeneral.docs;
+                sum1 += docs1[0]['costo'];
+
+
+              final doc1 = await FirebaseFirestore.instance.collection('CostiRifornimento').where('uid', isEqualTo: uid).where('index', isEqualTo: cost.index).get();
+              DocumentReference docu = doc1.docs[0].reference;
+              docu.update({'costo': newCostoRifornimento, 'recapRifornimento': newCostoRifornimento, 'litri': newLitri, 'recapLitri': newLitri, "data": newDateChange, "mese": newNameMonth});
+*/
+                                            if(flagDate == true) {
+                                              //Caso in cui cambio data ma scelgo un mese diverso
+                                              if(newNameMonth! != beforeNameMonth!){
+                                                double beforeSum = 0.0;
+                                                double newSum = 0.0;
+                                                double sum1Before = 0.0;
+                                                double sum1New = 0.0;
+                                                final doc = await FirebaseFirestore.instance
+                                                    .collection('CostiManutenzione')
+                                                    .where(
+                                                    'mese', isEqualTo: beforeNameMonth)
+                                                    .where('uid', isEqualTo: uid)
+                                                    .get();
+                                                var docs = doc.docs;
+                                                for (int i = 0; i < docs.length; i++) {
+                                                  beforeSum += docs[i]['costo'];
+                                                }
+                                                print('costo old $beforeSum');
+
+                                                print('before month $beforeNameMonth');
+                                                final docGeneralBefore = await FirebaseFirestore.instance
+                                                    .collection('CostiGenerali').doc('2022')
+                                                    .collection(uid).where(
+                                                    'mese', isEqualTo: beforeNameMonth)
+                                                    .get();
+                                                var docs1Before = docGeneralBefore.docs;
+                                                sum1Before += docs1Before[0]['costo'];
+                                                print('sum1Before $sum1Before');
+
+                                                final doc1 = await FirebaseFirestore.instance.collection('CostiManutenzione').where('uid', isEqualTo: uid).where('index', isEqualTo: cost.index).get();
+                                                DocumentReference docu = doc1.docs[0].reference;
+                                                docu.update({'costo': newCostoManutenzione, "data": newDateChange, "mese": newNameMonth, "note": newNote});
+
+                                                final docNew = await FirebaseFirestore.instance
+                                                    .collection('CostiManutenzione')
+                                                    .where(
+                                                    'mese', isEqualTo: newNameMonth)
+                                                    .where('uid', isEqualTo: uid)
+                                                    .get();
+                                                var docsNew = docNew.docs;
+                                                print('lunghezza ${docsNew.length}');
+                                                for (int i = 0; i < docsNew.length; i++) {
+                                                  newSum += docsNew[i]['costo'];
+                                                }
+                                                print('costo new quiqui $newSum');
+
+                                                final docGeneralAfter = await FirebaseFirestore.instance
+                                                    .collection('CostiGenerali').doc('2022')
+                                                    .collection(uid).where(
+                                                    'mese', isEqualTo: newNameMonth)
+                                                    .get();
+                                                var docs1After = docGeneralAfter.docs;
+                                                sum1New += docs1After[0]['costo'];
+                                                print('sum1New $sum1New');
+
+                                                print('beforeSum serve $beforeSum');
+                                                print('newCostManutenzione serve $newCostoManutenzione');
+                                                print('costoAgg serve $costoAgg');
+                                                print('before month serve $beforeNameMonth');
+
+                                                await FirebaseFirestore.instance.collection(
+                                                    'CostiTotaliManutenzione').doc('2022')
+                                                    .collection(uid)
+                                                    .doc(beforeNameMonth)
+                                                    .update({"costoManutenzione": beforeSum - (newCostoManutenzione! - costoAgg!)});
+
+                                                await FirebaseFirestore.instance.collection(
+                                                    'CostiTotaliManutenzione').doc('2022')
+                                                    .collection(uid)
+                                                    .doc(newNameMonth)
+                                                    .update({
+                                                  "costoManutenzione": newSum,
+                                                });
+
+                                                await FirebaseFirestore.instance.collection(
+                                                    'CostiGenerali').doc('2022')
+                                                    .collection(uid)
+                                                    .doc(beforeNameMonth)
+                                                    .update({"costo": sum1Before - (newCostoManutenzione! - costoAgg!)});
+
+                                                await FirebaseFirestore.instance.collection(
+                                                    'CostiGenerali').doc('2022')
+                                                    .collection(uid)
+                                                    .doc(newNameMonth)
+                                                    .update({"costo": sum1New + newCostoManutenzione!});
+
+                                              }
+                                              else {
+                                                //Caso in cui cambio data ma scelgo sempre lo stesso mese
+                                                double sum = 0.0;
+                                                double sum1 = 0.0;
+
+                                                print('Cambio data ma stesso mese $newNameMonth');
+
+                                                final doc1 = await FirebaseFirestore.instance.collection('CostiManutenzione').where('uid', isEqualTo: uid).where('index', isEqualTo: cost.index).get();
+                                                DocumentReference docu = doc1.docs[0].reference;
+                                                docu.update({'costo': newCostoManutenzione});
+
+                                                final doc = await FirebaseFirestore.instance
+                                                    .collection('CostiManutenzione')
+                                                    .where(
+                                                    'mese', isEqualTo: newNameMonth)
+                                                    .where('uid', isEqualTo: uid)
+                                                    .get();
+                                                var docs = doc.docs;
+                                                for (int i = 0; i < docs.length; i++) {
+                                                  sum += docs[i]['costo'];
+                                                }
+
+                                                final docGeneral = await FirebaseFirestore.instance
+                                                    .collection('CostiGenerali').doc('2022')
+                                                    .collection(uid).where(
+                                                    'mese', isEqualTo: newNameMonth)
+                                                    .get();
+                                                var docs1 = docGeneral.docs;
+                                                sum1 += docs1[0]['costo'];
+                                                print('Cambio data ma stesso mese costi gen $sum1');
+
+                                                await FirebaseFirestore.instance.collection(
+                                                    'CostiTotaliManutenzione').doc('2022')
+                                                    .collection(uid)
+                                                    .doc(newNameMonth)
+                                                    .update({
+                                                  "costoManutenzione": sum ,
+                                                });
+
+                                                await FirebaseFirestore.instance.collection(
+                                                    'CostiGenerali').doc('2022')
+                                                    .collection(uid)
+                                                    .doc(newNameMonth)
+                                                    .update({"costo": sum1 + costoAgg! });
+                                              }
+                                            }
+                                            //Caso in cui non cambio data
+                                            else {
+
+                                              double sum = 0.0;
+                                              double sum1 = 0.0;
+
+                                              final doc = await FirebaseFirestore.instance
+                                                  .collection('CostiManutenzione')
+                                                  .where(
+                                                  'mese', isEqualTo: newNameMonth)
+                                                  .where('uid', isEqualTo: uid)
+                                                  .get();
+                                              var docs = doc.docs;
+                                              for (int i = 0; i < docs.length; i++) {
+                                                sum += docs[i]['costo'];
+                                              }
+
+                                              final docGeneral = await FirebaseFirestore.instance
+                                                  .collection('CostiGenerali').doc('2022')
+                                                  .collection(uid).where(
+                                                  'mese', isEqualTo: newNameMonth)
+                                                  .get();
+                                              var docs1 = docGeneral.docs;
+                                              sum1 += docs1[0]['costo'];
+
+                                              final doc1 = await FirebaseFirestore.instance.collection('CostiManutenzione').where('uid', isEqualTo: uid).where('index', isEqualTo: cost.index).get();
+                                              DocumentReference docu = doc1.docs[0].reference;
+                                              docu.update({'costo': newCostoManutenzione, "data": newDateChange, "mese": newNameMonth});
+
+                                              await FirebaseFirestore.instance.collection(
+                                                  'CostiTotaliManutenzione').doc('2022')
+                                                  .collection(uid)
+                                                  .doc(newNameMonth)
+                                                  .update({
+                                                "costoManutenzione": sum + (costoAgg!),
+                                              });
+
+                                              await FirebaseFirestore.instance.collection(
+                                                  'CostiGenerali').doc('2022')
+                                                  .collection(uid)
+                                                  .doc(newNameMonth)
+                                                  .update({"costo": sum1 + (costoAgg!)});
+                                            }
+
+                                            Navigator.of(context, rootNavigator: true).pop();
+
+                                          },
+                                          icon: Icon( // <-- Icon
+                                            Icons.check_circle,
+                                            size: 18.0,
+                                          ),
+                                          label: Text('Ok'),
+                                          backgroundColor: Colors.green.shade400,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      )
-
-                  ),
-                  btnOkOnPress: () async{
-
-                    int indexMonth = now.month;
-                    String month = months[indexMonth - 1];
-
-                    if(flagCosto == false) {
-                      newCostoManutenzione = cost.costo;
-                      costoAgg = 0;
-
+                        );
+                      },
+                      );
                     }
-                    if(flagNote == false) {
-                      newNote = cost.note;
-                    }
-
-                    if(flagDate == false) {
-                      newDate = cost.data;
-                      print(newDate);
-                    }
-
-                    final doc = await FirebaseFirestore.instance
-                        .collection('CostiManutenzione')
-                        .where(
-                        'mese', isEqualTo: month)
-                        .where('uid', isEqualTo: uid)
-                        .get();
-                    var docs = doc.docs;
-                    double sum = 0.0;
-                    for (int i = 0; i < docs.length; i++) {
-                      sum += docs[i]['costo'];
-                      print('costo $sum');
-                    }
-
-                    final docGeneral = await FirebaseFirestore.instance
-                        .collection('CostiGenerali').doc('2022')
-                        .collection(uid).where(
-                        'mese', isEqualTo: month)
-                        .get();
-                    var docs1 = docGeneral.docs;
-                    double sum1 = 0.0;
-                    sum1 += docs1[0]['costo'];
-
-
-                    final doc1 = await FirebaseFirestore.instance.collection('CostiManutenzione').where('uid', isEqualTo: uid).where('index', isEqualTo: cost.index).get();
-                    DocumentReference docu =  doc1.docs[0].reference;
-                    docu.update({'costo': newCostoManutenzione, "data": newDate, "note": newNote});
-
-                    //print('somma precedente $sum');
-
-                    //print(sum + (costoAgg!));
-
-                    await FirebaseFirestore.instance.collection(
-                        'CostiTotaliManutenzione').doc('2022')
-                        .collection(uid)
-                        .doc(month)
-                        .update({"costoManutenzione": sum + (costoAgg!)});
-
-                    await FirebaseFirestore.instance.collection(
-                        'CostiGenerali').doc('2022')
-                        .collection(uid)
-                        .doc(month)
-                        .update({"costo": sum1 + (costoAgg!)});
-
-                  },
-                  btnCancelOnPress: () {},
-                  btnCancelText: 'Annulla',
-                  btnCancelIcon: Icons.cancel_outlined,
-                  btnOkIcon: Icons.check_circle,
-                ).show()
+                ),
               },
               icon: Icon(Icons.edit, color: Colors.grey,)
           ),
