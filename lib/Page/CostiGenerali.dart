@@ -23,18 +23,18 @@ class CostiGeneraliState extends State<CostiGenerali>{
   //var current_month = now.month;
 
   String? month = months[now.month - 1]; //Il mese iniziale di visualizzazione dei recap è quello corrente
-  String? year;
+  String? year = now.year.toString(); //L'anno iniziale di visualizzazione dei recap è quello corrente
   String? fullNameMonth;
 
   @override
   final streamChart = FirebaseFirestore.instance.collection('CostiGenerali')
-      .doc('2022').collection(FirebaseAuth.instance.currentUser!.uid).orderBy('index', descending: false)
+      .doc('2023').collection(FirebaseAuth.instance.currentUser!.uid).orderBy('index', descending: false)
       .snapshots(includeMetadataChanges: true);
 
   Stream<List<RecapCosti>> readRecapRifornimenti() =>
       FirebaseFirestore.instance
           .collection('CostiTotali')
-          .doc('2022')
+          .doc('$year')
           .collection(FirebaseAuth.instance.currentUser!.uid)
           .where('mese', isEqualTo: month)
           .snapshots()
@@ -45,7 +45,7 @@ class CostiGeneraliState extends State<CostiGenerali>{
   Stream<List<RecapCosti>> readRecapManutenzioni() =>
       FirebaseFirestore.instance
           .collection('CostiTotaliManutenzione')
-          .doc('2022')
+          .doc('$year')
           .collection(FirebaseAuth.instance.currentUser!.uid)
           .where('mese', isEqualTo: month)
           .snapshots()
@@ -56,7 +56,7 @@ class CostiGeneraliState extends State<CostiGenerali>{
   Stream<List<RecapCosti>> readRecapScadenze() =>
       FirebaseFirestore.instance
           .collection('CostiTotaliScadenze')
-          .doc('2022')
+          .doc('$year')
           .collection(FirebaseAuth.instance.currentUser!.uid)
           .where('mese', isEqualTo: month)
           .snapshots()
@@ -168,7 +168,7 @@ class CostiGeneraliState extends State<CostiGenerali>{
                 child:
                 TextButton.icon(
                   icon: Icon(Icons.filter_alt_outlined, color: Colors.white,),
-                  label: (month != null && year == null)? Text('Filtra per mese ed anno', style: TextStyle(color: Colors.white),) : Text('$fullNameMonth \t $year', style: TextStyle(color: Colors.white),),
+                  label: (month != null && year != null && fullNameMonth == null) ? Text('Filtra per mese ed anno', style: TextStyle(color: Colors.white),) : Text('$fullNameMonth \t $year', style: TextStyle(color: Colors.white),),
                   style: TextButton.styleFrom(
                     elevation: 10.0,
                     backgroundColor: Colors.lightBlue.shade200,
@@ -232,12 +232,7 @@ class CostiGeneraliState extends State<CostiGenerali>{
                                   trailingImage:
                                   Image.asset('images/CarFuelImage.png', height: 110),
                                   color: Colors.white,
-                                  onTab: () async {
-                                    final test = await FirebaseFirestore.instance.collection('CostiRecap').doc('2022').collection(FirebaseAuth.instance.currentUser!.uid).where('mese', isEqualTo: month).get();
-                                    var docs = test.docs;
-                                    double sum1 = 0.0;
-                                    sum1 += docs[0]['rifornimento'];
-                                    print(sum1);
+                                  onTab: () {
                                   }
                               ),
 
@@ -256,12 +251,7 @@ class CostiGeneraliState extends State<CostiGenerali>{
                                 trailingImage:
                                 Image.asset('images/CarFuelImage.png', height: 110),
                                 color: Colors.white,
-                                onTab: () async {
-                                  final test = await FirebaseFirestore.instance.collection('CostiRecap').doc('2022').collection(FirebaseAuth.instance.currentUser!.uid).where('mese', isEqualTo: month).get();
-                                  var docs = test.docs;
-                                  double sum1 = 0.0;
-                                  sum1 += docs[0]['rifornimento'];
-                                  print(sum1);
+                                onTab: () {
                                 }
                             ),
 

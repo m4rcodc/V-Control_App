@@ -34,6 +34,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
   String? newNote;
   String? newDate;
   String? newDateChange;
+  String? yearChange;
   String? newNameMonth;
   String? lastData;
   double? costoAgg = 0;
@@ -77,7 +78,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
 
   @override
   final streamChart = FirebaseFirestore.instance.collection('CostiTotaliManutenzione')
-      .doc('2022').collection(FirebaseAuth.instance.currentUser!.uid).orderBy('index', descending: false)
+      .doc('2023').collection(FirebaseAuth.instance.currentUser!.uid).orderBy('index', descending: false)
       .snapshots(includeMetadataChanges: true);
 
   String uid = FirebaseAuth.instance.currentUser!.uid;
@@ -189,6 +190,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                         if (newDate == null) return;
                                         setState(() {
                                           now = newDate;
+                                          yearChange = now.year.toString();
                                           newDateChange = formatter.format(now);
                                           var month = now.month;
                                           newNameMonth = months[month - 1];
@@ -360,11 +362,13 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                           final docMonth = await FirebaseFirestore.instance.collection('CostiManutenzione').where('uid', isEqualTo: uid).where('index', isEqualTo: cost.index).get();
                                           var docsMonth = docMonth.docs;
                                           String month = docsMonth[0]['mese'];
+                                          String year = docsMonth[0]['year'];
 
                                           final doc = await FirebaseFirestore.instance
                                               .collection('CostiManutenzione')
                                               .where(
                                               'mese', isEqualTo: month)
+                                              .where('year', isEqualTo: year)
                                               .where('uid', isEqualTo: uid)
                                               .get();
                                           var docs = doc.docs;
@@ -375,7 +379,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                           }
 
                                           final docGeneral = await FirebaseFirestore.instance
-                                              .collection('CostiGenerali').doc('2022')
+                                              .collection('CostiGenerali').doc(year)
                                               .collection(uid).where(
                                               'mese', isEqualTo: month)
                                               .get();
@@ -384,13 +388,13 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                           sum1 += docs1[0]['costo'];
 
                                           await FirebaseFirestore.instance.collection(
-                                              'CostiTotaliManutenzione').doc('2022')
+                                              'CostiTotaliManutenzione').doc(year)
                                               .collection(uid)
                                               .doc(month)
                                               .update({"costoManutenzione": sum - (cost.costo!)});
 
                                           await FirebaseFirestore.instance.collection(
-                                              'CostiGenerali').doc('2022')
+                                              'CostiGenerali').doc(year)
                                               .collection(uid)
                                               .doc(month)
                                               .update({"costo": sum1 - (cost.costo!)});
@@ -517,6 +521,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                               print(cost.data);
                                               newDateChange = cost.data;
                                               newNameMonth = cost.mese;
+                                              yearChange = cost.year;
                                             }
 
                                             /*final doc = await FirebaseFirestore.instance
@@ -559,6 +564,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                                     .collection('CostiManutenzione')
                                                     .where(
                                                     'mese', isEqualTo: beforeNameMonth)
+                                                    .where('year', isEqualTo: yearChange)
                                                     .where('uid', isEqualTo: uid)
                                                     .get();
                                                 var docs = doc.docs;
@@ -569,7 +575,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
 
                                                 print('before month $beforeNameMonth');
                                                 final docGeneralBefore = await FirebaseFirestore.instance
-                                                    .collection('CostiGenerali').doc('2022')
+                                                    .collection('CostiGenerali').doc(yearChange)
                                                     .collection(uid).where(
                                                     'mese', isEqualTo: beforeNameMonth)
                                                     .get();
@@ -585,6 +591,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                                     .collection('CostiManutenzione')
                                                     .where(
                                                     'mese', isEqualTo: newNameMonth)
+                                                    .where('year', isEqualTo: yearChange)
                                                     .where('uid', isEqualTo: uid)
                                                     .get();
                                                 var docsNew = docNew.docs;
@@ -595,7 +602,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                                 print('costo new quiqui $newSum');
 
                                                 final docGeneralAfter = await FirebaseFirestore.instance
-                                                    .collection('CostiGenerali').doc('2022')
+                                                    .collection('CostiGenerali').doc(yearChange)
                                                     .collection(uid).where(
                                                     'mese', isEqualTo: newNameMonth)
                                                     .get();
@@ -609,13 +616,13 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                                 print('before month serve $beforeNameMonth');
 
                                                 await FirebaseFirestore.instance.collection(
-                                                    'CostiTotaliManutenzione').doc('2022')
+                                                    'CostiTotaliManutenzione').doc(yearChange)
                                                     .collection(uid)
                                                     .doc(beforeNameMonth)
                                                     .update({"costoManutenzione": beforeSum - (newCostoManutenzione! - costoAgg!)});
 
                                                 await FirebaseFirestore.instance.collection(
-                                                    'CostiTotaliManutenzione').doc('2022')
+                                                    'CostiTotaliManutenzione').doc(yearChange)
                                                     .collection(uid)
                                                     .doc(newNameMonth)
                                                     .update({
@@ -623,13 +630,13 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                                 });
 
                                                 await FirebaseFirestore.instance.collection(
-                                                    'CostiGenerali').doc('2022')
+                                                    'CostiGenerali').doc(yearChange)
                                                     .collection(uid)
                                                     .doc(beforeNameMonth)
                                                     .update({"costo": sum1Before - (newCostoManutenzione! - costoAgg!)});
 
                                                 await FirebaseFirestore.instance.collection(
-                                                    'CostiGenerali').doc('2022')
+                                                    'CostiGenerali').doc(yearChange)
                                                     .collection(uid)
                                                     .doc(newNameMonth)
                                                     .update({"costo": sum1New + newCostoManutenzione!});
@@ -650,6 +657,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                                     .collection('CostiManutenzione')
                                                     .where(
                                                     'mese', isEqualTo: newNameMonth)
+                                                    .where('year', isEqualTo: yearChange)
                                                     .where('uid', isEqualTo: uid)
                                                     .get();
                                                 var docs = doc.docs;
@@ -658,7 +666,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                                 }
 
                                                 final docGeneral = await FirebaseFirestore.instance
-                                                    .collection('CostiGenerali').doc('2022')
+                                                    .collection('CostiGenerali').doc(yearChange)
                                                     .collection(uid).where(
                                                     'mese', isEqualTo: newNameMonth)
                                                     .get();
@@ -667,7 +675,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                                 print('Cambio data ma stesso mese costi gen $sum1');
 
                                                 await FirebaseFirestore.instance.collection(
-                                                    'CostiTotaliManutenzione').doc('2022')
+                                                    'CostiTotaliManutenzione').doc(yearChange)
                                                     .collection(uid)
                                                     .doc(newNameMonth)
                                                     .update({
@@ -675,7 +683,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                                 });
 
                                                 await FirebaseFirestore.instance.collection(
-                                                    'CostiGenerali').doc('2022')
+                                                    'CostiGenerali').doc(yearChange)
                                                     .collection(uid)
                                                     .doc(newNameMonth)
                                                     .update({"costo": sum1 + costoAgg! });
@@ -691,6 +699,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                                   .collection('CostiManutenzione')
                                                   .where(
                                                   'mese', isEqualTo: newNameMonth)
+                                                  .where('year', isEqualTo: yearChange)
                                                   .where('uid', isEqualTo: uid)
                                                   .get();
                                               var docs = doc.docs;
@@ -699,7 +708,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                               }
 
                                               final docGeneral = await FirebaseFirestore.instance
-                                                  .collection('CostiGenerali').doc('2022')
+                                                  .collection('CostiGenerali').doc(yearChange)
                                                   .collection(uid).where(
                                                   'mese', isEqualTo: newNameMonth)
                                                   .get();
@@ -711,7 +720,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                               docu.update({'costo': newCostoManutenzione, "data": newDateChange, "mese": newNameMonth});
 
                                               await FirebaseFirestore.instance.collection(
-                                                  'CostiTotaliManutenzione').doc('2022')
+                                                  'CostiTotaliManutenzione').doc(yearChange)
                                                   .collection(uid)
                                                   .doc(newNameMonth)
                                                   .update({
@@ -719,7 +728,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                               });
 
                                               await FirebaseFirestore.instance.collection(
-                                                  'CostiGenerali').doc('2022')
+                                                  'CostiGenerali').doc(yearChange)
                                                   .collection(uid)
                                                   .doc(newNameMonth)
                                                   .update({"costo": sum1 + (costoAgg!)});

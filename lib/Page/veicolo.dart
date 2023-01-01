@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:car_control/Page/addVeicolo.dart';
 import 'package:car_control/Page/home_page.dart';
@@ -9,7 +7,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/userModel.dart';
 import 'login_page.dart';
 
 class Veicolo extends StatefulWidget {

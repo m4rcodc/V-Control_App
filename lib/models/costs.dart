@@ -8,6 +8,7 @@ class Costs {
   String? mese;
   double? index;
   String? note;
+  String? year;
 
   Costs({
     required this.costo,
@@ -17,7 +18,8 @@ class Costs {
     required this.litri,
     required this.mese,
     required this.index,
-    required this.note
+    required this.note,
+    required this.year
   });
 
   static Costs fromJson(Map<String, dynamic> json) => Costs(
@@ -29,7 +31,8 @@ class Costs {
       litri: json['litri'],
       mese: json['mese'],
       index: json['index'],
-      note: json['note']
+      note: json['note'],
+      year: json['year']
 
   );
 

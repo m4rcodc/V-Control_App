@@ -448,10 +448,12 @@ class _CarburanteState extends State<Carburante> {
                             //CollectionReference costiTot = await FirebaseFirestore.instance.collection('CostiTotali').doc('2022').collection('Cost').doc();
                             current_month = now.month;
                             current_year = now.year;
+                            print('year $current_year');
                             final doc = await FirebaseFirestore.instance
                                 .collection('CostiRifornimento')
                                 .where(
                                 'mese', isEqualTo: months[current_month! - 1])
+                                .where('year', isEqualTo: current_year)
                                 .where('uid', isEqualTo: user?.uid)
                                 .get();
                             var docs = doc.docs;
@@ -484,21 +486,21 @@ class _CarburanteState extends State<Carburante> {
 
                             final test = await FirebaseFirestore.instance
                                 .collection('CostiTotali')
-                                .doc('2022')
+                                .doc('$current_year')
                                 .collection(
                                 user!.uid)
                                 .get();
                             final generalCosts = await FirebaseFirestore
                                 .instance
                                 .collection('CostiGenerali')
-                                .doc('2022')
+                                .doc('$current_year')
                                 .collection(user!.uid)
                                 .get();
 
                             if (test.docs.isEmpty) {
                               final docu = await FirebaseFirestore.instance
                                   .collection('CostiTotali')
-                                  .doc('2022')
+                                  .doc('$current_year')
                                   .collection(user!.uid);
                               for (int i = 0; i < 12; i++) {
                                 docu.doc(months[i]).set(
@@ -513,7 +515,7 @@ class _CarburanteState extends State<Carburante> {
                             if (generalCosts.docs.isEmpty) {
                               final docu = await FirebaseFirestore
                                   .instance.collection('CostiGenerali')
-                                  .doc('2022')
+                                  .doc('$current_year')
                                   .collection(user!.uid);
                               for (int i = 0; i < 12; i++) {
                                 docu.doc(months[i]).set(
@@ -628,7 +630,7 @@ class _CarburanteState extends State<Carburante> {
 
 
                             final doc1 = await FirebaseFirestore.instance
-                                .collection('CostiGenerali').doc('2022')
+                                .collection('CostiGenerali').doc('$current_year')
                                 .collection(user.uid).where(
                                 'mese', isEqualTo: months[current_month! - 1])
                                 .get();
@@ -639,7 +641,7 @@ class _CarburanteState extends State<Carburante> {
                             print('Costo sum1 carburante $sum1');
 
                             await FirebaseFirestore.instance.collection(
-                                'CostiTotali').doc('2022')
+                                'CostiTotali').doc('$current_year')
                                 .collection(user.uid)
                                 .doc('${months[current_month! - 1]}')
                                 .update({"costoRifornimento": sum + costoRifornimento!, "totaleLitri": sumLitri + double.tryParse(labelLitri!)!});
@@ -647,7 +649,7 @@ class _CarburanteState extends State<Carburante> {
                             print(sum1 + costoRifornimento!);
 
                             await FirebaseFirestore.instance.collection(
-                                'CostiGenerali').doc('2022')
+                                'CostiGenerali').doc('$current_year')
                                 .collection(user.uid)
                                 .doc('${months[current_month! - 1]}')
                                 .update({"costo": sum1 + costoRifornimento!});
@@ -662,7 +664,6 @@ class _CarburanteState extends State<Carburante> {
                   elevation: 10,
                   backgroundColor: Colors.blue.shade200,
                   shape: const StadiumBorder(),
-
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
