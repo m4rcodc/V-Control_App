@@ -60,7 +60,7 @@ class StartState extends State<WelcomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                flex: 6,
+                flex: 5,
                   //padding: const EdgeInsets.only(top: 35, left: 25),
                   child: Align(
                       alignment: Alignment.topCenter,

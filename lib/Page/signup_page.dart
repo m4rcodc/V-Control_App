@@ -88,18 +88,35 @@ class _SignupPageState extends State<SignupPage> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         resizeToAvoidBottomInset: true,
+        extendBody: true,
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          iconTheme: IconThemeData(
+            color: Colors.blue.shade300, // <-- SEE HERE
+          ),
+          title: Text('Registrati',
+              style: TextStyle(color: Colors.blue.shade300)),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          elevation: 0.0,
+          //toolbarHeight: 55,
+        ),
         body: Container(
           decoration:const BoxDecoration(
               color: Color(0xFFE3F2FD)
           ),
           child:
           Container(
-            padding: EdgeInsets.all(20),
+            alignment: Alignment.topCenter,
+            margin: EdgeInsets.only(top: MediaQuery
+                .of(context)
+                .size
+                .height * 0.015),
             child:
             Image.asset(
               'images/RegistrationImage.png',
               width: MediaQuery.of(context).size.width,
-              scale: 1.75,
+              scale: 2,
             ),
           ),
         ),

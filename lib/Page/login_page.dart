@@ -1,14 +1,14 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
+import 'package:car_control/Page/resetPassword.dart';
 import 'package:car_control/Page/signup_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_signin_button/button_list.dart';
 import 'package:flutter_signin_button/button_view.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'dart:convert' show JsonEncoder, json;
-import 'package:http/http.dart' as http;
 import 'package:lottie/lottie.dart';
 import 'home_page.dart';
 import 'package:page_transition/page_transition.dart';
@@ -103,7 +103,6 @@ class _LoginPageState extends State<LoginPage> {
       return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(
-
           resizeToAvoidBottomInset: false,
           body: Container(
             decoration: const BoxDecoration(
@@ -119,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Container(
-                  height: 510,
+                  height: MediaQuery.of(context).size.height * 0.71,
                   width: double.infinity,
                   decoration: const BoxDecoration(
                     color: Colors.white,
@@ -136,15 +135,19 @@ class _LoginPageState extends State<LoginPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            const SizedBox(height: 45),
+                            Container(
+                                  alignment: Alignment.center,
+                                  child:
+                                  Image.asset('images/LogoApp.png', scale: 5),
 
-
+                            ),
+                            const SizedBox(height: 20),
                             TextFormField(
-                              autofocus: true,
-                              textInputAction: TextInputAction.next,
-
+                              //autofocus: true,
+                              //textInputAction: TextInputAction.next,
                               decoration: InputDecoration(
                                 filled: true,
+                                fillColor:  Colors.lightBlue.shade50,
                                 hintText: 'Inserisci la tua email',
                                 labelText: 'Email',
                                 border: OutlineInputBorder(
@@ -154,10 +157,7 @@ class _LoginPageState extends State<LoginPage> {
                                   horizontal: 20,
                                   vertical: 20,
                                 ),
-
-
                               ),
-
 
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -180,15 +180,15 @@ class _LoginPageState extends State<LoginPage> {
                               },
                             ),
 
-                            const SizedBox(height: 8.0),
+                            const SizedBox(height: 28.0),
 
                             TextFormField(
                               obscureText: true,
                               autofocus: true,
                               textInputAction: TextInputAction.next,
-
                               decoration: InputDecoration(
                                 filled: true,
+                                fillColor:  Colors.lightBlue.shade50,
                                 hintText: 'Inserisci la password',
                                 labelText: 'Password',
                                 border: OutlineInputBorder(
@@ -228,11 +228,9 @@ class _LoginPageState extends State<LoginPage> {
                               },
                             ),
 
-                            const SizedBox(height: 8.0),
-
+                            const SizedBox(height: 25.0),
 
                             Container(
-
                               height: 55,
                               // for an exact replicate, remove the padding.
                               // pour une réplique exact, enlever le padding.
@@ -286,11 +284,31 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                             const SizedBox(height: 20),
-                            const Center(
-                              child: Text('Password dimenticata ?'),),
+                             Center(
+                              child: RichText(
+                                  text: TextSpan(
+                                    text: 'Password dimenticata? ',
+                                    style: TextStyle(
+                                      color: Colors.black54
+                                    ),
+                                    children: <TextSpan> [
+                                      TextSpan(
+                                        text: 'Clicca qui!',
+                                          recognizer: TapGestureRecognizer()..onTap = () {
+                                            Navigator.of(context).push(MaterialPageRoute(
+                                                builder: (context) => ResetPassword()));
+                                          },
+                                          style: TextStyle (
+                                          color: Colors.blue,
+                                        )
+                                      )
+                                    ]
+                                  )
+                              ),
+                             ),
                             const SizedBox(height: 20),
                             Padding(
-                              padding: const EdgeInsets.only(top: 25.0),
+                              padding: const EdgeInsets.only(top: 20.0),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment
                                     .spaceEvenly,
@@ -321,14 +339,8 @@ class _LoginPageState extends State<LoginPage> {
                                       Navigator.pushNamedAndRemoveUntil(context, HomePage.routeName, (route) => false);
 
                                     }
-
                                   ),
-                                  SignInButton(
-                                    Buttons.Facebook,
-                                    text: 'Accedi con Facebook',
-                                    onPressed: () {},
-
-                                  ),
+                                  SizedBox(height: 10),
                                   SignInButton(
                                     Buttons.Email,
                                     text: "Registrati con email",
@@ -340,7 +352,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ],
                               ),
                             ),
-                            const Divider(thickness: 0, color: Colors.white),
+
 
                           ],
                         ),

@@ -38,9 +38,11 @@ class _CarburanteState extends State<Carburante> {
   int? kmVeicolo;
   int? oldKilometers;
   double? index = 1;
+  String? fuel;
   late double totalCost;
   int? userPoints;
   double? indexTable = 0;
+
 
 
   //Variabile che tiene conto quanti km ha percorso il veicolo in precedenza dall'ultima volta che ha ottenuto
@@ -60,6 +62,14 @@ class _CarburanteState extends State<Carburante> {
         .get();
     userPoints = doc.docs[0].get('points'); //Prelevo il valore di fuel
   }
+
+  readFuel() async{
+   final doc = await FirebaseFirestore.instance
+        .collection('vehicle')
+        .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+        .get();
+      fuel = doc.docs[0].get('fuel');
+    }
 
 
   DateTime now = new DateTime.now();
@@ -293,7 +303,7 @@ class _CarburanteState extends State<Carburante> {
                       fontSize: 14,
                       color: Colors.black54,
                     ),
-                    labelText: 'Costo al litro',
+                    labelText: fuel == 'Elettrica' ? 'Costo al Kw/h' : 'Costo al litro',
                     filled: true,
                     fillColor: Colors.white,
                     enabledBorder: OutlineInputBorder(
@@ -343,7 +353,7 @@ class _CarburanteState extends State<Carburante> {
                   //labelLitri == null ? '' : calcoloLitri(),
                   hintStyle: const TextStyle(fontSize: 14),
                   floatingLabelBehavior: FloatingLabelBehavior.always,
-                  labelText: 'Litri',
+                  labelText: fuel == 'Elettrica' ? 'Kw/h' : 'Litri',
                   labelStyle: const TextStyle(
                       fontSize: 14,
                       color: Colors.black54

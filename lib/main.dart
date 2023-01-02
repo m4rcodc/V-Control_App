@@ -11,6 +11,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'Page/addVeicolo.dart';
+import 'Page/resetPassword.dart';
 import 'Page/welcome_page.dart';
 import 'Page/login_page.dart';
 import 'package:car_control/Page/signup_page.dart';
@@ -65,6 +66,7 @@ class MyApp extends StatelessWidget {
         AddRevisione.routeName: (context) => AddRevisione(),
         Costi.routeName: (context) => Costi(0),
         CostiRifornimento.routeName: (context) => CostiRifornimento(),
+        ResetPassword.routeName: (context) => ResetPassword()
 
       },
     );

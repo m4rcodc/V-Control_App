@@ -91,7 +91,6 @@ class _VeicoloState extends State<Veicolo>{
   }
 
 
-//ciao
   Widget buildVehicle(Vehicle vehicle) => Stack(
     children: [
       Container(
@@ -334,8 +333,6 @@ class _VeicoloState extends State<Veicolo>{
       userPoints = (userPoints! - ibridPoints)!;
       }
 
-
-
       final comm = FirebaseFirestore.instance.collection(
       "community").doc(
       FirebaseAuth.instance.currentUser?.uid);
@@ -359,6 +356,7 @@ class _VeicoloState extends State<Veicolo>{
         docRif.docs[i].reference.delete();
       }
 
+
       final docMtz = await FirebaseFirestore.instance
           .collection('CostiManutenzione')
           .where('uid', isEqualTo: FirebaseAuth.instance
@@ -370,9 +368,9 @@ class _VeicoloState extends State<Veicolo>{
         docMtz.docs[i].reference.delete();
       }
 
-      //Cancello Costi Totali Rifornimento
+      //Cancello Costi Totali Rifornimento 2023
       var docTotaliRifornimenti = await FirebaseFirestore.instance
-          .collection('CostiTotali').doc('2022')
+          .collection('CostiTotali').doc('2023')
           .collection(FirebaseAuth.instance.currentUser!.uid).get();
       int sizeDocTotalRif = docTotaliRifornimenti.size;
       print('Questa è la taglia $sizeDocTotalRif');
@@ -380,22 +378,50 @@ class _VeicoloState extends State<Veicolo>{
         docTotaliRifornimenti.docs[i].reference.update({"costoRifornimento": 0, "totaleLitri": 0});
       }
 
-      //Cancello Costi Totali Manutenzione
+      //Cancello Costi Totali Rifornimento 2022
+      var docTotaliRifornimenti2k22 = await FirebaseFirestore.instance
+          .collection('CostiTotali').doc('2022')
+          .collection(FirebaseAuth.instance.currentUser!.uid).get();
+      int sizeDocTotalRif2k22 = docTotaliRifornimenti2k22.size;
+      print('Questa è la taglia $sizeDocTotalRif2k22');
+      for(int i = 0; i < sizeDocTotalRif2k22; i++){
+        docTotaliRifornimenti2k22.docs[i].reference.update({"costoRifornimento": 0, "totaleLitri": 0});
+      }
+
+      //Cancello Costi Totali Manutenzione 2023
       var docTotaliManutenzioni = await FirebaseFirestore.instance
-          .collection('CostiTotaliManutenzione').doc('2022')
+          .collection('CostiTotaliManutenzione').doc('2023')
           .collection(FirebaseAuth.instance.currentUser!.uid).get();
       int sizeDocTotalMtz = docTotaliManutenzioni.size;
       for(int i = 0; i < sizeDocTotalMtz; i++){
         docTotaliManutenzioni.docs[i].reference.update({"costoManutenzione": 0});
       }
 
-      //Cancello Costi Generali
+      //Cancello Costi Totali Manutenzione 2022
+      var docTotaliManutenzioni2K22 = await FirebaseFirestore.instance
+          .collection('CostiTotaliManutenzione').doc('2022')
+          .collection(FirebaseAuth.instance.currentUser!.uid).get();
+      int sizeDocTotalMtz2K22 = docTotaliManutenzioni2K22.size;
+      for(int i = 0; i < sizeDocTotalMtz2K22; i++){
+        docTotaliManutenzioni2K22.docs[i].reference.update({"costoManutenzione": 0});
+      }
+
+      //Cancello Costi Generali 2023
       var docCostiGenerali = await FirebaseFirestore.instance
-          .collection('CostiGenerali').doc('2022')
+          .collection('CostiGenerali').doc('2023')
           .collection(FirebaseAuth.instance.currentUser!.uid).get();
       int sizeCostiGenerali = docCostiGenerali.size;
       for(int i = 0; i < sizeCostiGenerali; i++){
         docCostiGenerali.docs[i].reference.update({"costo": 0});
+      }
+
+      //Cancello Costi Generali 2022
+      var docCostiGenerali2K22 = await FirebaseFirestore.instance
+          .collection('CostiGenerali').doc('2022')
+          .collection(FirebaseAuth.instance.currentUser!.uid).get();
+      int sizeCostiGenerali2K22 = docCostiGenerali2K22.size;
+      for(int i = 0; i < sizeCostiGenerali2K22; i++){
+        docCostiGenerali2K22.docs[i].reference.update({"costo": 0});
       }
 
       },
