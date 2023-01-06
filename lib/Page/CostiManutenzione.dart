@@ -356,6 +356,8 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                         btnCancelOnPress: () {},
                                         btnOkOnPress: () async {
 
+                                          await readPoints();
+
                                           //int indexMonth = now.month;
                                           //String month = months[indexMonth - 1];
 

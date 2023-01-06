@@ -179,7 +179,8 @@ class _VeicoloState extends State<Veicolo>{
                     firstText: "Marca",
                     secondText: '${vehicle.make}',
                     icon: vehicle.logoImage == null ? Image.asset('images/car-search-icon.png',width: 80,
-                      color: Colors.lightBlue ,)
+                      height: 90,
+                      color: Colors.lightBlue.shade300 ,)
                         :  Image.network(
                       '${vehicle.logoImage}',
                       width: 80,

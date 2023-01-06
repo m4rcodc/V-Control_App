@@ -661,6 +661,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                               setState(() {
                                                                 make = value;
                                                                 url = null;
+                                                                setDefaultModel = true;
                                                               });
                                                             },
                                                           ),
