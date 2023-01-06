@@ -5,8 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/communityModel.dart';
-String? modelV='';
-String? fuelV='';
+
 
 String infoPunteggioRifornimento = "L'assegnazione del punteggio mediante rifornimento seguirà le seguenti regole ed avverrà ogni 100km percorsi.\n"
                                    "La soglia di riferimento è 2 litri rispetto al consumo medio del veicolo, se l'utente si troverà dopo 100 km percorsi al di sotto di tale soglia\n"
@@ -25,7 +24,9 @@ class _CommunityState extends State<Community>{
   List<String> namePodium = [];
   List<int> pointsPodium = [];
   List<String> imagePodium = [];
-
+  String? modelV='';
+  String? fuelV='';
+  String? makeV = '';
 
   List<CommunityModel> communityProfile = [];
 
@@ -55,11 +56,12 @@ late Stream<List<CommunityModel>> retrieveCommunityPoints;
         .get().then((value){
       modelV = value.docs[0].get('model');
       fuelV = value.docs[0].get('fuel');
+      makeV = value.docs[0].get('make');
     });
 
     debugPrint("Il modello è: $modelV e il fuel $fuelV");
 
-    if(modelV == null || fuelV== null || modelV == '' || fuelV == '')
+    if(makeV == null || modelV == null || fuelV== null || modelV == '' || fuelV == '' || makeV == '')
       {
         yield* FirebaseFirestore.instance
             .collection('community')
@@ -70,7 +72,7 @@ late Stream<List<CommunityModel>> retrieveCommunityPoints;
                 .toList());
       }
     yield* FirebaseFirestore.instance
-            .collection('community').where('model', isEqualTo: modelV).where(
+            .collection('community').where('make', isEqualTo: makeV).where('model', isEqualTo: modelV).where(
             'fuel', isEqualTo: fuelV)
             .orderBy('points', descending: true)
             .snapshots()

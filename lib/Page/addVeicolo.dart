@@ -61,6 +61,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
   int? consumoMedioBenzina;
   int? consumoMedioDiesel;
   int? consumoMedioDefault;
+  bool sceltaManuale = false;
 
   File? image;
   String? imageUrl;
@@ -103,17 +104,25 @@ class _AddVeicoloState extends State<AddVeicolo> {
     userPoints = doc.docs[0].get('points'); //Prelevo il valore di fuel//Prelevo il valore di fuel
   }
 
-  readConsumoMedio (String fuel) async{
-    final doc = await FirebaseFirestore.instance
-        .collection('Model')
-        .where('model', isEqualTo: model)
-        .get().then((value) {
-      consumoMedioDefault = value.docs[0].get('consumoMedio');
-      consumoMedio = value.docs[0].get('consumoMedio$fuel');
+  readConsumoMedio (String fuel, bool sceltaManuale) async{
 
-    }).onError((error, stackTrace) {
-      consumoMedio = consumoMedioDefault;
-    });
+    if(sceltaManuale == false)
+      {
+        final doc = await FirebaseFirestore.instance
+            .collection('Model')
+            .where('model', isEqualTo: model)
+            .get().then((value) {
+          consumoMedioDefault = value.docs[0].get('consumoMedio');
+          consumoMedio = value.docs[0].get('consumoMedio$fuel');
+
+        }).onError((error, stackTrace) {
+          consumoMedio = consumoMedioDefault;
+        });
+      }
+    else{
+      consumoMedio = 0;
+    }
+
   }
 
 
@@ -608,7 +617,6 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                     make = snapshot.data.docs[4]['name'];
                                                     url = snapshot.data.docs[4]['logo'];
                                                     setDefaultModel = true;
-
                                                   }
                                                   ),
                                                   Navigator.pop(context),
@@ -662,6 +670,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                                 make = value;
                                                                 url = null;
                                                                 setDefaultModel = true;
+                                                                sceltaManuale = true;
                                                               });
                                                             },
                                                           ),
@@ -764,6 +773,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                             setState(() {
                                               model = value;
                                               url = null;
+                                              sceltaManuale = true;
                                             });
                                           },
                                         ),
@@ -846,6 +856,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                             onPressed: (){
                                                               setState(() {
                                                                 model = snapshot.data.docs[1]['model'];
+                                                                sceltaManuale = false;
 
                                                               });
                                                               Navigator.pop(context);
@@ -877,6 +888,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                             onPressed: (){
                                                               setState(() {
                                                                 model = snapshot.data.docs[2]['model'];
+                                                                sceltaManuale = false;
 
                                                               });
                                                               Navigator.pop(context);
@@ -904,6 +916,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                             onPressed: (){
                                                               setState(() {
                                                                 model = snapshot.data.docs[3]['model'];
+                                                                sceltaManuale = false;
 
                                                               });
                                                               Navigator.pop(context);
@@ -933,6 +946,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                             onPressed: (){
                                                               setState(() {
                                                                 model = snapshot.data.docs[4]['model'];
+                                                                sceltaManuale = false;
 
                                                               });
                                                               Navigator.pop(context);
@@ -969,6 +983,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                                         onChanged: (value) {
                                                                           setState(() {
                                                                             model = value;
+                                                                            sceltaManuale = true;
                                                                           });
                                                                         },
                                                                       ),
@@ -1017,6 +1032,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                             onPressed: (){
                                                               setState(() {
                                                                 model = snapshot.data.docs[0]['model'];
+                                                                sceltaManuale = false;
 
                                                               });
                                                               Navigator.pop(context);
@@ -1045,6 +1061,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                             onPressed: (){
                                                               setState(() {
                                                                 model = snapshot.data.docs[1]['model'];
+                                                                sceltaManuale = false;
 
                                                               });
                                                               Navigator.pop(context);
@@ -1076,6 +1093,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                             onPressed: (){
                                                               setState(() {
                                                                 model = snapshot.data.docs[2]['model'];
+                                                                sceltaManuale = false;
 
                                                               });
                                                               Navigator.pop(context);
@@ -1112,6 +1130,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                                         onChanged: (value) {
                                                                           setState(() {
                                                                             model = value;
+                                                                            sceltaManuale = true;
                                                                           });
                                                                         },
                                                                       ),
@@ -1197,7 +1216,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                               setState(() {
                                                 fuel = 'Benzina';
                                                 imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FBenzina.png?alt=media&token=c846afd4-5011-4e78-ab0a-8eea3011b9f6';
-                                                readConsumoMedio(fuel!);
+                                                readConsumoMedio(fuel!, sceltaManuale);
 
                                               }
                                               ),
@@ -1240,7 +1259,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                               setState(() {
                                                 fuel = 'Diesel';
                                                 imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FDiesel.png?alt=media&token=0dd1ea68-8ed5-46d0-a112-00bba2a138b8';
-                                                readConsumoMedio(fuel!);
+                                                readConsumoMedio(fuel!, sceltaManuale);
                                               }
                                               ),
                                               Navigator.pop(context),
@@ -1288,7 +1307,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                               setState(() {
                                                 fuel = 'Gas';
                                                 imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FGasMetano.png?alt=media&token=cfcb9719-5ea6-4755-be38-d2c7c17bea00';
-                                                readConsumoMedio(fuel!);
+                                                readConsumoMedio(fuel!, sceltaManuale);
 
                                               }
                                               ),
@@ -1333,7 +1352,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                               setState(() {
                                                 fuel = 'Metano';
                                                 imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FGasMetano.png?alt=media&token=cfcb9719-5ea6-4755-be38-d2c7c17bea00';
-                                                readConsumoMedio(fuel!);
+                                                readConsumoMedio(fuel!, sceltaManuale);
 
                                               }
                                               ),
@@ -1381,7 +1400,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                               setState(() {
                                                 fuel = 'Elettrica';
                                                 imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FElettrica.png?alt=media&token=3d76e48f-26f5-4a7c-882c-ea593f809ba2';
-                                                readConsumoMedio(fuel!);
+                                                readConsumoMedio(fuel!, sceltaManuale);
 
                                               }
                                               ),
@@ -1425,7 +1444,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                               setState(() {
                                                 fuel = 'Ibrida';
                                                 imageFuelUrl = 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/fuelImage%2FIbrida.png?alt=media&token=91494a2c-2e3b-4270-a79f-a553fef1c408';
-                                                readConsumoMedio(fuel!);
+                                                readConsumoMedio(fuel!, sceltaManuale);
 
                                               }
                                               ),
@@ -1541,6 +1560,13 @@ class _AddVeicoloState extends State<AddVeicolo> {
 
                                     debugPrint("User 1 ${FirebaseAuth.instance.currentUser?.uid} userpoints: $userPoints");
 
+                                    if(sceltaManuale)
+                                      {
+                                        url = imageFuelUrl;
+                                        model = model?.toUpperCase();
+                                        make = make?.toUpperCase();
+                                      }
+
                                     vehicle.set({
                                       'uid': FirebaseAuth.instance.currentUser?.uid,
                                       'make': make,
@@ -1552,7 +1578,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                       'imageFuelUrl' : imageFuelUrl,
                                       'consumoMedio' : consumoMedio,
                                       'countLitri' : 0.0,
-                                      'countRifornimento' : 0
+                                      'countRifornimento' : 0,
+                                      'sceltaManuale' : sceltaManuale
                                     });
 
                                     debugPrint("Il consumo medio è ${consumoMedio.toString()}");

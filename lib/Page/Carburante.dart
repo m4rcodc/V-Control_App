@@ -42,7 +42,7 @@ class _CarburanteState extends State<Carburante> {
   late double totalCost;
   int? userPoints;
   double? indexTable = 0;
-
+  bool sceltaManuale = false;
 
 
   //Variabile che tiene conto quanti km ha percorso il veicolo in precedenza dall'ultima volta che ha ottenuto
@@ -71,6 +71,7 @@ class _CarburanteState extends State<Carburante> {
       setState(() {
         fuel = doc.docs[0].get('fuel');
       });
+      sceltaManuale = doc.docs[0].get('sceltaManuale');
     }
 
 
@@ -561,62 +562,70 @@ class _CarburanteState extends State<Carburante> {
                               'recapLitri': double.tryParse(labelLitri!)!,
                             });
 
-                            await readPoints();
+                            if(sceltaManuale == false)
+                              {
 
-                            diffKilometers = (kmVeicolo! - oldKilometers!)!;
+                                await readPoints();
 
-                            //L'efficienza di guida relativa al rifornimento che farà il cliente verrà valutata al prossimo rifornimento
-                            //contando i chilometri consumati relativi ai litri di benzina precedentemente immessi.
+                                diffKilometers = (kmVeicolo! - oldKilometers!)!;
+
+                                //L'efficienza di guida relativa al rifornimento che farà il cliente verrà valutata al prossimo rifornimento
+                                //contando i chilometri consumati relativi ai litri di benzina precedentemente immessi.
 
 
-                            countRifornimento =
-                            (countRifornimento! + diffKilometers!)!;
+                                countRifornimento =
+                                (countRifornimento! + diffKilometers!)!;
 
-                            debugPrint("Countrifornimento: $countRifornimento");
+                                debugPrint("Countrifornimento: $countRifornimento");
 
-                            double? consumoEffettuato;
+                                double? consumoEffettuato;
 
-                            if (countRifornimento! >= 100) {
-                              consumoEffettuato =
-                                  (countLitri! / countRifornimento!) * 100;
-                              debugPrint("Consumo Effettuato $consumoEffettuato");
-                              countRifornimento = 0;
+                                if (countRifornimento! >= 100) {
+                                  consumoEffettuato =
+                                      (countLitri! / countRifornimento!) * 100;
+                                  debugPrint("Consumo Effettuato $consumoEffettuato");
+                                  countRifornimento = 0;
 
-                              debugPrint("Count litri $countLitri");
+                                  debugPrint("Count litri $countLitri");
 
-                              if (consumoEffettuato > (consumoMedio! + kBound)) {
-                                userPoints = (userPoints! - malusGuide)!;
-                                await AwesomeDialog(
-                                  context: context,
-                                  dialogType: DialogType.warning,
-                                  headerAnimationLoop: false,
-                                  animType: AnimType.topSlide,
-                                  title: 'Attenzione!',
-                                  desc:
-                                  'Ci dispiace, ti sono stati sottratti $malusGuide punti per non aver guidato efficientemente la tua auto.',
-                                  btnOkOnPress: () {},
-                                ).show();
-                              } else {
-                                userPoints = (userPoints! + bonusGuide)!;
-                                await AwesomeDialog(
-                                  context: context,
-                                  dialogType: DialogType.success,
-                                  headerAnimationLoop: false,
-                                  animType: AnimType.topSlide,
-                                  title: 'Complimenti!',
-                                  desc:
-                                  'Complimenti! Ti sono aggiunti $bonusGuide punti per aver guidato efficientemente la tua auto!',
-                                  btnOkOnPress: () {},
-                                ).show();
-                              }
+                                  if (consumoEffettuato > (consumoMedio! + kBound)) {
+                                    userPoints = (userPoints! - malusGuide)!;
+                                    await AwesomeDialog(
+                                      context: context,
+                                      dialogType: DialogType.warning,
+                                      headerAnimationLoop: false,
+                                      animType: AnimType.topSlide,
+                                      title: 'Attenzione!',
+                                      desc:
+                                      'Ci dispiace, ti sono stati sottratti $malusGuide punti per non aver guidato efficientemente la tua auto.',
+                                      btnOkOnPress: () {},
+                                    ).show();
+                                  } else {
+                                    userPoints = (userPoints! + bonusGuide)!;
+                                    await AwesomeDialog(
+                                      context: context,
+                                      dialogType: DialogType.success,
+                                      headerAnimationLoop: false,
+                                      animType: AnimType.topSlide,
+                                      title: 'Complimenti!',
+                                      desc:
+                                      'Complimenti! Ti sono aggiunti $bonusGuide punti per aver guidato efficientemente la tua auto!',
+                                      btnOkOnPress: () {},
+                                    ).show();
+                                  }
 
-                              final comm = FirebaseFirestore.instance
-                                  .collection("community").doc(
-                                  FirebaseAuth.instance.currentUser?.uid);
-                              comm.update({
-                                'points': userPoints
-                              });
+                                  final comm = FirebaseFirestore.instance
+                                      .collection("community").doc(
+                                      FirebaseAuth.instance.currentUser?.uid);
+                                  comm.update({
+                                    'points': userPoints
+                                  });
 
+                                }
+                                else{
+                                  countLitri = 0;
+                                  countRifornimento = 0;
+                                }
 
 
                               final upVehicle = FirebaseFirestore.instance
