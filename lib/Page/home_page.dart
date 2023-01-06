@@ -144,6 +144,9 @@ class _HomePageState extends State<HomePage> {
                               HomePage.stringNotifiche[titolo] = newNotif;
                               print('new: '+newNotif);
                               FirebaseAuth.instance.authStateChanges().listen((User? user) async{
+
+                                print('sono in HomePage');
+
                                 CollectionReference scadenze = await FirebaseFirestore.instance.collection('scadenze');
                                 var ref = scadenze.where('uid',isEqualTo: uid).where('titolo',isEqualTo: titolo);
                                 var query = await ref.get();

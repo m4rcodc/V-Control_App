@@ -532,6 +532,9 @@ class _ManutenzioneState extends State<Manutenzione>{
                             }
                             else{*/
                   FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+
+                    print('sono in manutenzione');
+
                     current_month = now.month;
                     current_year = now.year;
                     CollectionReference costi = await FirebaseFirestore.instance.collection('CostiManutenzione');

@@ -201,13 +201,13 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
       ),
     ),
     Container(
-    margin: EdgeInsets.only(top: 8),
+    margin: EdgeInsets.only(top: 3),
     alignment: Alignment.center,
     child: Text('Modifica costo rifornimento')
     ),
     Container(
     margin: const EdgeInsets.symmetric(
-    vertical: 10.0, horizontal: 15.0),
+    vertical: 6.0, horizontal: 15.0),
     child:
     TextFormField(
     initialValue: '${cost.costo}',
@@ -222,7 +222,7 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
     alignLabelWithHint: true,
     contentPadding: const EdgeInsets.symmetric(
     horizontal: 16,
-    vertical: 12,
+    vertical: 6,
     ),
     labelStyle: const TextStyle(
     fontSize: 14,
@@ -268,13 +268,13 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
     ),
     ),
     Container(
-    margin: EdgeInsets.only(top: 8),
+    margin: EdgeInsets.only(top: 3),
     alignment: Alignment.center,
     child: Text('Modifica litri')
     ),
     Container(
     margin: const EdgeInsets.symmetric(
-    vertical: 10.0, horizontal: 15.0),
+    vertical: 6.0, horizontal: 15.0),
     child:
     TextFormField(
     initialValue: '${cost.litri}',

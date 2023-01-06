@@ -219,13 +219,13 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                   ),
                                 ),
                                 Container(
-                                    margin: EdgeInsets.only(top: 8),
+                                    margin: EdgeInsets.only(top: 3),
                                     alignment: Alignment.center,
                                     child: Text('Modifica costo manutenzione')
                                 ),
                                 Container(
                                   margin: const EdgeInsets.symmetric(
-                                      vertical: 10.0, horizontal: 15.0),
+                                      vertical: 6.0, horizontal: 15.0),
                                   child:
                                   TextFormField(
                                     initialValue: '${cost.costo}',
@@ -286,13 +286,13 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                   ),
                                 ),
                                 Container(
-                                    margin: EdgeInsets.only(top: 8),
+                                    margin: EdgeInsets.only(top: 3),
                                     alignment: Alignment.center,
                                     child: Text('Modifica note')
                                 ),
                                 Container(
                                   margin: const EdgeInsets.symmetric(
-                                      vertical: 10.0, horizontal: 15.0),
+                                      vertical: 6.0, horizontal: 15.0),
                                   child:
                                   TextFormField(
                                     initialValue: '${cost.note}',
@@ -961,7 +961,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                             padding: EdgeInsets.symmetric(vertical: 6, horizontal: 4),
                             child:
                             Text('Storico Manutenzioni', style: TextStyle(
-                                fontSize: 25, color: Colors.white, fontWeight: FontWeight.w500
+                                fontSize: 23, color: Colors.white, fontWeight: FontWeight.w500
                             ),
                             ),
                           ),

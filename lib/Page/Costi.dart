@@ -1,4 +1,3 @@
-import 'package:car_control/Page/Autolavaggio.dart';
 import 'package:car_control/Page/Carburante.dart';
 import 'package:car_control/Page/CostiGenerali.dart';
 import 'package:car_control/Page/CostiManutenzione.dart';

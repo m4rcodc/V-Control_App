@@ -63,12 +63,14 @@ class _CarburanteState extends State<Carburante> {
     userPoints = doc.docs[0].get('points'); //Prelevo il valore di fuel
   }
 
-  readFuel() async{
+   readFuel() async{
    final doc = await FirebaseFirestore.instance
         .collection('vehicle')
         .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
         .get();
-      fuel = doc.docs[0].get('fuel');
+      setState(() {
+        fuel = doc.docs[0].get('fuel');
+      });
     }
 
 
@@ -109,6 +111,7 @@ class _CarburanteState extends State<Carburante> {
   @override
   Widget build(BuildContext context) {
     retriveConsuption();
+    readFuel();
     return Scaffold(
       //resizeToAvoidBottomInset: false,
       extendBody: true,
@@ -453,6 +456,9 @@ class _CarburanteState extends State<Carburante> {
                         {
                           FirebaseAuth.instance.authStateChanges().listen((
                               User? user) async {
+
+                            print('sono in carburante');
+
                             CollectionReference costi = await FirebaseFirestore
                                 .instance.collection('CostiRifornimento');
                             //CollectionReference costiTot = await FirebaseFirestore.instance.collection('CostiTotali').doc('2022').collection('Cost').doc();
@@ -540,8 +546,6 @@ class _CarburanteState extends State<Carburante> {
 
                             debugPrint("I km attuali digitati sono: $kmVeicolo");
 
-
-
                             costi.add({
                               'costo': costoRifornimento,
                               'data': formatter.format(now),
@@ -558,7 +562,6 @@ class _CarburanteState extends State<Carburante> {
                             });
 
                             await readPoints();
-
 
                             diffKilometers = (kmVeicolo! - oldKilometers!)!;
 

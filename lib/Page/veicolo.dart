@@ -90,8 +90,6 @@ class _VeicoloState extends State<Veicolo>{
         .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
         .get();
     userPoints = doc.docs[0].get('points'); //Prelevo il valore di fuel
-    debugPrint("Il valore prelevato è $userPoints");
-
   }
 
 
@@ -277,7 +275,8 @@ class _VeicoloState extends State<Veicolo>{
               title: 'Attenzione!',
               desc:
               'Sicuro di voler uscire da questo account?',
-              btnCancelText: 'Cancella',
+              btnCancelText: 'No',
+              btnOkText: 'Si',
               btnCancelOnPress: () {},
               btnOkOnPress: ()  {
                 FirebaseAuth.instance.signOut();

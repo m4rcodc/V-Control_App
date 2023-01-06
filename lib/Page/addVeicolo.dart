@@ -1527,21 +1527,18 @@ class _AddVeicoloState extends State<AddVeicolo> {
                       Container(
                         margin: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 100.0),
                         child: ElevatedButton(
-                          onPressed: () => {
+                          onPressed: () async {
                             if(image == null) {
-                              displayCenterMotionToast()
+                              displayCenterMotionToast();
                             }
                             else if(!_formKeyKm.currentState!.validate()){
                               }
-                              else{
-                                  FirebaseAuth.instance.authStateChanges().listen((User? user) async {
-
+                              else {
                                     final vehicle = FirebaseFirestore.instance.collection('vehicle').doc(FirebaseAuth.instance.currentUser?.uid);
 
                                     debugPrint("Il consumo medio registrato è $consumoMedio");
 
-                                    debugPrint("User 1 ${user?.uid} userpoints: $userPoints");
-
+                                    debugPrint("User 1 ${FirebaseAuth.instance.currentUser?.uid} userpoints: $userPoints");
 
                                     vehicle.set({
                                       'uid': FirebaseAuth.instance.currentUser?.uid,
@@ -1591,7 +1588,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                       userPoints = (userPoints! + ibridPoints)!;
                                     }
 
-                                    final comm = FirebaseFirestore.instance.collection("community").doc(user?.uid);
+                                    final comm = FirebaseFirestore.instance.collection("community").doc(FirebaseAuth.instance.currentUser?.uid);
                                     await comm.update({
                                       'points' : userPoints,
                                       'model' : model,
@@ -1615,11 +1612,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                       },
                                     ).show();
 
-
-
                                     Navigator.pushNamedAndRemoveUntil(context, HomePage.routeName, (route) => false);
 
-                                  })
                                 }
                           },
                           style: ElevatedButton.styleFrom(
