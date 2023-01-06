@@ -28,6 +28,12 @@ class _VeicoloState extends State<Veicolo>{
 
   var state1;
 
+  setModelVehicle(String model, String fuel) async{
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('modelV', model);
+    await prefs.setString('fuelV', fuel);
+  }
+
   checkCar() async {
     final doc =  await FirebaseFirestore.instance
         .collection('vehicle')
@@ -38,17 +44,14 @@ class _VeicoloState extends State<Veicolo>{
       String model = doc.docs[0].get('model');
       String fuel = doc.docs[0].get('fuel');
       debugPrint("Il model è $model");
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('modelV', model);
-      await prefs.setString('fuelV', fuel);
+      setModelVehicle(model, fuel);
       print(state);
       state1 = true;
     }
     else {
       state = false;
       state1 = false;
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('modelV', ' ');
+      setModelVehicle('', '');
       print(state);
     }
     SharedPreferences.getInstance().then((value) => value.setBool('checkCar', state!));
@@ -87,6 +90,7 @@ class _VeicoloState extends State<Veicolo>{
         .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
         .get();
     userPoints = doc.docs[0].get('points'); //Prelevo il valore di fuel
+    debugPrint("Il valore prelevato è $userPoints");
 
   }
 
@@ -275,7 +279,7 @@ class _VeicoloState extends State<Veicolo>{
               'Sicuro di voler uscire da questo account?',
               btnCancelText: 'Cancella',
               btnCancelOnPress: () {},
-              btnOkOnPress: () {
+              btnOkOnPress: ()  {
                 FirebaseAuth.instance.signOut();
                 Navigator.pushReplacement(context, MaterialPageRoute(
                     builder: (context) => const LoginPage()));
@@ -313,119 +317,122 @@ class _VeicoloState extends State<Veicolo>{
       btnOkText: 'Si',
       btnCancelOnPress: () {},
       btnOkOnPress: () async {
-      await deleteVehicle();
-      if (fuel == 'Metano') {
-      userPoints = (userPoints! - metanPoints)!;
-      }
-      else if (fuel == 'Elettrica') {
-      userPoints = (userPoints! - electricPoints)!;
-      }
-      else if (fuel == 'Gas') {
-      userPoints = (userPoints! - gplPoints)!;
-      }
-      else if (fuel == 'Benzina') {
-      userPoints = (userPoints! - benzPoints)!;
-      }
-      else if (fuel == 'Diesel') {
-      userPoints = (userPoints! - dieselPoints)!;
-      }
-      else {
-      userPoints = (userPoints! - ibridPoints)!;
-      }
+        await deleteVehicle();
+        setModelVehicle('', '');
+        if (fuel == 'Metano') {
+        userPoints = (userPoints! - metanPoints)!;
+        }
+        else if (fuel == 'Elettrica') {
+        userPoints = (userPoints! - electricPoints)!;
+        }
+        else if (fuel == 'Gas') {
+        userPoints = (userPoints! - gplPoints)!;
+        }
+        else if (fuel == 'Benzina') {
+        userPoints = (userPoints! - benzPoints)!;
+        }
+        else if (fuel == 'Diesel') {
+        userPoints = (userPoints! - dieselPoints)!;
+        }
+        else {
+        userPoints = (userPoints! - ibridPoints)!;
+        }
 
-      final comm = FirebaseFirestore.instance.collection(
-      "community").doc(
-      FirebaseAuth.instance.currentUser?.uid);
-      comm.update({
-      'points': userPoints,
-      'model': '',
-      'make': '',
-      'image': 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/defaultImage%2FLogoApp.png?alt=media&token=815b924d-e981-4fb6-ad76-483a2f591310',
-      'fuel': ''
-      }).then((value) => debugPrint("update community!"));
+        final comm = FirebaseFirestore.instance.collection(
+        "community").doc(
+        FirebaseAuth.instance.currentUser?.uid);
 
-
-      final docRif = await FirebaseFirestore.instance
-          .collection('CostiRifornimento')
-          .where('uid', isEqualTo: FirebaseAuth.instance
-          .currentUser!.uid)
-          .get();
-      int sizeRif = docRif.size;
-      print(sizeRif);
-      for (int i = 0; i < sizeRif; i++) {
-        docRif.docs[i].reference.delete();
-      }
+        await comm.update({
+        'points': userPoints,
+        'model': '',
+        'make': '',
+        'image': 'https://firebasestorage.googleapis.com/v0/b/emad2022-23.appspot.com/o/defaultImage%2FLogoApp.png?alt=media&token=815b924d-e981-4fb6-ad76-483a2f591310',
+        'fuel': ''
+        });
 
 
-      final docMtz = await FirebaseFirestore.instance
-          .collection('CostiManutenzione')
-          .where('uid', isEqualTo: FirebaseAuth.instance
-          .currentUser!.uid)
-          .get();
-      int sizeMtz = docMtz.size;
-      print(sizeMtz);
-      for (int i = 0; i < sizeMtz; i++) {
-        docMtz.docs[i].reference.delete();
-      }
+        final docRif = await FirebaseFirestore.instance
+            .collection('CostiRifornimento')
+            .where('uid', isEqualTo: FirebaseAuth.instance
+            .currentUser!.uid)
+            .get();
+        int sizeRif = docRif.size;
+        print(sizeRif);
+        for (int i = 0; i < sizeRif; i++) {
+          docRif.docs[i].reference.delete();
+        }
 
-      //Cancello Costi Totali Rifornimento 2023
-      var docTotaliRifornimenti = await FirebaseFirestore.instance
-          .collection('CostiTotali').doc('2023')
-          .collection(FirebaseAuth.instance.currentUser!.uid).get();
-      int sizeDocTotalRif = docTotaliRifornimenti.size;
-      print('Questa è la taglia $sizeDocTotalRif');
-      for(int i = 0; i < sizeDocTotalRif; i++){
-        docTotaliRifornimenti.docs[i].reference.update({"costoRifornimento": 0, "totaleLitri": 0});
-      }
 
-      //Cancello Costi Totali Rifornimento 2022
-      var docTotaliRifornimenti2k22 = await FirebaseFirestore.instance
-          .collection('CostiTotali').doc('2022')
-          .collection(FirebaseAuth.instance.currentUser!.uid).get();
-      int sizeDocTotalRif2k22 = docTotaliRifornimenti2k22.size;
-      print('Questa è la taglia $sizeDocTotalRif2k22');
-      for(int i = 0; i < sizeDocTotalRif2k22; i++){
-        docTotaliRifornimenti2k22.docs[i].reference.update({"costoRifornimento": 0, "totaleLitri": 0});
-      }
+        final docMtz = await FirebaseFirestore.instance
+            .collection('CostiManutenzione')
+            .where('uid', isEqualTo: FirebaseAuth.instance
+            .currentUser!.uid)
+            .get();
+        int sizeMtz = docMtz.size;
+        print(sizeMtz);
+        for (int i = 0; i < sizeMtz; i++) {
+          docMtz.docs[i].reference.delete();
+        }
 
-      //Cancello Costi Totali Manutenzione 2023
-      var docTotaliManutenzioni = await FirebaseFirestore.instance
-          .collection('CostiTotaliManutenzione').doc('2023')
-          .collection(FirebaseAuth.instance.currentUser!.uid).get();
-      int sizeDocTotalMtz = docTotaliManutenzioni.size;
-      for(int i = 0; i < sizeDocTotalMtz; i++){
-        docTotaliManutenzioni.docs[i].reference.update({"costoManutenzione": 0});
-      }
+        //Cancello Costi Totali Rifornimento 2023
+        var docTotaliRifornimenti = await FirebaseFirestore.instance
+            .collection('CostiTotali').doc('2023')
+            .collection(FirebaseAuth.instance.currentUser!.uid).get();
+        int sizeDocTotalRif = docTotaliRifornimenti.size;
+        print('Questa è la taglia $sizeDocTotalRif');
+        for(int i = 0; i < sizeDocTotalRif; i++){
+          docTotaliRifornimenti.docs[i].reference.update({"costoRifornimento": 0, "totaleLitri": 0});
+        }
 
-      //Cancello Costi Totali Manutenzione 2022
-      var docTotaliManutenzioni2K22 = await FirebaseFirestore.instance
-          .collection('CostiTotaliManutenzione').doc('2022')
-          .collection(FirebaseAuth.instance.currentUser!.uid).get();
-      int sizeDocTotalMtz2K22 = docTotaliManutenzioni2K22.size;
-      for(int i = 0; i < sizeDocTotalMtz2K22; i++){
-        docTotaliManutenzioni2K22.docs[i].reference.update({"costoManutenzione": 0});
-      }
+        //Cancello Costi Totali Rifornimento 2022
+        var docTotaliRifornimenti2k22 = await FirebaseFirestore.instance
+            .collection('CostiTotali').doc('2022')
+            .collection(FirebaseAuth.instance.currentUser!.uid).get();
+        int sizeDocTotalRif2k22 = docTotaliRifornimenti2k22.size;
+        print('Questa è la taglia $sizeDocTotalRif2k22');
+        for(int i = 0; i < sizeDocTotalRif2k22; i++){
+          docTotaliRifornimenti2k22.docs[i].reference.update({"costoRifornimento": 0, "totaleLitri": 0});
+        }
 
-      //Cancello Costi Generali 2023
-      var docCostiGenerali = await FirebaseFirestore.instance
-          .collection('CostiGenerali').doc('2023')
-          .collection(FirebaseAuth.instance.currentUser!.uid).get();
-      int sizeCostiGenerali = docCostiGenerali.size;
-      for(int i = 0; i < sizeCostiGenerali; i++){
-        docCostiGenerali.docs[i].reference.update({"costo": 0});
-      }
+        //Cancello Costi Totali Manutenzione 2023
+        var docTotaliManutenzioni = await FirebaseFirestore.instance
+            .collection('CostiTotaliManutenzione').doc('2023')
+            .collection(FirebaseAuth.instance.currentUser!.uid).get();
+        int sizeDocTotalMtz = docTotaliManutenzioni.size;
+        for(int i = 0; i < sizeDocTotalMtz; i++){
+          docTotaliManutenzioni.docs[i].reference.update({"costoManutenzione": 0});
+        }
 
-      //Cancello Costi Generali 2022
-      var docCostiGenerali2K22 = await FirebaseFirestore.instance
-          .collection('CostiGenerali').doc('2022')
-          .collection(FirebaseAuth.instance.currentUser!.uid).get();
-      int sizeCostiGenerali2K22 = docCostiGenerali2K22.size;
-      for(int i = 0; i < sizeCostiGenerali2K22; i++){
-        docCostiGenerali2K22.docs[i].reference.update({"costo": 0});
-      }
+        //Cancello Costi Totali Manutenzione 2022
+        var docTotaliManutenzioni2K22 = await FirebaseFirestore.instance
+            .collection('CostiTotaliManutenzione').doc('2022')
+            .collection(FirebaseAuth.instance.currentUser!.uid).get();
+        int sizeDocTotalMtz2K22 = docTotaliManutenzioni2K22.size;
+        for(int i = 0; i < sizeDocTotalMtz2K22; i++){
+          docTotaliManutenzioni2K22.docs[i].reference.update({"costoManutenzione": 0});
+        }
 
-      },
-      ).show();
+        //Cancello Costi Generali 2023
+        var docCostiGenerali = await FirebaseFirestore.instance
+            .collection('CostiGenerali').doc('2023')
+            .collection(FirebaseAuth.instance.currentUser!.uid).get();
+        int sizeCostiGenerali = docCostiGenerali.size;
+        for(int i = 0; i < sizeCostiGenerali; i++){
+          docCostiGenerali.docs[i].reference.update({"costo": 0});
+        }
+
+        //Cancello Costi Generali 2022
+        var docCostiGenerali2K22 = await FirebaseFirestore.instance
+            .collection('CostiGenerali').doc('2022')
+            .collection(FirebaseAuth.instance.currentUser!.uid).get();
+        int sizeCostiGenerali2K22 = docCostiGenerali2K22.size;
+        for(int i = 0; i < sizeCostiGenerali2K22; i++){
+          docCostiGenerali2K22.docs[i].reference.update({"costo": 0});
+        }
+
+        },
+        ).show();
+
     }}
           ),
           IconButton(

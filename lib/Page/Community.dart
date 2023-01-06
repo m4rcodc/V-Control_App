@@ -1,11 +1,12 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:car_control/Page/Help.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/communityModel.dart';
 String? modelV='';
 String? fuelV='';
-
 
 String infoPunteggioRifornimento = "L'assegnazione del punteggio mediante rifornimento seguirà le seguenti regole ed avverrà ogni 100km percorsi.\n"
                                    "La soglia di riferimento è 2 litri rispetto al consumo medio del veicolo, se l'utente si troverà dopo 100 km percorsi al di sotto di tale soglia\n"
@@ -29,22 +30,46 @@ class _CommunityState extends State<Community>{
   List<CommunityModel> communityProfile = [];
 
 
-readModel(){
-  FirebaseFirestore.instance
-      .collection('community')
-      .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
-      .get().then((value){
-    modelV = value.docs[0].get('model');
-    fuelV = value.docs[0].get('fuel');
-  });
-}
 
-  Stream<List<CommunityModel>> readCommunityPoints() {
+late Stream<List<CommunityModel>> retrieveCommunityPoints;
 
-    readModel();
-    debugPrint("Il modello è: $modelV");
+  @override
+  void initState(){
+    super.initState();
 
-    return FirebaseFirestore.instance
+    retrieveCommunityPoints = readCommunityPoints();
+  }
+
+  Stream<List<CommunityModel>> readCommunityPoints() async*{
+    /*
+    readLocalModel();
+    if(modelV == null || fuelV == null)
+      {
+        debugPrint('Eseguiamo la query per il retrive del modello e fuel');
+        readModel();
+      }
+*/
+   await FirebaseFirestore.instance
+        .collection('community')
+        .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+        .get().then((value){
+      modelV = value.docs[0].get('model');
+      fuelV = value.docs[0].get('fuel');
+    });
+
+    debugPrint("Il modello è: $modelV e il fuel $fuelV");
+
+    if(modelV == null || fuelV== null || modelV == '' || fuelV == '')
+      {
+        yield* FirebaseFirestore.instance
+            .collection('community')
+            .orderBy('points', descending: true)
+            .snapshots()
+            .map((snapshot) =>
+            snapshot.docs.map((doc) => CommunityModel.fromJson(doc.data()))
+                .toList());
+      }
+    yield* FirebaseFirestore.instance
             .collection('community').where('model', isEqualTo: modelV).where(
             'fuel', isEqualTo: fuelV)
             .orderBy('points', descending: true)
@@ -57,11 +82,6 @@ readModel(){
 
   List<CommunityModel> commList = [];
 
-
-  @override
-  initState() {
-    super.initState();
-  }
 
 
 
@@ -1036,7 +1056,7 @@ readModel(){
           children: [
 
             StreamBuilder<List<CommunityModel>>(
-                stream: readCommunityPoints(),
+                stream: retrieveCommunityPoints,
                 builder: (context,snapshot) {
                   if (snapshot.hasData) {
                     final comm = snapshot.data!;

@@ -329,12 +329,26 @@ class _LoginPageState extends State<LoginPage> {
                                           accessToken: googleAuth.accessToken,
                                           idToken: googleAuth.idToken
                                       );
-                                      await FirebaseAuth.instance.signInWithCredential(credential);
-                                      debugPrint("Authstate: ${FirebaseAuth.instance.authStateChanges().toString()}");
 
-                                      debugPrint("Il nome è ${googleUser.displayName}, l'email è ${googleUser.email} l'id token è ${FirebaseAuth.instance.currentUser?.uid}");
-                                      FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser?.uid).set({'name': googleUser.displayName, 'email' : googleUser.email, 'uid' : FirebaseAuth.instance.currentUser?.uid});
-                                      FirebaseFirestore.instance.collection('community').doc(FirebaseAuth.instance.currentUser?.uid).set({'name': googleUser.displayName, 'uid' : FirebaseAuth.instance.currentUser?.uid, 'points' : 0, 'make' : '', 'model' : '', 'fuel' : '', 'image' : googleUser.photoUrl});
+
+
+                                      FirebaseAuth.instance.fetchSignInMethodsForEmail(googleUser.email);
+
+                                      bool? isNewUser;
+
+                                      await FirebaseAuth.instance.signInWithCredential(credential).then((value) {
+                                        isNewUser = value.additionalUserInfo?.isNewUser;
+                                      });
+
+                                     // debugPrint("User nuovo? ${isNewUser.toString()}");
+
+                                     // debugPrint("Il nome è ${googleUser.displayName}, l'email è ${googleUser.email} l'id token è ${FirebaseAuth.instance.currentUser?.uid}");
+
+                                      if(isNewUser!)
+                                        {
+                                          FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser?.uid).set({'name': googleUser.displayName, 'email' : googleUser.email, 'uid' : FirebaseAuth.instance.currentUser?.uid});
+                                          FirebaseFirestore.instance.collection('community').doc(FirebaseAuth.instance.currentUser?.uid).set({'name': googleUser.displayName, 'uid' : FirebaseAuth.instance.currentUser?.uid, 'points' : 0, 'make' : '', 'model' : '', 'fuel' : '', 'image' : googleUser.photoUrl});
+                                        }
 
                                       Navigator.pushNamedAndRemoveUntil(context, HomePage.routeName, (route) => false);
 

@@ -88,6 +88,12 @@ class _AddVeicoloState extends State<AddVeicolo> {
 
   String? selectedValue;
 
+  setModelVehicle() async{
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('modelV', model!);
+    await prefs.setString('fuelV', fuel!);
+  }
+
 
   readUserPoints() async{
     final doc =  await FirebaseFirestore.instance
@@ -1586,13 +1592,15 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                     }
 
                                     final comm = FirebaseFirestore.instance.collection("community").doc(user?.uid);
-                                    comm.update({
+                                    await comm.update({
                                       'points' : userPoints,
                                       'model' : model,
                                       'make' : make,
                                       'image' : imageUrl,
                                       'fuel' : fuel
-                                    }).then((value) => debugPrint("Aggiunta community!"));
+                                    });
+
+                                    debugPrint("Siamo in addVeicolo!\n");
 
 
                                     await AwesomeDialog(
@@ -1607,7 +1615,10 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                       },
                                     ).show();
 
-                                    Navigator.of(context).pushNamed(HomePage.routeName);
+
+
+                                    Navigator.pushNamedAndRemoveUntil(context, HomePage.routeName, (route) => false);
+
                                   })
                                 }
                           },
