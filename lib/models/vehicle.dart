@@ -11,6 +11,7 @@ class Vehicle {
   String? logoImage;
   String? imageFuelUrl;
   int? numberDocument;
+  String? type;
 
   Vehicle({
     required this.make,
@@ -20,7 +21,8 @@ class Vehicle {
     required this.kilometers,
     required this.fuel,
     required this.logoImage,
-    required this.imageFuelUrl
+    required this.imageFuelUrl,
+    required this.type
 
 
   });
@@ -33,7 +35,8 @@ class Vehicle {
       kilometers: json['kilometers'],
       fuel: json['fuel'],
       logoImage: json['logoImage'],
-      imageFuelUrl: json['imageFuelUrl']
+      imageFuelUrl: json['imageFuelUrl'],
+      type: json['type']
   );
 
 

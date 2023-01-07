@@ -191,14 +191,21 @@ class _VeicoloState extends State<Veicolo>{
                   DetailsCarCard(
                     firstText: "Modello",
                     secondText: '${vehicle.model}',
-                    icon: Image.asset(
+                    icon: vehicle.type == 'Auto' ?
+                    Image.asset(
                       "images/ModelCarImage.png",
+                      width: 80,
+                      height: 90,
+                      //color: Colors.lightBlue ,
+                    )
+                    :
+                    Image.asset(
+                      "images/AddMoto.png",
                       width: 80,
                       height: 90,
                       //color: Colors.lightBlue ,
                     ),
                   ),
-
                 ]
             ),
             TableRow(

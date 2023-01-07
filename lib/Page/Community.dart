@@ -524,7 +524,7 @@ late Stream<List<CommunityModel>> retrieveCommunityPoints;
             ),
               Container(
                   padding: EdgeInsets.symmetric(vertical:10, horizontal: 32),
-                  child: Text('N.B: la classifica visualizza solo gli utenti con lo stesso modello di veicolo. ', style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w500),
+                  child: Text('N.B: la classifica visualizza solo gli utenti con lo stesso modello di veicolo. Nel caso in cui il veicolo è stato aggiunto manualmente si potrà competere con altri utenti di pari veicolo esclusivamente con lo score delle manutenzioni ', style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w500),
                   textAlign: TextAlign.center,)
               ),
               Container(
@@ -533,7 +533,7 @@ late Stream<List<CommunityModel>> retrieveCommunityPoints;
                   child: Text('Modalità di punteggio:', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.w500),)
               ),
               Container(
-                height: 400,
+                height: 340,
                 width: 280,
                 padding: EdgeInsets.symmetric(vertical:15),
                 decoration: BoxDecoration(

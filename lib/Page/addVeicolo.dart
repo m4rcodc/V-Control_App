@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:car_control/Page/home_page.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +11,7 @@ import 'package:motion_toast/resources/arrays.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Widgets/select_photo_options_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/userModel.dart';
+
 const int electricPoints = 500;
 const int ibridPoints = 300;
 const int metanPoints = 200;
@@ -434,6 +433,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                   setState(() {
                                                     make = snapshot.data.docs[0]['name'];
                                                     url = snapshot.data.docs[0]['logo'];
+                                                    print('url $url');
                                                     setDefaultModel = true;
                                                   }
                                                   ),
@@ -1562,7 +1562,6 @@ class _AddVeicoloState extends State<AddVeicolo> {
 
                                     if(sceltaManuale)
                                       {
-                                        url = imageFuelUrl;
                                         model = model?.toUpperCase();
                                         make = make?.toUpperCase();
                                       }
@@ -1579,7 +1578,8 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                       'consumoMedio' : consumoMedio,
                                       'countLitri' : 0.0,
                                       'countRifornimento' : 0,
-                                      'sceltaManuale' : sceltaManuale
+                                      'sceltaManuale' : sceltaManuale,
+                                      'type' : type
                                     });
 
                                     debugPrint("Il consumo medio è ${consumoMedio.toString()}");
