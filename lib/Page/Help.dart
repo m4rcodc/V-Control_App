@@ -1,5 +1,4 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
-import 'package:car_control/Page/Help.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -37,12 +36,30 @@ class _HelpState extends State<Help> {
     }
   });
 
-   checkNumber()  async{
+   /*checkNumber()  async{
     await FirebaseFirestore.instance.collection("scadenze").where("uid", isEqualTo:uid).where("titolo", isEqualTo: 'Assicurazione').get().then((value) {
       setState(() {
         numero = value.docs[0].data()['numero'];
       });
     });
+  }*/
+
+  checkNumber() async{
+    final doc =  await FirebaseFirestore.instance
+        .collection('scadenze')
+        .where('uid', isEqualTo: uid)
+        .where("titolo", isEqualTo: 'Assicurazione')
+        .get();
+    if(doc.docs.isNotEmpty){
+      setState(() {
+        numero = doc.docs[0].data()['numero'];
+      });
+    }
+    else {
+      setState(() {
+        numero = '';
+      });
+    }
   }
 
     checkCar() async {

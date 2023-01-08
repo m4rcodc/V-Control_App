@@ -50,6 +50,7 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
   bool flagData = false;
   bool activateFlag = false;
   bool? checkCar;
+  String? checkFuel;
   String? a;
   DateTime now = new DateTime.now();
   var formatter = new DateFormat('dd-MM-yyyy');
@@ -59,8 +60,10 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
 
   readCheckCar() async {
     SharedPreferences.getInstance().then((value) { checkCar = value.getBool('checkCar');});
-    //print(checkCar);
+  }
 
+  readCheckFuel() async {
+    await SharedPreferences.getInstance().then((value) { checkFuel = value.getString('checkFuel');});
   }
 
 
@@ -747,6 +750,7 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
 
 
   Widget build(BuildContext context) {
+    readCheckFuel();
     return Scaffold(
       body:
       Container(
@@ -973,7 +977,12 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
                                     label: Text(
                                         'Costo', style: _contentStyleHeader)),
                                 DataColumn(
-                                    label: Text(
+                                    label:
+                                    checkFuel == 'Elettrica' ?
+                                    Text(
+                                        'Kw/h', style: _contentStyleHeader)
+                                    :
+                                    Text(
                                         'Litri', style: _contentStyleHeader),
                                     numeric: true),
                                 DataColumn(

@@ -43,6 +43,7 @@ class _CarburanteState extends State<Carburante> {
   int? userPoints;
   double? indexTable = 0;
   bool sceltaManuale = false;
+  String? checkFuel;
 
 
   //Variabile che tiene conto quanti km ha percorso il veicolo in precedenza dall'ultima volta che ha ottenuto
@@ -64,7 +65,7 @@ class _CarburanteState extends State<Carburante> {
   }
 
    readFuel() async{
-   final doc = await FirebaseFirestore.instance
+   /*final doc = await FirebaseFirestore.instance
         .collection('vehicle')
         .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
         .get();
@@ -72,6 +73,12 @@ class _CarburanteState extends State<Carburante> {
         fuel = doc.docs[0].get('fuel');
       });
       sceltaManuale = doc.docs[0].get('sceltaManuale');
+      */
+     await SharedPreferences.getInstance().then((value) {
+       setState(() {
+         checkFuel = value.getString('checkFuel');});
+       });
+       //checkFuel = value.getString('checkFuel');});
     }
 
 
@@ -307,7 +314,7 @@ class _CarburanteState extends State<Carburante> {
                       fontSize: 14,
                       color: Colors.black54,
                     ),
-                    labelText: fuel == 'Elettrica' ? 'Costo al Kw/h' : 'Costo al litro',
+                    labelText: checkFuel == 'Elettrica' ? 'Costo al Kw/h' : 'Costo al litro',
                     filled: true,
                     fillColor: Colors.white,
                     enabledBorder: OutlineInputBorder(
@@ -357,7 +364,7 @@ class _CarburanteState extends State<Carburante> {
                   //labelLitri == null ? '' : calcoloLitri(),
                   hintStyle: const TextStyle(fontSize: 14),
                   floatingLabelBehavior: FloatingLabelBehavior.always,
-                  labelText: fuel == 'Elettrica' ? 'Kw/h' : 'Litri',
+                  labelText: checkFuel == 'Elettrica' ? 'Kw/h' : 'Litri',
                   labelStyle: const TextStyle(
                       fontSize: 14,
                       color: Colors.black54

@@ -35,6 +35,7 @@ class _VeicoloState extends State<Veicolo>{
   }
 
   checkCar() async {
+    String fuel;
     final doc =  await FirebaseFirestore.instance
         .collection('vehicle')
         .where('uid', isEqualTo: uid)
@@ -42,19 +43,28 @@ class _VeicoloState extends State<Veicolo>{
     if(doc.docs.isNotEmpty){
       state = true;
       String model = doc.docs[0].get('model');
-      String fuel = doc.docs[0].get('fuel');
+      fuel = doc.docs[0].get('fuel');
       debugPrint("Il model è $model");
       setModelVehicle(model, fuel);
       print(state);
       state1 = true;
+      print(fuel);
+      if(fuel == null){
+        fuel = 'Diesel';
+      }
+      SharedPreferences.getInstance().then((value) => value.setString('checkFuel', fuel!));
     }
     else {
       state = false;
       state1 = false;
       setModelVehicle('', '');
+      fuel = 'Diesel';
+      print(fuel);
       print(state);
+      SharedPreferences.getInstance().then((value) => value.setString('checkFuel', fuel!));
     }
     SharedPreferences.getInstance().then((value) => value.setBool('checkCar', state!));
+    //SharedPreferences.getInstance().then((value) => value.setString('checkFuel', fuel!));
   }
 
   deleteVehicle() async {

@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:d_chart/d_chart.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CostiGenerali extends StatefulWidget{
 
@@ -25,6 +26,13 @@ class CostiGeneraliState extends State<CostiGenerali>{
   String? month = months[now.month - 1]; //Il mese iniziale di visualizzazione dei recap è quello corrente
   String? year = now.year.toString(); //L'anno iniziale di visualizzazione dei recap è quello corrente
   String? fullNameMonth;
+  String? checkFuel;
+
+
+  readCheckFuel() async {
+    await SharedPreferences.getInstance().then((value) { checkFuel = value.getString('checkFuel');});
+  }
+
 
   @override
   final streamChart = FirebaseFirestore.instance.collection('CostiGenerali')
@@ -67,7 +75,7 @@ class CostiGeneraliState extends State<CostiGenerali>{
   ActivityListTile buildCardRecapRifornimenti(RecapCosti recapCosti) => ActivityListTile(
       title: 'Recap rifornimenti',
       subtitle:'Totale spese: ${recapCosti.rifornimento} €',
-      subtitle2: 'Totale litri: ${recapCosti.litri}',
+      subtitle2: checkFuel == 'Elettrica' ? 'Totale Kw/h: ${recapCosti.litri}' : 'Totale litri: ${recapCosti.litri}',
       trailingImage:
       Image.asset('images/CarFuelImage.png', height: 110),
       color: Colors.white,
@@ -95,6 +103,7 @@ class CostiGeneraliState extends State<CostiGenerali>{
   );
 
   Widget build(BuildContext context) {
+    readCheckFuel();
     return Scaffold(
       body:
       Container(
@@ -228,7 +237,7 @@ class CostiGeneraliState extends State<CostiGenerali>{
                               ActivityListTile(
                                   title: 'Recap rifornimenti',
                                   subtitle: 'Totale spese:  €',
-                                  subtitle2: 'Totale litri: ',
+                                  subtitle2: checkFuel == 'Elettrica' ? 'Totale Kw/h: ' : 'Totale litri: ',
                                   trailingImage:
                                   Image.asset('images/CarFuelImage.png', height: 110),
                                   color: Colors.white,
@@ -247,7 +256,7 @@ class CostiGeneraliState extends State<CostiGenerali>{
                             ActivityListTile(
                                 title: 'Recap rifornimenti',
                                 subtitle: 'Totale spese:  €',
-                                subtitle2: 'Totale litri: ',
+                                subtitle2: checkFuel == 'Elettrica' ? 'Totale Kw/h: ' : 'Totale litri: ',
                                 trailingImage:
                                 Image.asset('images/CarFuelImage.png', height: 110),
                                 color: Colors.white,
@@ -321,7 +330,6 @@ class CostiGeneraliState extends State<CostiGenerali>{
                               );
                             }
                             else {
-                              print('sono qui');
                               return Column(
                                   children: [
                                     ActivityListTile(
@@ -338,7 +346,6 @@ class CostiGeneraliState extends State<CostiGenerali>{
                             }
                           }
                           else {
-                            print('sono qui 1');
                             //return Center(child: CircularProgressIndicator());
                             return Column(
                                 children: [
