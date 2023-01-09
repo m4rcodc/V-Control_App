@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:car_control/Page/Scadenze.dart';
 import 'package:car_control/Page/home_page.dart';
@@ -128,8 +130,8 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
       assicurazioni.add(assic[i]['nome']);
     }
     if(info != null){
-      print('we');
       selectAssic = info['nome'];
+      typeAssicurazione = info['nome'];
       for(int i=0;i<numAssic.length;i++){
         if(numAssic[i]['nome'] == selectAssic) {
           numero = numAssic[i]['numero'];
@@ -137,18 +139,37 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
         }
       }
       prezzo = info['prezzo'];
-      tipoScad = info['tipoScad'];
+      typeScadenza = info['tipoScad'];
       Timestamp timestamp = info['data'];
       date = DateTime.fromMillisecondsSinceEpoch(timestamp.seconds*1000);
       if(info['notifiche'] != ''){
         List<String> notifiche = info['notifiche'].split(',');
         for(int i=0;i<notifiche.length;i++){
           List<String> notifica = notifiche[i].split('-');
-          _notifiche.add(BoxNotifica(notifica[1], int.parse(notifica[0]),remove: ()=>setState(() {_notifiche.clear();})));
+          _notifiche.add(BoxNotifica(notifica[1], int.parse(notifica[0]),remove: ()=>setState(() async {_notifiche = await deleteNotifica(notifica[0],notifica[1]);})));
         }
       }
       mod = true;
     }
+  }
+
+  Future<List<BoxNotifica>> deleteNotifica(String num,String time) async{
+    List<BoxNotifica> tempListNotif = [];
+    Timer _timer = Timer(Duration(seconds: 5), ()
+    {
+      for (int i = 0; i < _notifiche.length; i++) {
+        if (_notifiche[i].value.toString() != num ||
+            _notifiche[i].time != time) {
+          tempListNotif.add(BoxNotifica(_notifiche[i].time, _notifiche[i].value,
+              remove: () =>
+                  setState(() async {
+                    _notifiche = await deleteNotifica(
+                        _notifiche[i].value.toString(), _notifiche[i].time);
+                  })));
+        }
+      }
+    });
+    return tempListNotif;
   }
 
   void _addNotif(int num,String time){
@@ -166,7 +187,7 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
     }
     if(metti){
       setState(() {
-        _notifiche.add(BoxNotifica(time, num, remove: ()=>setState(() {_notifiche.clear();}))
+        _notifiche.add(BoxNotifica(time, num, remove: ()=>setState(() async {_notifiche = await deleteNotifica(num.toString(),time);}))
         );
       });
     }
@@ -210,9 +231,12 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
         Scadenze.insert(info, false);
 
       }
-      AddAssicurazione.info = null;
       HomePage.setPage(Scadenze(), 1);
-      Navigator.of(context).popAndPushNamed(HomePage.routeName);
+      Navigator.of(context).pop();
+      Navigator.pushReplacement(
+          Scadenze.contextS,
+          MaterialPageRoute(
+              builder: (BuildContext context) => HomePage()));
     }
   }
 

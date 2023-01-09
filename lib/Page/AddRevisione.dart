@@ -163,7 +163,11 @@ class _AddRevisioneState extends State<AddRevisione> {
         Scadenze.insert(info,false);
       }
       HomePage.setPage(Scadenze(), 1);
-      Navigator.of(context).popAndPushNamed(HomePage.routeName);
+      Navigator.of(context).pop();
+      Navigator.pushReplacement(
+          Scadenze.contextS,
+          MaterialPageRoute(
+              builder: (BuildContext context) => HomePage()));
     }
   }
 

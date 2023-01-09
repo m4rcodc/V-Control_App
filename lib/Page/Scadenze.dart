@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:car_control/Page/AddAssicurazione.dart';
 import 'package:car_control/Page/AddBollo.dart';
 import 'package:car_control/Page/AddTagliando.dart';
@@ -53,7 +55,7 @@ class Scadenze extends StatefulWidget {
     Navigator.of(_ScadenzeState.contextScad).pushNamed(route);
   }
 
-  static pagamento(String prezzo, String titolo) async{
+  static pagamento(String titolo,String nome,String prezzo,int km ,Timestamp data,String tipoScad,String notif) async{
     List months =
     ['gen', 'feb', 'mar', 'apr', 'mag','giu','lug','ago','set','ott','nov','dic'];
     DateTime now = new DateTime.now();
@@ -142,9 +144,32 @@ class Scadenze extends StatefulWidget {
         .doc('${month}')
         .update({"costo": double.tryParse(prezzo)! + sum1});
 
-    //print(colore.toString());
+    deleteAfterPay(titolo);
+    if(tipoScad != ""){
+      print("data: ");print(data);
+      DateTime dataScad = DateTime.fromMillisecondsSinceEpoch(data.millisecondsSinceEpoch);
+      DateTime newDataScad = DateTime.now();
+      if(tipoScad == "Trimestrale"){
+        newDataScad = new DateTime(dataScad.year,dataScad.month+3,dataScad.day);
+      }
+      if(tipoScad == "Semestrale"){
+        newDataScad = new DateTime(dataScad.year,dataScad.month+6,dataScad.day);
+      }
+      if(tipoScad == "Annuale"){
+        newDataScad = new DateTime(dataScad.year+1,dataScad.month,dataScad.day);
+      }
+      var info= {
+        'nome': nome,
+        'titolo': titolo,
+        'prezzo': prezzo,
+        'dataScad': newDataScad,
+        'km': km,
+        'tipoScad': tipoScad,
+        'notifiche': notif
+      };
+      insert(info, false);
 
-    //deleteAfterPay(titolo);
+    }
 
   }
 
@@ -168,6 +193,15 @@ class Scadenze extends StatefulWidget {
       Timestamp timestamp = data['dataScad'];
       int km = 0;
       if(data['titolo'] == 'Tagliando') km = data['km'];
+      var info= {
+        'nome': data['nome'],
+        'titolo': data['titolo'],
+        'prezzo': data['prezzo'],
+        'data': timestamp,
+        'km': km,
+        'tipoScad': data['tipoScad'],
+        'notifiche': data['notifiche']
+      };
       lista.add(
           AnimationWidget(
               BoxScadenza(
@@ -177,7 +211,7 @@ class Scadenze extends StatefulWidget {
                 getIcon(data['titolo']),
                 data['prezzo'],
                 km,
-                pagamento: ()  => pagamento(data['prezzo'], data['titolo']),
+                pagamento: () => pagamento(data['titolo'],data['nome'],data['prezzo'],km,timestamp,data['tipoScad'],data['notifiche']),
                 modifica: () => modifica(data['titolo'],data['nome'],data['prezzo'],km,timestamp,data['tipoScad'],data['notifiche']),
                 delete: () => delete(data['titolo']),
               ),
@@ -211,7 +245,7 @@ class Scadenze extends StatefulWidget {
           getIcon(info['titolo']),
           info['prezzo'],
           km,
-          pagamento: () =>  pagamento(info['prezzo'], info['titolo']),
+          pagamento: () => pagamento(info['titolo'],info['nome'],info['prezzo'],km,timestamp,info['tipoScad'],info['notifiche']),
           modifica: () => modifica(info['titolo'],info['nome'],info['prezzo'],km,timestamp,info['tipoScad'],info['notifiche']),
           delete: () => delete(info['titolo']),
         ),
@@ -219,13 +253,28 @@ class Scadenze extends StatefulWidget {
         )
     );
 
-    FirebaseAuth.instance.authStateChanges().listen((User? user) async{
-      CollectionReference scadenze = await FirebaseFirestore.instance.collection('scadenze');
-      if(mod){
-        var ref = scadenze.where('uid',isEqualTo: uid).where('titolo',isEqualTo: info['titolo']);
-        var query = await ref.get();
-        for (var doc in query.docs) {
-          await doc.reference.update({
+    Timer _timer = Timer(Duration(seconds: 5), (){
+      FirebaseAuth.instance.authStateChanges().listen((User? user) async{
+        CollectionReference scadenze = await FirebaseFirestore.instance.collection('scadenze');
+        if(mod){
+          var ref = scadenze.where('uid',isEqualTo: uid).where('titolo',isEqualTo: info['titolo']);
+          var query = await ref.get();
+          for (var doc in query.docs) {
+            await doc.reference.update({
+              'nome': info['nome'],
+              'titolo': info['titolo'],
+              'dataScad': info['dataScad'],
+              'prezzo': info['prezzo'],
+              'km': km,
+              'tipoScad': info['tipoScad'],
+              'notifiche': info['notifiche'],
+              'uid': uid,
+              'numero': info['numero']
+            });
+          }
+        }
+        else {
+          scadenze.add({
             'nome': info['nome'],
             'titolo': info['titolo'],
             'dataScad': info['dataScad'],
@@ -237,21 +286,10 @@ class Scadenze extends StatefulWidget {
             'numero': info['numero']
           });
         }
-      }
-      else {
-        scadenze.add({
-          'nome': info['nome'],
-          'titolo': info['titolo'],
-          'dataScad': info['dataScad'],
-          'prezzo': info['prezzo'],
-          'km': km,
-          'tipoScad': info['tipoScad'],
-          'notifiche': info['notifiche'],
-          'uid': uid,
-          'numero': info['numero']
-        });
-      }
+      });
     });
+
+
   }
 
   static void update(var info,String old) async{
@@ -297,10 +335,9 @@ class Scadenze extends StatefulWidget {
         doc.reference.delete();
       }
     }
-    );
+      );
   }
 
-  /*
   static void deleteAfterPay(String titolo){
     if(titolo == 'Assicurazione') AddAssicurazione.info = null;
     if(titolo == 'Bollo') AddBollo.info = null;
@@ -329,7 +366,7 @@ class Scadenze extends StatefulWidget {
     }
     );
   }
-*/
+
   static void sortLista(){
     var repeat = true;
     var temp;
@@ -352,7 +389,10 @@ class Scadenze extends StatefulWidget {
 
   @override
   _ScadenzeState createState() => _ScadenzeState(lista,resetAnimation);
-}
+
+  static var contextS = null;
+
+  }
 
 
 class _ScadenzeState extends State<Scadenze>{
@@ -409,6 +449,7 @@ class _ScadenzeState extends State<Scadenze>{
   @override
   Widget build(BuildContext context) {
     contextScad = context;
+    Scadenze.contextS = context;
     HomePage.resetPage();
     Scadenze.sortLista();
     itemsAddScadenze = [
@@ -464,7 +505,7 @@ class _ScadenzeState extends State<Scadenze>{
         actions: <Widget>[
           Container(
             margin: EdgeInsets.symmetric(horizontal: 10),
-            child: SpeedDial(
+             child: SpeedDial(
               foregroundColor: Colors.white,
               backgroundColor: Colors.transparent,
               direction: SpeedDialDirection.down,
@@ -477,8 +518,8 @@ class _ScadenzeState extends State<Scadenze>{
               children: itemsAddScadenze,
             ),
 
-          )
-        ],
+             )
+    ],
         title: Text('Scadenze', style: TextStyle(color: Colors.white)),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -504,28 +545,28 @@ class _ScadenzeState extends State<Scadenze>{
         ),
         child:
         Stack(
-          children: [
-            Timeline.tileBuilder(
-              padding: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.91, top: MediaQuery.of(context).size.height * 0.11),
-              builder: TimelineTileBuilder.fromStyle(
-                  contentsAlign: ContentsAlign.basic,
-                  contentsBuilder: (context, index) => Padding(
-                    padding:  EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.16, bottom: MediaQuery.of(context).size.height * 0.05),
-                  ),
-                  itemCount: 4,
-                  indicatorStyle: IndicatorStyle.dot,
-                  connectorStyle: ConnectorStyle.solidLine
-              ),
-              theme: TimelineThemeData(
-                  color: Colors.blue.shade500
-              ),
-            ),
-            ListView(
-              children:
-              listaScadenze,
+            children: [
+               Timeline.tileBuilder(
+                  padding: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.91, top: MediaQuery.of(context).size.height * 0.11),
+                    builder: TimelineTileBuilder.fromStyle(
+                      contentsAlign: ContentsAlign.basic,
+                      contentsBuilder: (context, index) => Padding(
+                        padding:  EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.18, bottom: 20),
+                      ),
+                      itemCount: 4,
+                      indicatorStyle: IndicatorStyle.dot,
+                      connectorStyle: ConnectorStyle.solidLine
+                      ),
+                      theme: TimelineThemeData(
+                        color: Colors.blue.shade500
+                      ),
+                    ),
+              ListView(
+                children:
+                listaScadenze,
             )
           ],
-        ),
+      ),
       ),
     );
   }
