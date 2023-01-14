@@ -105,23 +105,30 @@ class _AddRevisioneState extends State<AddRevisione> {
   }
 
   void _addNotif(int num,String time){
-    bool metti = true;
-    if(num == 1){
-      time == 'ore' ? time = 'ora' : time = time;
-      time == 'giorni' ? time = 'giorno' : time = time;
-      time == 'settimane' ? time = 'settimana' : time = time;
-      time == 'mesi' ? time = 'mese' : time = time;
-    }
-    for(int i=0;i<_notifiche.length;i++){
-      if(_notifiche[i].value == num && _notifiche[i].time == time){
-        metti = false;
+    if(_notifiche.length < 3 ) {
+      bool metti = true;
+      if (num == 1) {
+        time == 'ore' ? time = 'ora' : time = time;
+        time == 'giorni' ? time = 'giorno' : time = time;
+        time == 'settimane' ? time = 'settimana' : time = time;
+        time == 'mesi' ? time = 'mese' : time = time;
+      }
+      for (int i = 0; i < _notifiche.length; i++) {
+        if (_notifiche[i].value == num && _notifiche[i].time == time) {
+          metti = false;
+        }
+      }
+      if (metti) {
+        setState(() {
+          _notifiche.add(BoxNotifica(time, num,
+              remove: () => setState(() {
+                    _notifiche.clear();
+                  })));
+        });
       }
     }
-    if(metti){
-      setState(() {
-        _notifiche.add(BoxNotifica(time, num, remove: ()=>setState(() {_notifiche.clear();}))
-        );
-      });
+    else{
+
     }
   }
 

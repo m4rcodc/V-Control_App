@@ -146,50 +146,42 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
         List<String> notifiche = info['notifiche'].split(',');
         for(int i=0;i<notifiche.length;i++){
           List<String> notifica = notifiche[i].split('-');
-          _notifiche.add(BoxNotifica(notifica[1], int.parse(notifica[0]),remove: ()=>setState(() async {_notifiche = await deleteNotifica(notifica[0],notifica[1]);})));
+          _notifiche.add(BoxNotifica(notifica[1], int.parse(notifica[0]),remove: ()=>setState(()  {deleteNotifica(notifica[0],notifica[1]);})));
         }
       }
       mod = true;
     }
   }
 
-  Future<List<BoxNotifica>> deleteNotifica(String num,String time) async{
-    List<BoxNotifica> tempListNotif = [];
-    Timer _timer = Timer(Duration(seconds: 5), ()
-    {
-      for (int i = 0; i < _notifiche.length; i++) {
-        if (_notifiche[i].value.toString() != num ||
-            _notifiche[i].time != time) {
-          tempListNotif.add(BoxNotifica(_notifiche[i].time, _notifiche[i].value,
-              remove: () =>
-                  setState(() async {
-                    _notifiche = await deleteNotifica(
-                        _notifiche[i].value.toString(), _notifiche[i].time);
-                  })));
-        }
-      }
-    });
-    return tempListNotif;
+  void deleteNotifica(String num,String time) {
+    _notifiche.clear();
   }
 
   void _addNotif(int num,String time){
-    bool metti = true;
-    if(num == 1){
-      time == 'ore' ? time = 'ora' : time = time;
-      time == 'giorni' ? time = 'giorno' : time = time;
-      time == 'settimane' ? time = 'settimana' : time = time;
-      time == 'mesi' ? time = 'mese' : time = time;
-    }
-    for(int i=0;i<_notifiche.length;i++){
-      if(_notifiche[i].value == num && _notifiche[i].time == time){
-        metti = false;
+    if(_notifiche.length < 3 ) {
+      bool metti = true;
+      if (num == 1) {
+        time == 'ore' ? time = 'ora' : time = time;
+        time == 'giorni' ? time = 'giorno' : time = time;
+        time == 'settimane' ? time = 'settimana' : time = time;
+        time == 'mesi' ? time = 'mese' : time = time;
+      }
+      for (int i = 0; i < _notifiche.length; i++) {
+        if (_notifiche[i].value == num && _notifiche[i].time == time) {
+          metti = false;
+        }
+      }
+      if (metti) {
+        setState(() {
+          _notifiche.add(BoxNotifica(time, num,
+              remove: () => setState(() {
+                    deleteNotifica(num.toString(), time);
+                  })));
+        });
       }
     }
-    if(metti){
-      setState(() {
-        _notifiche.add(BoxNotifica(time, num, remove: ()=>setState(() async {_notifiche = await deleteNotifica(num.toString(),time);}))
-        );
-      });
+    else{
+      // non si possono aggiungere più di 3 notifiche
     }
   }
 
