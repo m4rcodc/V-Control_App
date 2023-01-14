@@ -58,10 +58,14 @@ class Scadenze extends StatefulWidget {
   static pagamento(String titolo,String nome,String prezzo,int km ,Timestamp data,String tipoScad,String notif) async{
     List months =
     ['gen', 'feb', 'mar', 'apr', 'mag','giu','lug','ago','set','ott','nov','dic'];
+    int? current_month;
+    int? current_year;
     DateTime now = new DateTime.now();
     int indexMonth = now.month;
     String month = months[indexMonth - 1];
     var formatter = new DateFormat('dd-MM-yyyy');
+    current_year = now.year;
+    print('anno $current_year');
 
     CollectionReference costiScadenze = await FirebaseFirestore
         .instance.collection('CostiScadenze');
@@ -78,16 +82,16 @@ class Scadenze extends StatefulWidget {
     }
     final generalCosts = await FirebaseFirestore.instance
         .collection('CostiGenerali')
-        .doc('2022')
+        .doc('$current_year')
         .collection(uid!)
         .get();
     final test = await FirebaseFirestore.instance
-        .collection('CostiTotaliScadenze').doc('2022').collection(
+        .collection('CostiTotaliScadenze').doc('$current_year').collection(
         uid!).get();
     if (generalCosts.docs.isEmpty) {
       final docu = await FirebaseFirestore
           .instance.collection('CostiGenerali')
-          .doc('2022')
+          .doc('$current_year')
           .collection(uid!);
       for (int i = 0; i < 12; i++) {
         docu.doc(months[i]).set(
@@ -102,7 +106,7 @@ class Scadenze extends StatefulWidget {
     if (test.docs.isEmpty) {
       final docu = await FirebaseFirestore.instance
           .collection('CostiTotaliScadenze')
-          .doc('2022')
+          .doc('$current_year')
           .collection(uid!);
       for (int i = 0; i < 12; i++) {
         docu.doc(months[i]).set(
@@ -124,7 +128,7 @@ class Scadenze extends StatefulWidget {
     });
 
     final doc1 = await FirebaseFirestore.instance
-        .collection('CostiGenerali').doc('2022')
+        .collection('CostiGenerali').doc('$current_year')
         .collection(uid!).where(
         'mese', isEqualTo: month)
         .get();
@@ -133,13 +137,13 @@ class Scadenze extends StatefulWidget {
     sum1 += docs1[0]['costo'];
 
     await FirebaseFirestore.instance.collection(
-        'CostiTotaliScadenze').doc('2022')
+        'CostiTotaliScadenze').doc('$current_year')
         .collection(uid!)
         .doc('${month}')
         .update({"costoScadenza": sum + double.tryParse(prezzo)!});
 
     await FirebaseFirestore.instance.collection(
-        'CostiGenerali').doc('2022')
+        'CostiGenerali').doc('$current_year')
         .collection(uid!)
         .doc('${month}')
         .update({"costo": double.tryParse(prezzo)! + sum1});
@@ -592,6 +596,7 @@ class _AnimationWidgetState extends State<AnimationWidget> with SingleTickerProv
     this._animation = animation;
   }
 
+
   late final AnimationController _controller = AnimationController(
     duration: const Duration(seconds: 1),
     vsync: this,
@@ -620,4 +625,5 @@ class _AnimationWidgetState extends State<AnimationWidget> with SingleTickerProv
       child: _boxScadenza,
     );
   }
+
 }

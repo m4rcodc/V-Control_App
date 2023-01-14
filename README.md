@@ -1,4 +1,4 @@
-# car_control
+# V-Control
 
-Car management application
+Vehicle management application for EMAD course (App Challenge)
 
