@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "1097648256893-blfei4c93ku4b052rbr52rt354934945.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.car_control",
+            "certificate_hash": "5475814269e3af042e157eeac02bfd42bca222e1"
+          }
+        },
+        {
           "client_id": "1097648256893-rnp9k6lpf41n15d654av4kn2ek3oavhr.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -32,10 +40,10 @@
               "client_type": 3
             },
             {
-              "client_id": "1097648256893-qb5e9q5amoakbdoih1p0maubdl852erh.apps.googleusercontent.com",
+              "client_id": "1097648256893-j038664c9nlo0p0l6jgl28kpjiae35fh.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.flutterProjectProva"
+                "bundle_id": "com.example.carControl"
               }
             }
           ]
