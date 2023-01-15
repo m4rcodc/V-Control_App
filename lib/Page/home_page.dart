@@ -133,7 +133,7 @@ class _HomePageState extends State<HomePage> {
                             child: Text('Non mostrare più',
                               style: TextStyle(fontSize: 20,color: textColor),
                             ),
-                            onPressed: () {
+                            onPressed: () async{
                               String notif = HomePage.stringNotifiche[titolo]!;
                               String newNotif = '';
                               for(String str2 in notif.split(',')){
@@ -143,19 +143,15 @@ class _HomePageState extends State<HomePage> {
                               }
                               HomePage.stringNotifiche[titolo] = newNotif;
                               print('new: '+newNotif);
-                              FirebaseAuth.instance.authStateChanges().listen((User? user) async{
-
                                 print('sono in HomePage');
-
                                 CollectionReference scadenze = await FirebaseFirestore.instance.collection('scadenze');
-                                var ref = scadenze.where('uid',isEqualTo: uid).where('titolo',isEqualTo: titolo);
+                                var ref = scadenze.where('uid',isEqualTo: FirebaseAuth.instance.currentUser?.uid).where('titolo',isEqualTo: titolo);
                                 var query = await ref.get();
                                 for (var doc in query.docs) {
                                   await doc.reference.update({
                                     'notifiche': newNotif,
                                   });
                                 }
-                              });
                               Navigator.of(context).pop();
                             },
                           )

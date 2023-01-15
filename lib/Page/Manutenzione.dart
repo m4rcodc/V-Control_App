@@ -27,6 +27,7 @@ class Manutenzione extends StatefulWidget {
 
 class _ManutenzioneState extends State<Manutenzione>{
 
+  final GlobalKey<FormState> _formKeyCosto = GlobalKey<FormState>();
 
   String? typeManutention = 'Tipo di manutenzione';
   double? costoManutenzione;
@@ -443,6 +444,9 @@ class _ManutenzioneState extends State<Manutenzione>{
               ),
             ),
             //Costo
+            Form(
+              key: _formKeyCosto,
+              child:
             Container(
               margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
               child: TextFormField(
@@ -470,13 +474,30 @@ class _ManutenzioneState extends State<Manutenzione>{
                     borderSide: BorderSide(color: Colors.indigoAccent),
                     borderRadius: BorderRadius.circular(25),
                   ),
+                  errorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red),
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red),
+                    borderRadius: BorderRadius.circular(25),
+                  ),
                 ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Inserisci la spesa effettuata';
+                  }
+                  else {
+                    return null;
+                  }
+                },
                 onChanged: (value) {
                   setState(() {
                     costoManutenzione = double.tryParse(value);
                   });
                 },
               ),
+            ),
             ),
             //Note
             Container(
@@ -516,79 +537,89 @@ class _ManutenzioneState extends State<Manutenzione>{
             Container(
               margin: const EdgeInsets.symmetric(vertical: 5.0,horizontal: 100.0),
               child: ElevatedButton(
-                onPressed: () => {
-                  /* if(image == null) {
-                      displayCenterMotionToast()
+                onPressed: () async{
+                     if(!_formKeyCosto.currentState!.validate()){
                     }
-                    else if(!_formKeyPlate.currentState!.validate()){
-                    }
-                    else if(!_formKeyType.currentState!.validate()){
-                      }
-                      else if(!_formKeyEngine.currentState!.validate()){
-                        }
-                        else if(!_formKeyFuel.currentState!.validate()){
-                          }
-                          else if(!_formKeyKm.currentState!.validate()){
-                            }
-                            else{*/
-                  FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+                            else {
+                       print('sono in manutenzione');
 
-                    print('sono in manutenzione');
+                       current_month = now.month;
+                       current_year = now.year;
+                       CollectionReference costi = await FirebaseFirestore
+                           .instance.collection('CostiManutenzione');
+                       final test = await FirebaseFirestore.instance.collection(
+                           'CostiTotaliManutenzione')
+                           .doc('$current_year')
+                           .collection(FirebaseAuth.instance.currentUser!.uid)
+                           .get();
+                       final generalCosts = await FirebaseFirestore.instance
+                           .collection('CostiGenerali')
+                           .doc('$current_year')
+                           .collection(FirebaseAuth.instance.currentUser!.uid)
+                           .get();
+                       note ??= '';
+                       final doc = await FirebaseFirestore.instance.collection(
+                           'CostiManutenzione').where(
+                           'mese', isEqualTo: months[current_month! - 1]).where(
+                           'year', isEqualTo: current_year)
+                           .where('uid',
+                           isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+                           .get();
+                       var docs = doc.docs;
+                       double sum = 0.0;
+                       for (int i = 0; i < docs.length; i++) {
+                         sum += docs[i]['costo'];
+                       }
 
-                    current_month = now.month;
-                    current_year = now.year;
-                    CollectionReference costi = await FirebaseFirestore.instance.collection('CostiManutenzione');
-                    final test = await FirebaseFirestore.instance.collection('CostiTotaliManutenzione').doc('$current_year').collection(user!.uid).get();
-                    final generalCosts = await FirebaseFirestore.instance.collection('CostiGenerali').doc('$current_year').collection(user!.uid).get();
-                    note ??= '';
-                    final doc = await FirebaseFirestore.instance.collection('CostiManutenzione').where('mese', isEqualTo: months[current_month! - 1]).where('year', isEqualTo: current_year).where('uid', isEqualTo: user.uid).get();
-                    var docs = doc.docs;
-                    double sum = 0.0;
-                    for(int i=0; i < docs.length; i++){
-                      sum += docs[i]['costo'];
-                    }
-
-                    //Indexing
-                    final indexing = await FirebaseFirestore.instance
-                        .collection('CostiManutenzione')
-                        .where('uid', isEqualTo: user?.uid)
-                        .orderBy('index', descending: true)
-                        .limit(1)
-                        .get();
-                    var docsIndexing = indexing.docs;
-                    if(docsIndexing.isEmpty){
-                      indexTable = 0;
-                    }
-                    else{
-                      var index = docsIndexing[0]['index'];
-                      indexTable = index;
-                    }
+                       //Indexing
+                       final indexing = await FirebaseFirestore.instance
+                           .collection('CostiManutenzione')
+                           .where('uid',
+                           isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+                           .orderBy('index', descending: true)
+                           .limit(1)
+                           .get();
+                       var docsIndexing = indexing.docs;
+                       if (docsIndexing.isEmpty) {
+                         indexTable = 0;
+                       }
+                       else {
+                         var index = docsIndexing[0]['index'];
+                         indexTable = index;
+                       }
 
 
-                    if(test.docs.isEmpty) {
-                      final docu = await FirebaseFirestore.instance.collection('CostiTotaliManutenzione').doc('$current_year').collection(user!.uid);
-                      for(int i = 0; i < 12; i++) {
-                        docu.doc(months[i]).set(
-                            {'mese': months[i],
-                              'costoManutenzione': 0,
-                              'index': i,
-                            }
-                        );
-                      }
-                    }
-                    if(generalCosts.docs.isEmpty){
-                      final docu = await FirebaseFirestore.instance.collection('CostiGenerali').doc('$current_year').collection(user!.uid);
-                      for(int i = 0; i < 12; i++) {
-                        docu.doc(months[i]).set(
-                            {'mese': months[i],
-                              'costo': 0,
-                              'index': i,
-                              'totaleLitri': 0,
-                            }
-                        );
-                      }
-                    }
-                    /*else {
+                       if (test.docs.isEmpty) {
+                         final docu = await FirebaseFirestore.instance
+                             .collection('CostiTotaliManutenzione').doc(
+                             '$current_year').collection(
+                             FirebaseAuth.instance.currentUser!.uid);
+                         for (int i = 0; i < 12; i++) {
+                           docu.doc(months[i]).set(
+                               {'mese': months[i],
+                                 'costoManutenzione': 0,
+                                 'index': i,
+                               }
+                           );
+                         }
+                       }
+                       if (generalCosts.docs.isEmpty) {
+                         final docu = await FirebaseFirestore.instance
+                             .collection('CostiGenerali')
+                             .doc('$current_year')
+                             .collection(
+                             FirebaseAuth.instance.currentUser!.uid);
+                         for (int i = 0; i < 12; i++) {
+                           docu.doc(months[i]).set(
+                               {'mese': months[i],
+                                 'costo': 0,
+                                 'index': i,
+                                 'totaleLitri': 0,
+                               }
+                           );
+                         }
+                       }
+                       /*else {
                       final docu = await FirebaseFirestore.instance.collection('CostiTotaliManutenzione').doc('2022').collection(user!.uid);
                       for(int i = 0; i < 12; i++) {
                         docu.doc(months[i]).set(
@@ -599,75 +630,64 @@ class _ManutenzioneState extends State<Manutenzione>{
                         );
                       }
                     }*/
-                    costi.add({
-                      'costo': costoManutenzione,
-                      'data': formatter.format(now),
-                      'type': typeManutention,
-                      'note': note,
-                      'mese': months[current_month! - 1],
-                      'year': now.year.toString(),
-                      'uid': user?.uid,
-                      'index': indexTable! + 1
-                    });
+                       costi.add({
+                         'costo': costoManutenzione,
+                         'data': formatter.format(now),
+                         'type': typeManutention,
+                         'note': note,
+                         'mese': months[current_month! - 1],
+                         'year': now.year.toString(),
+                         'uid': FirebaseAuth.instance.currentUser!.uid,
+                         'index': indexTable! + 1
+                       });
 
-                    await readPoints();
-
-
-                    if(typeManutention == 'Cambio ruote')
-                    {
-                      sceltaPoints = cambioGommePoints;
-                      userPoints = (userPoints! + sceltaPoints)!;
-
-                    }
-                    else if(typeManutention == 'Cambio olio')
-                    {
-                      sceltaPoints = cambioOlioPoints;
-                      userPoints = (userPoints! + cambioOlioPoints)!;
-
-                    }
-                    else if(typeManutention == 'Cambio batteria')
-                    {
-                      sceltaPoints = cambioBatteriaPoints;
-                      userPoints = (userPoints! + cambioBatteriaPoints)!;
-
-                    }
-                    else if(typeManutention == 'Impianto frenante')
-                    {
-                      sceltaPoints = impiantoFrenantePoints;
-                      userPoints = (userPoints! + impiantoFrenantePoints)!;
-
-                    }
-                    else if(typeManutention == 'Motore')
-                    {
-                      sceltaPoints = motorePoints;
-                      userPoints = (userPoints! + motorePoints)!;
-                    }
-                    else
-                    {
-                      sceltaPoints = altroPoints;
-                      userPoints = (userPoints! + altroPoints)!;
-
-                    }
+                       await readPoints();
 
 
+                       if (typeManutention == 'Cambio ruote') {
+                         sceltaPoints = cambioGommePoints;
+                         userPoints = (userPoints! + sceltaPoints)!;
+                       }
+                       else if (typeManutention == 'Cambio olio') {
+                         sceltaPoints = cambioOlioPoints;
+                         userPoints = (userPoints! + cambioOlioPoints)!;
+                       }
+                       else if (typeManutention == 'Cambio batteria') {
+                         sceltaPoints = cambioBatteriaPoints;
+                         userPoints = (userPoints! + cambioBatteriaPoints)!;
+                       }
+                       else if (typeManutention == 'Impianto frenante') {
+                         sceltaPoints = impiantoFrenantePoints;
+                         userPoints = (userPoints! + impiantoFrenantePoints)!;
+                       }
+                       else if (typeManutention == 'Motore') {
+                         sceltaPoints = motorePoints;
+                         userPoints = (userPoints! + motorePoints)!;
+                       }
+                       else {
+                         sceltaPoints = altroPoints;
+                         userPoints = (userPoints! + altroPoints)!;
+                       }
 
-                    final comm = FirebaseFirestore.instance.collection("community").doc(FirebaseAuth.instance.currentUser?.uid);
-                    comm.update({
-                      'points' : userPoints
-                    }).then((value) => debugPrint("update community!"));
+
+                       final comm = FirebaseFirestore.instance.collection(
+                           "community").doc(
+                           FirebaseAuth.instance.currentUser?.uid);
+                       comm.update({
+                         'points': userPoints
+                       }).then((value) => debugPrint("update community!"));
 
 
-                    await AwesomeDialog(
-                      context: context,
-                      dialogType: DialogType.success,
-                      headerAnimationLoop: false,
-                      animType: AnimType.topSlide,
-                      title: 'Complimenti!',
-                      desc:
-                      'Hai ricevuto $sceltaPoints punti!',
-                      btnOkOnPress: () {
-                      },
-                    ).show();
+                       await AwesomeDialog(
+                         context: context,
+                         dialogType: DialogType.success,
+                         headerAnimationLoop: false,
+                         animType: AnimType.topSlide,
+                         title: 'Complimenti!',
+                         desc:
+                         'Hai ricevuto $sceltaPoints punti!',
+                         btnOkOnPress: () {},
+                       ).show();
 
 
 /*
@@ -685,22 +705,34 @@ class _ManutenzioneState extends State<Manutenzione>{
                     );
 */
 
-                    print(current_year);
-                    final doc1 = await FirebaseFirestore.instance.collection('CostiGenerali').doc('$current_year').collection(user.uid).where('mese', isEqualTo: months[current_month! - 1]).get();
-                    var docs1 = doc1.docs;
-                    double sum1 = 0.0;
-                    sum1 += docs1[0]['costo'];
-                    print('somma costo qui $sum1');
+                       print(current_year);
+                       final doc1 = await FirebaseFirestore.instance.collection(
+                           'CostiGenerali').doc('$current_year').collection(
+                           FirebaseAuth.instance.currentUser!.uid).where(
+                           'mese', isEqualTo: months[current_month! - 1]).get();
+                       var docs1 = doc1.docs;
+                       double sum1 = 0.0;
+                       sum1 += docs1[0]['costo'];
+                       print('somma costo qui $sum1');
 
 
-                    await FirebaseFirestore.instance.collection('CostiTotaliManutenzione').doc('$current_year').collection(user.uid).doc('${months[current_month! - 1]}').update({"costoManutenzione": sum + costoManutenzione!});
+                       await FirebaseFirestore.instance.collection(
+                           'CostiTotaliManutenzione').doc('$current_year')
+                           .collection(FirebaseAuth.instance.currentUser!.uid)
+                           .doc('${months[current_month! - 1]}')
+                           .update(
+                           {"costoManutenzione": sum + costoManutenzione!});
 
-                    await FirebaseFirestore.instance.collection('CostiGenerali').doc('$current_year').collection(user.uid).doc('${months[current_month! - 1]}').update({"costo": sum1 + costoManutenzione!});
+                       await FirebaseFirestore.instance.collection(
+                           'CostiGenerali').doc('$current_year').collection(
+                           FirebaseAuth.instance.currentUser!.uid).doc(
+                           '${months[current_month! - 1]}').update(
+                           {"costo": sum1 + costoManutenzione!});
 
 
-                    Navigator.of(context,rootNavigator: true).pop();
-                  })
-                },
+                       Navigator.of(context, rootNavigator: true).pop();
+                     }
+                            },
                 style: ElevatedButton.styleFrom(
                   elevation: 10,
                   backgroundColor: Colors.blue.shade200,

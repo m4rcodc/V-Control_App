@@ -22,7 +22,7 @@ class _HelpState extends State<Help> {
   var state;
 
 
-  final ref = FirebaseFirestore.instance.collection("vehicle").where("uid", isEqualTo:uid).get().then((value){
+  final ref = FirebaseFirestore.instance.collection("vehicle").where("uid", isEqualTo: FirebaseAuth.instance.currentUser?.uid).get().then((value){
     fuel = value.docs[0].data()['fuel'];
     if(fuel == 'Elettrica')
     {
@@ -45,14 +45,15 @@ class _HelpState extends State<Help> {
   }*/
 
   checkNumber() async{
+    print('Sono qui');
     final doc =  await FirebaseFirestore.instance
         .collection('scadenze')
-        .where('uid', isEqualTo: uid)
+        .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
         .where("titolo", isEqualTo: 'Assicurazione')
         .get();
     if(doc.docs.isNotEmpty){
       setState(() {
-        numero = doc.docs[0].data()['numero'];
+        numero = doc.docs[0]['numero'];
       });
     }
     else {
@@ -60,12 +61,13 @@ class _HelpState extends State<Help> {
         numero = '';
       });
     }
+    print(numero);
   }
 
     checkCar() async {
       final doc =  await FirebaseFirestore.instance
           .collection('vehicle')
-          .where('uid', isEqualTo: uid)
+          .where('uid', isEqualTo:FirebaseAuth.instance.currentUser?.uid)
           .get();
       if(doc.docs.isNotEmpty){
         state = true;
@@ -76,9 +78,6 @@ class _HelpState extends State<Help> {
         print(state);
       }
     }
-
-
-
 
   @override
   initState() {

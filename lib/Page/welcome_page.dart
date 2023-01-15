@@ -59,18 +59,15 @@ class StartState extends State<WelcomePage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                flex: 5,
-                  //padding: const EdgeInsets.only(top: 35, left: 25),
-                  child: Align(
+                  Container(
                       alignment: Alignment.topCenter,
+                      margin: EdgeInsets.only(top: 85),
                     child:
                       Image.asset('images/LogoApp.png', scale: 3)
                   ),
-              ),
               Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.symmetric(vertical: 45),
+                alignment: Alignment.bottomCenter,
+                padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.48),
                 child: Column(
                   children: [
                     Container(

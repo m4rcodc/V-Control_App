@@ -930,51 +930,6 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
               ),
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
-                child: TextFormField(
-                  autofocus: false,
-                  initialValue: prezzo,
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    setState(() {
-                      prezzo = value;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
-                    labelText: "Inserisci il prezzo",
-                    labelStyle: const TextStyle(fontSize: 14, color: Colors.black54),
-                    filled: true,
-                    fillColor: Colors.white,
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25),
-                      borderSide: BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder:  OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.indigoAccent),
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.red),
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.red),
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                  ),
-                  validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Inserisci il prezzo';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
                 child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         padding: EdgeInsets.only(top: 10, bottom: 10),
@@ -1177,6 +1132,50 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
                         ],
                       ),
                     )
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
+                child: TextFormField(
+                  initialValue: prezzo,
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    setState(() {
+                      prezzo = value;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                    labelText: "Inserisci il prezzo",
+                    labelStyle: const TextStyle(fontSize: 14, color: Colors.black54),
+                    filled: true,
+                    fillColor: Colors.white,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                    focusedBorder:  OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.indigoAccent),
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red),
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red),
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                  ),
+                  validator: (String? value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Inserisci il prezzo';
+                    }
+                    return null;
+                  },
                 ),
               ),
               Container(

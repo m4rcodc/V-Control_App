@@ -66,6 +66,15 @@ class Scadenze extends StatefulWidget {
     var formatter = new DateFormat('dd-MM-yyyy');
     current_year = now.year;
     print('anno $current_year');
+    String? number;
+
+
+    final docNumber = await FirebaseFirestore.instance
+        .collection('scadenze')
+        .where('titolo', isEqualTo: 'Assicurazione')
+        .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+        .get();
+     number = docNumber.docs[0]['numero'];
 
     CollectionReference costiScadenze = await FirebaseFirestore
         .instance.collection('CostiScadenze');
@@ -73,7 +82,7 @@ class Scadenze extends StatefulWidget {
         .collection('CostiScadenze')
         .where(
         'mese', isEqualTo: month)
-        .where('uid', isEqualTo: uid)
+        .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
         .get();
     var docs = doc.docs;
     double sum = 0.0;
@@ -83,16 +92,16 @@ class Scadenze extends StatefulWidget {
     final generalCosts = await FirebaseFirestore.instance
         .collection('CostiGenerali')
         .doc('$current_year')
-        .collection(uid!)
+        .collection(FirebaseAuth.instance.currentUser!.uid)
         .get();
     final test = await FirebaseFirestore.instance
         .collection('CostiTotaliScadenze').doc('$current_year').collection(
-        uid!).get();
+        FirebaseAuth.instance.currentUser!.uid).get();
     if (generalCosts.docs.isEmpty) {
       final docu = await FirebaseFirestore
           .instance.collection('CostiGenerali')
           .doc('$current_year')
-          .collection(uid!);
+          .collection(FirebaseAuth.instance.currentUser!.uid);
       for (int i = 0; i < 12; i++) {
         docu.doc(months[i]).set(
             {'mese': months[i],
@@ -107,7 +116,7 @@ class Scadenze extends StatefulWidget {
       final docu = await FirebaseFirestore.instance
           .collection('CostiTotaliScadenze')
           .doc('$current_year')
-          .collection(uid!);
+          .collection(FirebaseAuth.instance.currentUser!.uid);
       for (int i = 0; i < 12; i++) {
         docu.doc(months[i]).set(
             {'mese': months[i],
@@ -123,13 +132,13 @@ class Scadenze extends StatefulWidget {
       'data': formatter.format(now),
       'year': now.year.toString(),
       'mese': month,
-      'uid': uid,
+      'uid': FirebaseAuth.instance.currentUser?.uid,
       'tipo': titolo
     });
 
     final doc1 = await FirebaseFirestore.instance
         .collection('CostiGenerali').doc('$current_year')
-        .collection(uid!).where(
+        .collection(FirebaseAuth.instance.currentUser!.uid).where(
         'mese', isEqualTo: month)
         .get();
     var docs1 = doc1.docs;
@@ -138,17 +147,18 @@ class Scadenze extends StatefulWidget {
 
     await FirebaseFirestore.instance.collection(
         'CostiTotaliScadenze').doc('$current_year')
-        .collection(uid!)
+        .collection(FirebaseAuth.instance.currentUser!.uid)
         .doc('${month}')
         .update({"costoScadenza": sum + double.tryParse(prezzo)!});
 
     await FirebaseFirestore.instance.collection(
         'CostiGenerali').doc('$current_year')
-        .collection(uid!)
+        .collection(FirebaseAuth.instance.currentUser!.uid)
         .doc('${month}')
         .update({"costo": double.tryParse(prezzo)! + sum1});
 
     deleteAfterPay(titolo);
+
     if(tipoScad != ""){
       print("data: ");print(data);
       DateTime dataScad = DateTime.fromMillisecondsSinceEpoch(data.millisecondsSinceEpoch);
@@ -169,7 +179,8 @@ class Scadenze extends StatefulWidget {
         'dataScad': newDataScad,
         'km': km,
         'tipoScad': tipoScad,
-        'notifiche': notif
+        'notifiche': notif,
+        'numero': number
       };
       insert(info, false);
 
@@ -179,7 +190,7 @@ class Scadenze extends StatefulWidget {
 
   static Future<String> getKmAttual() async{
     var ref = FirebaseFirestore.instance.collection("vehicle")
-        .where('uid',isEqualTo: uid);
+        .where('uid',isEqualTo: FirebaseAuth.instance.currentUser?.uid);
     var query = await ref.get();
     for (var queryDocumentSnapshot in query.docs) {
       Map<String, dynamic> data = queryDocumentSnapshot.data();
@@ -190,8 +201,9 @@ class Scadenze extends StatefulWidget {
 
   static Future<List<AnimationWidget>> getScadenze() async{
     var ref = FirebaseFirestore.instance.collection("scadenze")
-        .where('uid',isEqualTo: uid);
+        .where('uid',isEqualTo: FirebaseAuth.instance.currentUser?.uid);
     var query = await ref.get();
+    print('sono qui ${FirebaseAuth.instance.currentUser?.uid}');
     for (var queryDocumentSnapshot in query.docs) {
       Map<String, dynamic> data = queryDocumentSnapshot.data();
       Timestamp timestamp = data['dataScad'];
@@ -235,10 +247,11 @@ class Scadenze extends StatefulWidget {
     return icon;
   }
 
-  static void insert(var info,bool mod){
+  static void insert(var info,bool mod) async{
+    print('Sono qui');
     Timestamp timestamp = Timestamp.fromDate(info['dataScad']);
     int km = 0;
-    if(info['titolo'] == 'Tagliando') {
+    if (info['titolo'] == 'Tagliando') {
       km = info['km'];
     }
     lista.add(
@@ -249,51 +262,64 @@ class Scadenze extends StatefulWidget {
           getIcon(info['titolo']),
           info['prezzo'],
           km,
-          pagamento: () => pagamento(info['titolo'],info['nome'],info['prezzo'],km,timestamp,info['tipoScad'],info['notifiche']),
-          modifica: () => modifica(info['titolo'],info['nome'],info['prezzo'],km,timestamp,info['tipoScad'],info['notifiche']),
+          pagamento: () =>
+              pagamento(
+                  info['titolo'],
+                  info['nome'],
+                  info['prezzo'],
+                  km,
+                  timestamp,
+                  info['tipoScad'],
+                  info['notifiche']),
+          modifica: () =>
+              modifica(
+                  info['titolo'],
+                  info['nome'],
+                  info['prezzo'],
+                  km,
+                  timestamp,
+                  info['tipoScad'],
+                  info['notifiche']),
           delete: () => delete(info['titolo']),
         ),
             true
         )
     );
 
-    Timer _timer = Timer(Duration(seconds: 5), (){
-      FirebaseAuth.instance.authStateChanges().listen((User? user) async{
-        CollectionReference scadenze = await FirebaseFirestore.instance.collection('scadenze');
-        if(mod){
-          var ref = scadenze.where('uid',isEqualTo: uid).where('titolo',isEqualTo: info['titolo']);
-          var query = await ref.get();
-          for (var doc in query.docs) {
-            await doc.reference.update({
-              'nome': info['nome'],
-              'titolo': info['titolo'],
-              'dataScad': info['dataScad'],
-              'prezzo': info['prezzo'],
-              'km': km,
-              'tipoScad': info['tipoScad'],
-              'notifiche': info['notifiche'],
-              'uid': uid,
-              'numero': info['numero']
-            });
-          }
-        }
-        else {
-          scadenze.add({
-            'nome': info['nome'],
-            'titolo': info['titolo'],
-            'dataScad': info['dataScad'],
-            'prezzo': info['prezzo'],
-            'km': km,
-            'tipoScad': info['tipoScad'],
-            'notifiche': info['notifiche'],
-            'uid': uid,
-            'numero': info['numero']
-          });
-        }
+    CollectionReference scadenze = FirebaseFirestore.instance.collection(
+        'scadenze');
+    if (mod) {
+      var ref = scadenze.where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid).where(
+          'titolo', isEqualTo: info['titolo']);
+      var query = await ref.get();
+      for (var doc in query.docs) {
+        await doc.reference.update({
+          'nome': info['nome'],
+          'titolo': info['titolo'],
+          'dataScad': info['dataScad'],
+          'prezzo': info['prezzo'],
+          'km': km,
+          'tipoScad': info['tipoScad'],
+          'notifiche': info['notifiche'],
+          'uid': FirebaseAuth.instance.currentUser?.uid,
+          'numero': info['numero']
+        });
+      }
+    }
+    else {
+      print('I am here');
+      scadenze.add({
+        'nome': info['nome'],
+        'titolo': info['titolo'],
+        'dataScad': info['dataScad'],
+        'prezzo': info['prezzo'],
+        'km': km,
+        'tipoScad': info['tipoScad'],
+        'notifiche': info['notifiche'],
+        'uid': FirebaseAuth.instance.currentUser?.uid,
+        'numero': info['numero']
       });
-    });
-
-
+    }
   }
 
   static void update(var info,String old) async{
@@ -329,20 +355,17 @@ class Scadenze extends StatefulWidget {
               builder: (BuildContext context) => HomePage()));
     }
 
-    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
       CollectionReference scadenze = await FirebaseFirestore.instance
           .collection('scadenze');
-      var ref = scadenze.where('uid', isEqualTo: uid).where(
+      var ref = scadenze.where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid).where(
           'titolo', isEqualTo: titolo);
       var query = await ref.get();
       for (var doc in query.docs) {
         doc.reference.delete();
       }
-    }
-      );
   }
 
-  static void deleteAfterPay(String titolo){
+  static void deleteAfterPay(String titolo) async{
     if(titolo == 'Assicurazione') AddAssicurazione.info = null;
     if(titolo == 'Bollo') AddBollo.info = null;
     if(titolo == 'Revisione') AddRevisione.info = null;
@@ -358,17 +381,13 @@ class Scadenze extends StatefulWidget {
               builder: (BuildContext context) => HomePage()));
     }
 
-    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
-      CollectionReference scadenze = await FirebaseFirestore.instance
-          .collection('scadenze');
-      var ref = scadenze.where('uid', isEqualTo: uid).where(
-          'titolo', isEqualTo: titolo);
+      CollectionReference scadenze = await FirebaseFirestore.instance.collection('scadenze');
+      var ref = scadenze.where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid).where('titolo', isEqualTo: titolo);
       var query = await ref.get();
       for (var doc in query.docs) {
         doc.reference.delete();
       }
-    }
-    );
+
   }
 
   static void sortLista(){
@@ -607,11 +626,13 @@ class _AnimationWidgetState extends State<AnimationWidget> with SingleTickerProv
     curve: Curves.bounceInOut,
   );
 
+  /*
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
+*/
 
   @override
   Widget build(BuildContext context) {

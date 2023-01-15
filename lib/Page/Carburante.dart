@@ -449,9 +449,7 @@ class _CarburanteState extends State<Carburante> {
               margin: const EdgeInsets.symmetric(
                   vertical: 8.0, horizontal: 90.0),
               child: ElevatedButton(
-                onPressed:
-                    () =>
-                {
+               onPressed: () async {
                   if(!_formKeyCosto.currentState!.validate()) {
                   }
                   else
@@ -460,234 +458,228 @@ class _CarburanteState extends State<Carburante> {
                     else
                       if(!_formKeyKm.currentState!.validate()){
                       }
-                      else
-                        {
-                          FirebaseAuth.instance.authStateChanges().listen((
-                              User? user) async {
+                      else {
+                        print('uid: ${FirebaseAuth.instance.currentUser?.uid} sono in carburante');
 
-                            print('sono in carburante');
+                        CollectionReference costi = await FirebaseFirestore
+                            .instance.collection('CostiRifornimento');
+                        //CollectionReference costiTot = await FirebaseFirestore.instance.collection('CostiTotali').doc('2022').collection('Cost').doc();
+                        current_month = now.month;
+                        current_year = now.year;
+                        print('year $current_year');
+                        final doc = await FirebaseFirestore.instance
+                            .collection('CostiRifornimento')
+                            .where(
+                            'mese', isEqualTo: months[current_month! - 1])
+                            .where('year', isEqualTo: current_year)
+                            .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+                            .get();
+                        var docs = doc.docs;
+                        double sum = 0.0;
+                        double sumLitri = 0.0;
+                        for (int i = 0; i < docs.length; i++) {
+                          sum += docs[i]['costo'];
+                          print('costo $sum');
+                        }
+                        for (int i = 0; i < docs.length; i++) {
+                          sumLitri += docs[i]['litri'];
+                          print('litri $sumLitri');
+                        }
 
-                            CollectionReference costi = await FirebaseFirestore
-                                .instance.collection('CostiRifornimento');
-                            //CollectionReference costiTot = await FirebaseFirestore.instance.collection('CostiTotali').doc('2022').collection('Cost').doc();
-                            current_month = now.month;
-                            current_year = now.year;
-                            print('year $current_year');
-                            final doc = await FirebaseFirestore.instance
-                                .collection('CostiRifornimento')
-                                .where(
-                                'mese', isEqualTo: months[current_month! - 1])
-                                .where('year', isEqualTo: current_year)
-                                .where('uid', isEqualTo: user?.uid)
-                                .get();
-                            var docs = doc.docs;
-                            double sum = 0.0;
-                            double sumLitri = 0.0;
-                            for (int i = 0; i < docs.length; i++) {
-                              sum += docs[i]['costo'];
-                              print('costo $sum');
-                            }
-                            for (int i = 0; i < docs.length; i++) {
-                              sumLitri += docs[i]['litri'];
-                              print('litri $sumLitri');
-                            }
+                        //Indexing
+                        final indexing = await FirebaseFirestore.instance
+                            .collection('CostiRifornimento')
+                            .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+                            .orderBy('index', descending: true)
+                            .limit(1)
+                            .get();
+                        var docsIndexing = indexing.docs;
+                        if (docsIndexing.isEmpty) {
+                          indexTable = 0;
+                        }
+                        else {
+                          var index = docsIndexing[0]['index'];
+                          indexTable = index;
+                        }
 
-                            //Indexing
-                            final indexing = await FirebaseFirestore.instance
-                                .collection('CostiRifornimento')
-                                .where('uid', isEqualTo: user?.uid)
-                                .orderBy('index', descending: true)
-                                .limit(1)
-                                .get();
-                            var docsIndexing = indexing.docs;
-                            if(docsIndexing.isEmpty){
-                              indexTable = 0;
-                            }
-                            else{
-                              var index = docsIndexing[0]['index'];
-                              indexTable = index;
-                            }
+                        final test = await FirebaseFirestore.instance
+                            .collection('CostiTotali')
+                            .doc('$current_year')
+                            .collection(FirebaseAuth.instance.currentUser!.uid)
+                            .get();
+                        final generalCosts = await FirebaseFirestore
+                            .instance
+                            .collection('CostiGenerali')
+                            .doc('$current_year')
+                            .collection(FirebaseAuth.instance.currentUser!.uid)
+                            .get();
 
-                            final test = await FirebaseFirestore.instance
-                                .collection('CostiTotali')
-                                .doc('$current_year')
-                                .collection(
-                                user!.uid)
-                                .get();
-                            final generalCosts = await FirebaseFirestore
-                                .instance
-                                .collection('CostiGenerali')
-                                .doc('$current_year')
-                                .collection(user!.uid)
-                                .get();
-
-                            if (test.docs.isEmpty) {
-                              final docu = await FirebaseFirestore.instance
-                                  .collection('CostiTotali')
-                                  .doc('$current_year')
-                                  .collection(user!.uid);
-                              for (int i = 0; i < 12; i++) {
-                                docu.doc(months[i]).set(
-                                    {'mese': months[i],
-                                      'costoRifornimento': 0,
-                                      'index': i,
-                                      'totaleLitri': 0,
-                                    }
-                                );
-                              }
-                            }
-                            if (generalCosts.docs.isEmpty) {
-                              final docu = await FirebaseFirestore
-                                  .instance.collection('CostiGenerali')
-                                  .doc('$current_year')
-                                  .collection(user!.uid);
-                              for (int i = 0; i < 12; i++) {
-                                docu.doc(months[i]).set(
-                                    {'mese': months[i],
-                                      'costo': 0,
-                                      'index': i,
-                                      'totaleLitri': 0,
-                                    }
-                                );
-                              }
-                            }
-
-                            debugPrint("I km attuali digitati sono: $kmVeicolo");
-
-                            costi.add({
-                              'costo': costoRifornimento,
-                              'data': formatter.format(now),
-                              'year': now.year.toString(),
-                              'mese': months[current_month! - 1],
-                              'type': 'Rifornimento carburante',
-                              'uid': user?.uid,
-                              'litri': double.tryParse(labelLitri!),
-                              'costoAlLitro': costoAlLitro,
-                              'Kilometri veicolo': kmVeicolo,
-                              'index': indexTable! + 1,
-                              'recapRifornimento': costoRifornimento!,
-                              'recapLitri': double.tryParse(labelLitri!)!,
-                            });
-
-                            if(sceltaManuale == false)
-                              {
-
-                                await readPoints();
-
-                                diffKilometers = (kmVeicolo! - oldKilometers!)!;
-
-                                //L'efficienza di guida relativa al rifornimento che farà il cliente verrà valutata al prossimo rifornimento
-                                //contando i chilometri consumati relativi ai litri di benzina precedentemente immessi.
-
-
-                                countRifornimento =
-                                (countRifornimento! + diffKilometers!)!;
-
-                                debugPrint("Countrifornimento: $countRifornimento");
-
-                                double? consumoEffettuato;
-
-                                if (countRifornimento! >= 100) {
-                                  consumoEffettuato =
-                                      (countLitri! / countRifornimento!) * 100;
-                                  debugPrint("Consumo Effettuato $consumoEffettuato");
-                                  countRifornimento = 0;
-
-                                  debugPrint("Count litri $countLitri");
-
-                                  if (consumoEffettuato > (consumoMedio! + kBound)) {
-                                    userPoints = (userPoints! - malusGuide)!;
-                                    await AwesomeDialog(
-                                      context: context,
-                                      dialogType: DialogType.warning,
-                                      headerAnimationLoop: false,
-                                      animType: AnimType.topSlide,
-                                      title: 'Attenzione!',
-                                      desc:
-                                      'Ci dispiace, ti sono stati sottratti $malusGuide punti per non aver guidato efficientemente la tua auto.',
-                                      btnOkOnPress: () {},
-                                    ).show();
-                                  } else {
-                                    userPoints = (userPoints! + bonusGuide)!;
-                                    await AwesomeDialog(
-                                      context: context,
-                                      dialogType: DialogType.success,
-                                      headerAnimationLoop: false,
-                                      animType: AnimType.topSlide,
-                                      title: 'Complimenti!',
-                                      desc:
-                                      'Complimenti! Ti sono aggiunti $bonusGuide punti per aver guidato efficientemente la tua auto!',
-                                      btnOkOnPress: () {},
-                                    ).show();
-                                  }
-
-                                  final comm = FirebaseFirestore.instance
-                                      .collection("community").doc(
-                                      FirebaseAuth.instance.currentUser?.uid);
-                                  comm.update({
-                                    'points': userPoints
-                                  });
-
+                        if (test.docs.isEmpty) {
+                          final docu = await FirebaseFirestore.instance
+                              .collection('CostiTotali')
+                              .doc('$current_year')
+                              .collection(FirebaseAuth.instance.currentUser!.uid);
+                          for (int i = 0; i < 12; i++) {
+                            docu.doc(months[i]).set(
+                                {'mese': months[i],
+                                  'costoRifornimento': 0,
+                                  'index': i,
+                                  'totaleLitri': 0,
                                 }
-                                else{
-                                  countLitri = 0;
-                                  countRifornimento = 0;
-                                }
-
-
-                              final upVehicle = FirebaseFirestore.instance
-                                  .collection('vehicle')
-                                  .doc(FirebaseAuth.instance.currentUser?.uid)
-                                  .update({
-                                'kilometers': kmVeicolo,
-                                'countLitri': double.tryParse(labelLitri!),
-                                'countRifornimento': 0
-                              });
-                            }
-                            else {
-                              countLitri =
-                              (countLitri! + double.tryParse(labelLitri!)!);
-                              final upVehicle = FirebaseFirestore.instance
-                                  .collection('vehicle')
-                                  .doc(FirebaseAuth.instance.currentUser?.uid)
-                                  .update({
-                                'kilometers': kmVeicolo,
-                                'countLitri': countLitri,
-                                'countRifornimento': countRifornimento
-                              });
-                            }
-
-
-                            final doc1 = await FirebaseFirestore.instance
-                                .collection('CostiGenerali').doc('$current_year')
-                                .collection(user.uid).where(
-                                'mese', isEqualTo: months[current_month! - 1])
-                                .get();
-                            var docs1 = doc1.docs;
-                            double sum1 = 0;
-                            sum1 += docs1[0]['costo'];
-
-                            print('Costo sum1 carburante $sum1');
-
-                            await FirebaseFirestore.instance.collection(
-                                'CostiTotali').doc('$current_year')
-                                .collection(user.uid)
-                                .doc('${months[current_month! - 1]}')
-                                .update({"costoRifornimento": sum + costoRifornimento!, "totaleLitri": sumLitri + double.tryParse(labelLitri!)!});
-
-                            print(sum1 + costoRifornimento!);
-
-                            await FirebaseFirestore.instance.collection(
-                                'CostiGenerali').doc('$current_year')
-                                .collection(user.uid)
-                                .doc('${months[current_month! - 1]}')
-                                .update({"costo": sum1 + costoRifornimento!});
-
-
-                            Navigator.of(context, rootNavigator: true).pop();
+                            );
                           }
-                          )
-                        },
+                        }
+                        if (generalCosts.docs.isEmpty) {
+                          final docu = await FirebaseFirestore
+                              .instance.collection('CostiGenerali')
+                              .doc('$current_year')
+                              .collection(FirebaseAuth.instance.currentUser!.uid);
+                          for (int i = 0; i < 12; i++) {
+                            docu.doc(months[i]).set(
+                                {'mese': months[i],
+                                  'costo': 0,
+                                  'index': i,
+                                  'totaleLitri': 0,
+                                }
+                            );
+                          }
+                        }
+
+                        debugPrint("I km attuali digitati sono: $kmVeicolo");
+
+                        costi.add({
+                          'costo': costoRifornimento,
+                          'data': formatter.format(now),
+                          'year': now.year.toString(),
+                          'mese': months[current_month! - 1],
+                          'type': 'Rifornimento carburante',
+                          'uid': FirebaseAuth.instance.currentUser!.uid,
+                          'litri': double.tryParse(labelLitri!),
+                          'costoAlLitro': costoAlLitro,
+                          'Kilometri veicolo': kmVeicolo,
+                          'index': indexTable! + 1,
+                          'recapRifornimento': costoRifornimento!,
+                          'recapLitri': double.tryParse(labelLitri!)!,
+                        });
+
+                        if (sceltaManuale == false) {
+                          await readPoints();
+
+                          diffKilometers = (kmVeicolo! - oldKilometers!)!;
+
+                          //L'efficienza di guida relativa al rifornimento che farà il cliente verrà valutata al prossimo rifornimento
+                          //contando i chilometri consumati relativi ai litri di benzina precedentemente immessi.
+
+
+                          countRifornimento =
+                          (countRifornimento! + diffKilometers!)!;
+
+                          debugPrint("Countrifornimento: $countRifornimento");
+
+                          double? consumoEffettuato;
+
+                          if (countRifornimento! >= 100) {
+                            consumoEffettuato =
+                                (countLitri! / countRifornimento!) * 100;
+                            debugPrint("Consumo Effettuato $consumoEffettuato");
+                            countRifornimento = 0;
+
+                            debugPrint("Count litri $countLitri");
+
+                            if (consumoEffettuato > (consumoMedio! + kBound)) {
+                              userPoints = (userPoints! - malusGuide)!;
+                              await AwesomeDialog(
+                                context: context,
+                                dialogType: DialogType.warning,
+                                headerAnimationLoop: false,
+                                animType: AnimType.topSlide,
+                                title: 'Attenzione!',
+                                desc:
+                                'Ci dispiace, ti sono stati sottratti $malusGuide punti per non aver guidato efficientemente la tua auto.',
+                                btnOkOnPress: () {},
+                              ).show();
+                            } else {
+                              userPoints = (userPoints! + bonusGuide)!;
+                              await AwesomeDialog(
+                                context: context,
+                                dialogType: DialogType.success,
+                                headerAnimationLoop: false,
+                                animType: AnimType.topSlide,
+                                title: 'Complimenti!',
+                                desc:
+                                'Complimenti! Ti sono aggiunti $bonusGuide punti per aver guidato efficientemente la tua auto!',
+                                btnOkOnPress: () {},
+                              ).show();
+                            }
+
+                            final comm = FirebaseFirestore.instance
+                                .collection("community").doc(
+                                FirebaseAuth.instance.currentUser?.uid);
+                            comm.update({
+                              'points': userPoints
+                            });
+                          }
+                          else {
+                            countLitri = 0;
+                            countRifornimento = 0;
+                          }
+
+
+                          final upVehicle = FirebaseFirestore.instance
+                              .collection('vehicle')
+                              .doc(FirebaseAuth.instance.currentUser?.uid)
+                              .update({
+                            'kilometers': kmVeicolo,
+                            'countLitri': double.tryParse(labelLitri!),
+                            'countRifornimento': 0
+                          });
+                        }
+                        else {
+                          countLitri =
+                          (countLitri! + double.tryParse(labelLitri!)!);
+                          final upVehicle = FirebaseFirestore.instance
+                              .collection('vehicle')
+                              .doc(FirebaseAuth.instance.currentUser?.uid)
+                              .update({
+                            'kilometers': kmVeicolo,
+                            'countLitri': countLitri,
+                            'countRifornimento': countRifornimento
+                          });
+                        }
+
+
+                        final doc1 = await FirebaseFirestore.instance
+                            .collection('CostiGenerali').doc('$current_year')
+                            .collection(FirebaseAuth.instance.currentUser!.uid).where(
+                            'mese', isEqualTo: months[current_month! - 1])
+                            .get();
+                        var docs1 = doc1.docs;
+                        double sum1 = 0;
+                        sum1 += docs1[0]['costo'];
+
+                        print('Costo sum1 carburante $sum1');
+
+                        await FirebaseFirestore.instance.collection(
+                            'CostiTotali').doc('$current_year')
+                            .collection(FirebaseAuth.instance.currentUser!.uid)
+                            .doc('${months[current_month! - 1]}')
+                            .update({
+                          "costoRifornimento": sum + costoRifornimento!,
+                          "totaleLitri": sumLitri + double.tryParse(
+                              labelLitri!)!
+                        });
+
+                        print(sum1 + costoRifornimento!);
+
+                        await FirebaseFirestore.instance.collection(
+                            'CostiGenerali').doc('$current_year')
+                            .collection(FirebaseAuth.instance.currentUser!.uid)
+                            .doc('${months[current_month! - 1]}')
+                            .update({"costo": sum1 + costoRifornimento!});
+
+
+                        Navigator.of(context, rootNavigator: true).pop();
+                      }
                 },
                 style: ElevatedButton.styleFrom(
                   elevation: 10,
