@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:car_control/Page/AddAssicurazione.dart';
 import 'package:car_control/Page/AddBollo.dart';
 import 'package:car_control/Page/AddTagliando.dart';
@@ -12,8 +11,6 @@ import 'package:intl/intl.dart';
 import '../Widgets/BoxScadenza.dart';
 import 'AddRevisione.dart';
 import 'package:timelines/timelines.dart';
-
-
 
 
 class Scadenze extends StatefulWidget {
@@ -182,6 +179,7 @@ class Scadenze extends StatefulWidget {
         'notifiche': notif,
         'numero': number
       };
+
       insert(info, false);
 
     }
@@ -247,7 +245,7 @@ class Scadenze extends StatefulWidget {
     return icon;
   }
 
-  static void insert(var info,bool mod) async{
+  static void insert(var info,bool mod) {
     print('Sono qui');
     Timestamp timestamp = Timestamp.fromDate(info['dataScad']);
     int km = 0;
@@ -285,15 +283,34 @@ class Scadenze extends StatefulWidget {
             true
         )
     );
-
-    CollectionReference scadenze = FirebaseFirestore.instance.collection(
-        'scadenze');
-    if (mod) {
-      var ref = scadenze.where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid).where(
-          'titolo', isEqualTo: info['titolo']);
-      var query = await ref.get();
-      for (var doc in query.docs) {
-        await doc.reference.update({
+    Timer _timer = Timer(Duration(seconds: 5), () async {
+      CollectionReference scadenze = await FirebaseFirestore.instance
+          .collection('scadenze');
+      if (mod) {
+        var ref = scadenze.where(
+            'uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid).where(
+            'titolo', isEqualTo: info['titolo']);
+        var query = await ref.get();
+        for (var doc in query.docs) {
+          await doc.reference.update({
+            'nome': info['nome'],
+            'titolo': info['titolo'],
+            'dataScad': info['dataScad'],
+            'prezzo': info['prezzo'],
+            'km': km,
+            'tipoScad': info['tipoScad'],
+            'notifiche': info['notifiche'],
+            'uid': FirebaseAuth.instance.currentUser?.uid,
+            'numero': info['numero']
+          });
+        }
+      }
+      else {
+        print('I am here');
+        print(scadenze
+            .toString()
+            .length);
+        scadenze.add({
           'nome': info['nome'],
           'titolo': info['titolo'],
           'dataScad': info['dataScad'],
@@ -306,20 +323,7 @@ class Scadenze extends StatefulWidget {
         });
       }
     }
-    else {
-      print('I am here');
-      scadenze.add({
-        'nome': info['nome'],
-        'titolo': info['titolo'],
-        'dataScad': info['dataScad'],
-        'prezzo': info['prezzo'],
-        'km': km,
-        'tipoScad': info['tipoScad'],
-        'notifiche': info['notifiche'],
-        'uid': FirebaseAuth.instance.currentUser?.uid,
-        'numero': info['numero']
-      });
-    }
+    );
   }
 
   static void update(var info,String old) async{

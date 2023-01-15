@@ -134,7 +134,8 @@ class BoxScadenza extends StatelessWidget{
                             btnCancelText: 'No',
                             btnCancelOnPress: () {},
                             btnOkOnPress:
-                            pagamento
+                              pagamento
+                            ,
                         ).show();
                       },
 
