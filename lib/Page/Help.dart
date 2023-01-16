@@ -32,7 +32,7 @@ class _HelpState extends State<Help> {
       distributore = 'Distributori di Metano';
     }
     else if (fuel == 'Gas'){
-      distributore = 'Distributore di Gas';
+      distributore = 'Distributore di GPL';
     }
     else{
       distributore = 'Benzinaio';
