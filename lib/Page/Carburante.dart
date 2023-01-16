@@ -459,14 +459,14 @@ class _CarburanteState extends State<Carburante> {
                       if(!_formKeyKm.currentState!.validate()){
                       }
                       else {
-                        print('uid: ${FirebaseAuth.instance.currentUser?.uid} sono in carburante');
+                        //print('uid: ${FirebaseAuth.instance.currentUser?.uid} sono in carburante');
 
                         CollectionReference costi = await FirebaseFirestore
                             .instance.collection('CostiRifornimento');
                         //CollectionReference costiTot = await FirebaseFirestore.instance.collection('CostiTotali').doc('2022').collection('Cost').doc();
                         current_month = now.month;
                         current_year = now.year;
-                        print('year $current_year');
+                        //print('year $current_year');
                         final doc = await FirebaseFirestore.instance
                             .collection('CostiRifornimento')
                             .where(
@@ -479,11 +479,11 @@ class _CarburanteState extends State<Carburante> {
                         double sumLitri = 0.0;
                         for (int i = 0; i < docs.length; i++) {
                           sum += docs[i]['costo'];
-                          print('costo $sum');
+                          //print('costo $sum');
                         }
                         for (int i = 0; i < docs.length; i++) {
                           sumLitri += docs[i]['litri'];
-                          print('litri $sumLitri');
+                          //print('litri $sumLitri');
                         }
 
                         //Indexing
@@ -545,7 +545,7 @@ class _CarburanteState extends State<Carburante> {
                           }
                         }
 
-                        debugPrint("I km attuali digitati sono: $kmVeicolo");
+                        //debugPrint("I km attuali digitati sono: $kmVeicolo");
 
                         costi.add({
                           'costo': costoRifornimento,
@@ -574,17 +574,17 @@ class _CarburanteState extends State<Carburante> {
                           countRifornimento =
                           (countRifornimento! + diffKilometers!)!;
 
-                          debugPrint("Countrifornimento: $countRifornimento");
+                          //debugPrint("Countrifornimento: $countRifornimento");
 
                           double? consumoEffettuato;
 
                           if (countRifornimento! >= 100) {
                             consumoEffettuato =
                                 (countLitri! / countRifornimento!) * 100;
-                            debugPrint("Consumo Effettuato $consumoEffettuato");
+                            //debugPrint("Consumo Effettuato $consumoEffettuato");
                             countRifornimento = 0;
 
-                            debugPrint("Count litri $countLitri");
+                            //debugPrint("Count litri $countLitri");
 
                             if (consumoEffettuato > (consumoMedio! + kBound)) {
                               userPoints = (userPoints! - malusGuide)!;
@@ -657,7 +657,7 @@ class _CarburanteState extends State<Carburante> {
                         double sum1 = 0;
                         sum1 += docs1[0]['costo'];
 
-                        print('Costo sum1 carburante $sum1');
+                        //print('Costo sum1 carburante $sum1');
 
                         await FirebaseFirestore.instance.collection(
                             'CostiTotali').doc('$current_year')
@@ -669,7 +669,7 @@ class _CarburanteState extends State<Carburante> {
                               labelLitri!)!
                         });
 
-                        print(sum1 + costoRifornimento!);
+                        //print(sum1 + costoRifornimento!);
 
                         await FirebaseFirestore.instance.collection(
                             'CostiGenerali').doc('$current_year')

@@ -59,7 +59,7 @@ late Stream<List<CommunityModel>> retrieveCommunityPoints;
       makeV = value.docs[0].get('make');
     });
 
-    debugPrint("Il modello è: $modelV e il fuel $fuelV");
+    //debugPrint("Il modello è: $modelV e il fuel $fuelV");
 
     if(makeV == null || modelV == null || fuelV== null || modelV == '' || fuelV == '' || makeV == '')
       {
@@ -1065,7 +1065,7 @@ late Stream<List<CommunityModel>> retrieveCommunityPoints;
 
                     communityProfile = comm.toList();
                     int count = 0;
-                    debugPrint(communityProfile.length.toString());
+                    //debugPrint(communityProfile.length.toString());
                     for(int i = 0; i<communityProfile.length ; i++)
                     {
                       if(communityProfile[i].uid == FirebaseAuth.instance.currentUser?.uid)

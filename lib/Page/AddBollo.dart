@@ -94,7 +94,6 @@ class _AddBolloState extends State<AddBollo> {
       Timestamp timestamp = info['data'];
       date = DateTime.fromMillisecondsSinceEpoch(timestamp.seconds*1000);
       List<String> notif = info['notifiche'].split(',');
-      print(notif);
       if(info['notifiche'] != ''){
         List<String> notifiche = info['notifiche'].split(',');
         for(int i=0;i<notifiche.length;i++){
@@ -233,7 +232,6 @@ class _AddBolloState extends State<AddBollo> {
                               onChanged: (value) {
                                 setState(() {
                                   valueDurata = value;
-                                  print(valueDurata);
                                 });
                               },
                               decoration: InputDecoration(

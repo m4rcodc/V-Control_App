@@ -42,7 +42,7 @@ class HomePage extends StatefulWidget {
           data['titolo']: data['notifiche'],
         };
         stringNotifiche.addAll(map);
-        print('ciao '+stringNotifiche.toString());
+        //print('ciao '+stringNotifiche.toString());
         Timestamp dataScad = data['dataScad'];
         usiliare = data['titolo'] + '-' + dataScad.seconds.toString() + ':' + data['notifiche'];
         lista.add(usiliare);
@@ -142,8 +142,8 @@ class _HomePageState extends State<HomePage> {
                                 }
                               }
                               HomePage.stringNotifiche[titolo] = newNotif;
-                              print('new: '+newNotif);
-                                print('sono in HomePage');
+                              //print('new: '+newNotif);
+                                //print('sono in HomePage');
                                 CollectionReference scadenze = await FirebaseFirestore.instance.collection('scadenze');
                                 var ref = scadenze.where('uid',isEqualTo: FirebaseAuth.instance.currentUser?.uid).where('titolo',isEqualTo: titolo);
                                 var query = await ref.get();
@@ -189,7 +189,7 @@ class _HomePageState extends State<HomePage> {
           List<String> scad = virgole[j].split('-');
           int val = int.parse(scad[0]);
           String durata = scad[1];
-          print(titolo+' '+dataScad.toString()+' '+val.toString()+' '+durata);
+          //print(titolo+' '+dataScad.toString()+' '+val.toString()+' '+durata);
 
           if(dataScad.difference(dataoggi).inDays <= 0){
             showNotif(titolo,Colors.red,true,val.toString()+'-'+durata);
@@ -218,7 +218,7 @@ class _HomePageState extends State<HomePage> {
           }
         }
       }
-      print("fetch scadenze");
+      //print("fetch scadenze");
       await Scadenze.getScadenze();
       await Scadenze.getKmAttual();
       await AddAssicurazione.getAssic();

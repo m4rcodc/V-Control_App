@@ -79,7 +79,6 @@ class AddAssicurazione extends StatefulWidget{
       var query = await ref.get();
       for (var queryDocumentSnapshot in query.docs){
         Map<String, dynamic> data = queryDocumentSnapshot.data();
-        print(data);
         assicurazioni.add(data);
       }
     }
@@ -285,7 +284,6 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
                               onChanged: (value) {
                                 setState(() {
                                   valueDurata = value;
-                                  print(valueDurata);
                                 });
                               },
                               decoration: InputDecoration(

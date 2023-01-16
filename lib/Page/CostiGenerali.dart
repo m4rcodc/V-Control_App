@@ -195,7 +195,7 @@ class CostiGeneraliState extends State<CostiGenerali>{
                             month = months[selectedMonth - 1];
                             year = date.year.toString();
                             fullNameMonth = generateFullNameMonth(month);
-                            print(month);
+                            //print(month);
                           });
                         },
                         onCancel: (){

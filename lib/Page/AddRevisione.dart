@@ -229,7 +229,6 @@ class _AddRevisioneState extends State<AddRevisione> {
                               onChanged: (value) {
                                 setState(() {
                                   valueDurata = value;
-                                  print(valueDurata);
                                 });
                               },
                               decoration: InputDecoration(

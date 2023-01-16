@@ -44,11 +44,11 @@ class _VeicoloState extends State<Veicolo>{
       state = true;
       String model = doc.docs[0].get('model');
       fuel = doc.docs[0].get('fuel');
-      debugPrint("Il model è $model");
+      //debugPrint("Il model è $model");
       setModelVehicle(model, fuel);
-      print(state);
+      //print(state);
       state1 = true;
-      print(fuel);
+      //print(fuel);
       if(fuel == null){
         fuel = 'Diesel';
       }
@@ -59,8 +59,8 @@ class _VeicoloState extends State<Veicolo>{
       state1 = false;
       setModelVehicle('', '');
       fuel = 'Diesel';
-      print(fuel);
-      print(state);
+      //print(fuel);
+      //print(state);
       SharedPreferences.getInstance().then((value) => value.setString('checkFuel', fuel!));
     }
     SharedPreferences.getInstance().then((value) => value.setBool('checkCar', state!));
@@ -374,7 +374,7 @@ class _VeicoloState extends State<Veicolo>{
             .currentUser!.uid)
             .get();
         int sizeRif = docRif.size;
-        print(sizeRif);
+        //print(sizeRif);
         for (int i = 0; i < sizeRif; i++) {
           docRif.docs[i].reference.delete();
         }
@@ -386,7 +386,7 @@ class _VeicoloState extends State<Veicolo>{
             .currentUser!.uid)
             .get();
         int sizeMtz = docMtz.size;
-        print(sizeMtz);
+        //print(sizeMtz);
         for (int i = 0; i < sizeMtz; i++) {
           docMtz.docs[i].reference.delete();
         }
@@ -396,7 +396,7 @@ class _VeicoloState extends State<Veicolo>{
             .collection('CostiTotali').doc('2023')
             .collection(FirebaseAuth.instance.currentUser!.uid).get();
         int sizeDocTotalRif = docTotaliRifornimenti.size;
-        print('Questa è la taglia $sizeDocTotalRif');
+        //print('Questa è la taglia $sizeDocTotalRif');
         for(int i = 0; i < sizeDocTotalRif; i++){
           docTotaliRifornimenti.docs[i].reference.update({"costoRifornimento": 0, "totaleLitri": 0});
         }
@@ -406,7 +406,7 @@ class _VeicoloState extends State<Veicolo>{
             .collection('CostiTotali').doc('2022')
             .collection(FirebaseAuth.instance.currentUser!.uid).get();
         int sizeDocTotalRif2k22 = docTotaliRifornimenti2k22.size;
-        print('Questa è la taglia $sizeDocTotalRif2k22');
+        //print('Questa è la taglia $sizeDocTotalRif2k22');
         for(int i = 0; i < sizeDocTotalRif2k22; i++){
           docTotaliRifornimenti2k22.docs[i].reference.update({"costoRifornimento": 0, "totaleLitri": 0});
         }

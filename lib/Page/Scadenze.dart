@@ -62,7 +62,7 @@ class Scadenze extends StatefulWidget {
     String month = months[indexMonth - 1];
     var formatter = new DateFormat('dd-MM-yyyy');
     current_year = now.year;
-    print('anno $current_year');
+    //print('anno $current_year');
     String? number;
 
 
@@ -157,7 +157,7 @@ class Scadenze extends StatefulWidget {
     deleteAfterPay(titolo);
 
     if(tipoScad != ""){
-      print("data: ");print(data);
+      //print("data: ");print(data);
       DateTime dataScad = DateTime.fromMillisecondsSinceEpoch(data.millisecondsSinceEpoch);
       DateTime newDataScad = DateTime.now();
       if(tipoScad == "Trimestrale"){
@@ -201,7 +201,7 @@ class Scadenze extends StatefulWidget {
     var ref = FirebaseFirestore.instance.collection("scadenze")
         .where('uid',isEqualTo: FirebaseAuth.instance.currentUser?.uid);
     var query = await ref.get();
-    print('sono qui ${FirebaseAuth.instance.currentUser?.uid}');
+    //print('sono qui ${FirebaseAuth.instance.currentUser?.uid}');
     for (var queryDocumentSnapshot in query.docs) {
       Map<String, dynamic> data = queryDocumentSnapshot.data();
       Timestamp timestamp = data['dataScad'];
@@ -246,7 +246,7 @@ class Scadenze extends StatefulWidget {
   }
 
   static void insert(var info,bool mod) {
-    print('Sono qui');
+    //print('Sono qui');
     Timestamp timestamp = Timestamp.fromDate(info['dataScad']);
     int km = 0;
     if (info['titolo'] == 'Tagliando') {
@@ -306,10 +306,8 @@ class Scadenze extends StatefulWidget {
         }
       }
       else {
-        print('I am here');
-        print(scadenze
-            .toString()
-            .length);
+        //print('I am here');
+        //print(scadenze.toString().length);
         scadenze.add({
           'nome': info['nome'],
           'titolo': info['titolo'],
@@ -437,11 +435,11 @@ class _ScadenzeState extends State<Scadenze>{
         .get();
     if(doc.docs.isNotEmpty){
       state = true;
-      print(state);
+      //print(state);
     }
     else {
       state = false;
-      print(state);
+      //print(state);
     }
   }
 

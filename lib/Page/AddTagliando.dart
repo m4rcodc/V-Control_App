@@ -235,7 +235,6 @@ class _AddTagliandoState extends State<AddTagliando> {
                               onChanged: (value) {
                                 setState(() {
                                   valueDurata = value;
-                                  print(valueDurata);
                                 });
                               },
                               decoration: InputDecoration(

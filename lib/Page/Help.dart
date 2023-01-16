@@ -31,6 +31,9 @@ class _HelpState extends State<Help> {
     else if (fuel == 'Metano'){
       distributore = 'Distributori di Metano';
     }
+    else if (fuel == 'Gas'){
+      distributore = 'Distributore di Gas';
+    }
     else{
       distributore = 'Benzinaio';
     }
@@ -61,7 +64,7 @@ class _HelpState extends State<Help> {
         numero = '';
       });
     }
-    print(numero);
+    //print(numero);
   }
 
     checkCar() async {
@@ -71,11 +74,11 @@ class _HelpState extends State<Help> {
           .get();
       if(doc.docs.isNotEmpty){
         state = true;
-        print(state);
+        //print(state);
       }
       else {
         state = false;
-        print(state);
+        //print(state);
       }
     }
 

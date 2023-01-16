@@ -179,12 +179,12 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
     newDateChange = formatter.format(now);
     var month = now.month;
     newNameMonth = months[month - 1];
-    print(newNameMonth);
+    //print(newNameMonth);
     lastData = cost.data;
     var support = lastData!.substring(3,5);
     int index = int.parse(support);
     beforeNameMonth = months[index - 1];
-    print(beforeNameMonth);
+    //print(beforeNameMonth);
     flagData = true;
     });
     },
@@ -372,11 +372,11 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
     double sumLitri = 0.0;
     for (int i = 0; i < docs.length; i++) {
     sum += docs[i]['costo'];
-    print('costo $sum');
+    //print('costo $sum');
     }
     for (int i = 0; i < docs.length; i++) {
     sumLitri += docs[i]['litri'];
-    print('litri $sumLitri');
+    //print('litri $sumLitri');
     }
 
     final docGeneral = await FirebaseFirestore.instance
@@ -485,7 +485,7 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
               }
 
               if(flagData == false) {
-                print(cost.data);
+                //print(cost.data);
                 newDateChange = cost.data;
                 newNameMonth = cost.mese;
                 yearChange = cost.year;
@@ -543,11 +543,13 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
                   for (int i = 0; i < docs.length; i++) {
                     beforeSumLitri += docs[i]['litri'];
                   }
+                  /*
                   print('costo old $beforeSum');
                   print('litri old $beforeSumLitri');
-
                   print('before month $beforeNameMonth');
                   print(yearChange);
+                  */
+
                   final docGeneralBefore = await FirebaseFirestore.instance
                       .collection('CostiGenerali').doc(yearChange)
                       .collection(uid).where(
@@ -555,7 +557,7 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
                       .get();
                   var docs1Before = docGeneralBefore.docs;
                   sum1Before += docs1Before[0]['costo'];
-                  print('sum1Before $sum1Before');
+                  //print('sum1Before $sum1Before');
 
                   final doc1 = await FirebaseFirestore.instance.collection('CostiRifornimento').where('uid', isEqualTo: uid).where('index', isEqualTo: cost.index).get();
                   DocumentReference docu = doc1.docs[0].reference;
@@ -569,16 +571,17 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
                       .where('uid', isEqualTo: uid)
                       .get();
                   var docsNew = docNew.docs;
-                  print('lunghezza ${docsNew.length}');
+                  //print('lunghezza ${docsNew.length}');
                   for (int i = 0; i < docsNew.length; i++) {
                     newSum += docsNew[i]['costo'];
                   }
                   for (int i = 0; i < docsNew.length; i++) {
                     newSumLitri += docsNew[i]['litri'];
                   }
+                  /*
                   print('costo new quiqui $newSum');
                   print('litri new qui qui $newSumLitri');
-
+                  */
                   final docGeneralAfter = await FirebaseFirestore.instance
                       .collection('CostiGenerali').doc(yearChange)
                       .collection(uid).where(
@@ -586,7 +589,7 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
                       .get();
                   var docs1After = docGeneralAfter.docs;
                   sum1New += docs1After[0]['costo'];
-                  print('sum1New $sum1New');
+                  //print('sum1New $sum1New');
 
                 await FirebaseFirestore.instance.collection(
                     'CostiTotali').doc(yearChange)
@@ -622,7 +625,7 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
                   double sumLitri = 0.0;
                   double sum1 = 0.0;
 
-                  print('Cambio data ma stesso mese $newNameMonth');
+                  //print('Cambio data ma stesso mese $newNameMonth');
 
                   final doc1 = await FirebaseFirestore.instance.collection('CostiRifornimento').where('uid', isEqualTo: uid).where('index', isEqualTo: cost.index).get();
                   DocumentReference docu = doc1.docs[0].reference;
@@ -650,7 +653,7 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
                       .get();
                   var docs1 = docGeneral.docs;
                   sum1 += docs1[0]['costo'];
-                  print('Cambio data ma stesso mese costi gen $sum1');
+                  //print('Cambio data ma stesso mese costi gen $sum1');
 
                   await FirebaseFirestore.instance.collection(
                       'CostiTotali').doc(yearChange)

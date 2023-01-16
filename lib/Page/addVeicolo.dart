@@ -433,7 +433,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                                   setState(() {
                                                     make = snapshot.data.docs[0]['name'];
                                                     url = snapshot.data.docs[0]['logo'];
-                                                    print('url $url');
+                                                    //print('url $url');
                                                     setDefaultModel = true;
                                                   }
                                                   ),
@@ -741,7 +741,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                               .snapshots(),
                           builder: (BuildContext context, AsyncSnapshot snapshot) {
                             if (!snapshot.hasData) {
-                              debugPrint('snapshot status: ${snapshot.error}');
+                              //debugPrint('snapshot status: ${snapshot.error}');
                               return Container(
                                 child:
                                 Text(
@@ -1537,7 +1537,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                             onChanged: (value) {
                               setState(() {
                                 kilometers = int.parse(value);
-                                debugPrint("I km inseriti sono: ${kilometers.toString()}");
+                                //debugPrint("I km inseriti sono: ${kilometers.toString()}");
                               });
                             },
                           ),
@@ -1556,9 +1556,9 @@ class _AddVeicoloState extends State<AddVeicolo> {
                               else {
                                     final vehicle = FirebaseFirestore.instance.collection('vehicle').doc(FirebaseAuth.instance.currentUser?.uid);
 
-                                    debugPrint("Il consumo medio registrato è $consumoMedio");
+                                    //debugPrint("Il consumo medio registrato è $consumoMedio");
 
-                                    debugPrint("User 1 ${FirebaseAuth.instance.currentUser?.uid} userpoints: $userPoints");
+                                    //debugPrint("User 1 ${FirebaseAuth.instance.currentUser?.uid} userpoints: $userPoints");
 
                                     if(sceltaManuale)
                                       {
@@ -1582,7 +1582,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                       'type' : type
                                     });
 
-                                    debugPrint("Il consumo medio è ${consumoMedio.toString()}");
+                                    //debugPrint("Il consumo medio è ${consumoMedio.toString()}");
 
 
                                     if(fuel == 'Metano')
@@ -1625,7 +1625,7 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                       'fuel' : fuel
                                     });
 
-                                    debugPrint("Siamo in addVeicolo!\n");
+                                    //debugPrint("Siamo in addVeicolo!\n");
 
 
                                     await AwesomeDialog(

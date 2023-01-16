@@ -541,7 +541,7 @@ class _ManutenzioneState extends State<Manutenzione>{
                      if(!_formKeyCosto.currentState!.validate()){
                     }
                             else {
-                       print('sono in manutenzione');
+                       //print('sono in manutenzione');
 
                        current_month = now.month;
                        current_year = now.year;
@@ -705,7 +705,7 @@ class _ManutenzioneState extends State<Manutenzione>{
                     );
 */
 
-                       print(current_year);
+                       //print(current_year);
                        final doc1 = await FirebaseFirestore.instance.collection(
                            'CostiGenerali').doc('$current_year').collection(
                            FirebaseAuth.instance.currentUser!.uid).where(
@@ -713,7 +713,7 @@ class _ManutenzioneState extends State<Manutenzione>{
                        var docs1 = doc1.docs;
                        double sum1 = 0.0;
                        sum1 += docs1[0]['costo'];
-                       print('somma costo qui $sum1');
+                       //print('somma costo qui $sum1');
 
 
                        await FirebaseFirestore.instance.collection(
