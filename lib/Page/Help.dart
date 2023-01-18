@@ -55,11 +55,13 @@ class _HelpState extends State<Help> {
         .where("titolo", isEqualTo: 'Assicurazione')
         .get();
     if(doc.docs.isNotEmpty){
+      print('Sono qui 1');
       setState(() {
         numero = doc.docs[0]['numero'];
       });
     }
     else {
+      print('Sono qui 2');
       setState(() {
         numero = '';
       });

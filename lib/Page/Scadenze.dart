@@ -62,9 +62,7 @@ class Scadenze extends StatefulWidget {
     String month = months[indexMonth - 1];
     var formatter = new DateFormat('dd-MM-yyyy');
     current_year = now.year;
-    //print('anno $current_year');
     String? number;
-
 
     final docNumber = await FirebaseFirestore.instance
         .collection('scadenze')
@@ -72,6 +70,11 @@ class Scadenze extends StatefulWidget {
         .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
         .get();
      number = docNumber.docs[0]['numero'];
+     print('numero $number');
+     if(number == null) {
+       number = '';
+     }
+     //print('numero $number');
 
     CollectionReference costiScadenze = await FirebaseFirestore
         .instance.collection('CostiScadenze');
@@ -130,7 +133,8 @@ class Scadenze extends StatefulWidget {
       'year': now.year.toString(),
       'mese': month,
       'uid': FirebaseAuth.instance.currentUser?.uid,
-      'tipo': titolo
+      'tipo': titolo,
+      'numero': number
     });
 
     final doc1 = await FirebaseFirestore.instance
@@ -283,7 +287,7 @@ class Scadenze extends StatefulWidget {
             true
         )
     );
-    Timer _timer = Timer(Duration(seconds: 5), () async {
+    Timer _timer = Timer(Duration(seconds: 1), () async {
       CollectionReference scadenze = await FirebaseFirestore.instance
           .collection('scadenze');
       if (mod) {

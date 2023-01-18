@@ -191,7 +191,7 @@ class _HomePageState extends State<HomePage> {
           String durata = scad[1];
           //print(titolo+' '+dataScad.toString()+' '+val.toString()+' '+durata);
 
-          if(dataScad.difference(dataoggi).inDays <= 0){
+          if(dataScad.difference(dataoggi).inHours <= 0){
             showNotif(titolo,Colors.red,true,val.toString()+'-'+durata);
           }
           else{
