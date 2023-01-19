@@ -69,12 +69,12 @@ class Scadenze extends StatefulWidget {
         .where('titolo', isEqualTo: 'Assicurazione')
         .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
         .get();
-     number = docNumber.docs[0]['numero'];
-     print('numero $number');
-     if(number == null) {
-       number = '';
-     }
-     //print('numero $number');
+    number = '';
+    if(docNumber.docs.isNotEmpty) {
+      number = docNumber.docs[0]['numero'];
+      print('numero $number');
+    }
+    //print('numero $number');
 
     CollectionReference costiScadenze = await FirebaseFirestore
         .instance.collection('CostiScadenze');
@@ -160,10 +160,9 @@ class Scadenze extends StatefulWidget {
 
     deleteAfterPay(titolo);
 
+    DateTime dataScad = DateTime.fromMillisecondsSinceEpoch(data.millisecondsSinceEpoch);
+    DateTime newDataScad = DateTime.now();
     if(tipoScad != ""){
-      //print("data: ");print(data);
-      DateTime dataScad = DateTime.fromMillisecondsSinceEpoch(data.millisecondsSinceEpoch);
-      DateTime newDataScad = DateTime.now();
       if(tipoScad == "Trimestrale"){
         newDataScad = new DateTime(dataScad.year,dataScad.month+3,dataScad.day);
       }
@@ -173,20 +172,29 @@ class Scadenze extends StatefulWidget {
       if(tipoScad == "Annuale"){
         newDataScad = new DateTime(dataScad.year+1,dataScad.month,dataScad.day);
       }
-      var info= {
-        'nome': nome,
-        'titolo': titolo,
-        'prezzo': prezzo,
-        'dataScad': newDataScad,
-        'km': km,
-        'tipoScad': tipoScad,
-        'notifiche': notif,
-        'numero': number
-      };
-
-      insert(info, false);
-
     }
+    print("caio "+titolo);
+    if(titolo == "Revisione"){
+      newDataScad = new DateTime(dataScad.year+2,dataScad.month,dataScad.day);
+    }
+    else {
+      newDataScad = new DateTime(dataScad.year + 1, dataScad.month, dataScad.day);
+    }
+    if(titolo == "Tagliando"){
+      km += 25000;
+    }
+    var info= {
+      'nome': nome,
+      'titolo': titolo,
+      'prezzo': prezzo,
+      'dataScad': newDataScad,
+      'km': km,
+      'tipoScad': tipoScad,
+      'notifiche': notif,
+      'numero': number
+    };
+
+    insert(info, false);
 
   }
 
@@ -249,8 +257,12 @@ class Scadenze extends StatefulWidget {
     return icon;
   }
 
+  static String numero = "";
   static void insert(var info,bool mod) {
-    //print('Sono qui');
+    print(info["numero"]);
+    if(info['numero'] != null) {
+      numero = info['numero'];
+    }
     Timestamp timestamp = Timestamp.fromDate(info['dataScad']);
     int km = 0;
     if (info['titolo'] == 'Tagliando') {
@@ -305,7 +317,7 @@ class Scadenze extends StatefulWidget {
             'tipoScad': info['tipoScad'],
             'notifiche': info['notifiche'],
             'uid': FirebaseAuth.instance.currentUser?.uid,
-            'numero': info['numero']
+            'numero': numero
           });
         }
       }
@@ -321,7 +333,7 @@ class Scadenze extends StatefulWidget {
           'tipoScad': info['tipoScad'],
           'notifiche': info['notifiche'],
           'uid': FirebaseAuth.instance.currentUser?.uid,
-          'numero': info['numero']
+          'numero': numero
         });
       }
     }
@@ -590,6 +602,27 @@ class _ScadenzeState extends State<Scadenze>{
                         color: Colors.blue.shade500
                       ),
                     ),
+              listaScadenze.isEmpty? Column(
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(top: 200),
+                    child: Image.asset(
+                      height: MediaQuery.of(context).size.height * 0.30,
+                      width: MediaQuery.of(context).size.width,
+                      'images/scadenze.png'
+                    )
+                  ),
+                  Container(
+                    alignment: Alignment.center,
+                    margin: EdgeInsets.only(top: 30),
+                    child: Text(
+                      'Premi il + in alto a destra \n\t\t per inserire un promemoria \ndelle scadenze del veicolo',
+                       textAlign: TextAlign.center,
+                       style: TextStyle( fontSize: 25,fontStyle: FontStyle.italic, fontWeight: FontWeight.bold, color: Colors.blue.shade400),
+                    )
+                  ),
+                ],
+              ):
               ListView(
                 children:
                 listaScadenze,
