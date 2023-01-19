@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:car_control/Page/Help.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -43,6 +45,7 @@ class _CarburanteState extends State<Carburante> {
   double? indexTable = 0;
   bool sceltaManuale = false;
   String? checkFuel;
+  Timer? _timer;
 
 
   //Variabile che tiene conto quanti km ha percorso il veicolo in precedenza dall'ultima volta che ha ottenuto
@@ -448,7 +451,7 @@ class _CarburanteState extends State<Carburante> {
               margin: const EdgeInsets.symmetric(
                   vertical: 8.0, horizontal: 90.0),
               child: ElevatedButton(
-               onPressed: () async {
+               onPressed:  () async {
                   if(!_formKeyCosto.currentState!.validate()) {
                   }
                   else
@@ -458,31 +461,27 @@ class _CarburanteState extends State<Carburante> {
                       if(!_formKeyKm.currentState!.validate()){
                       }
                       else {
-                        //print('uid: ${FirebaseAuth.instance.currentUser?.uid} sono in carburante');
 
-                        CollectionReference costi = await FirebaseFirestore
-                            .instance.collection('CostiRifornimento');
-                        //CollectionReference costiTot = await FirebaseFirestore.instance.collection('CostiTotali').doc('2022').collection('Cost').doc();
                         current_month = now.month;
                         current_year = now.year;
-                        //print('year $current_year');
+
                         final doc = await FirebaseFirestore.instance
                             .collection('CostiRifornimento')
-                            .where(
-                            'mese', isEqualTo: months[current_month! - 1])
-                            .where('year', isEqualTo: current_year)
+                            .where('mese', isEqualTo: months[current_month! - 1])
+                            .where('year', isEqualTo: current_year.toString())
                             .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
                             .get();
                         var docs = doc.docs;
                         double sum = 0.0;
                         double sumLitri = 0.0;
+                        print('Lenght: ${docs.length}');
                         for (int i = 0; i < docs.length; i++) {
                           sum += docs[i]['costo'];
-                          //print('costo $sum');
+                          print('costo $sum');
                         }
                         for (int i = 0; i < docs.length; i++) {
                           sumLitri += docs[i]['litri'];
-                          //print('litri $sumLitri');
+                          print('litri $sumLitri');
                         }
 
                         //Indexing
@@ -545,6 +544,9 @@ class _CarburanteState extends State<Carburante> {
                         }
 
                         //debugPrint("I km attuali digitati sono: $kmVeicolo");
+
+                        CollectionReference costi = await FirebaseFirestore
+                            .instance.collection('CostiRifornimento');
 
                         costi.add({
                           'costo': costoRifornimento,
@@ -678,7 +680,7 @@ class _CarburanteState extends State<Carburante> {
 
 
                         Navigator.of(context, rootNavigator: true).pop();
-                      }
+                      };
                 },
                 style: ElevatedButton.styleFrom(
                   elevation: 10,

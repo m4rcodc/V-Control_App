@@ -391,6 +391,37 @@ class _VeicoloState extends State<Veicolo>{
           docMtz.docs[i].reference.delete();
         }
 
+        final docSdz = await FirebaseFirestore.instance
+            .collection('CostiScadenze')
+            .where('uid', isEqualTo: FirebaseAuth.instance
+            .currentUser!.uid)
+            .get();
+        int sizeSdz = docSdz.size;
+        //print(sizeMtz);
+        for (int i = 0; i < sizeSdz; i++) {
+          docSdz.docs[i].reference.delete();
+        }
+
+        //Cancello Costi Totali Scadenze 2023
+        var docTotaliScadenze = await FirebaseFirestore.instance
+            .collection('CostiTotaliScadenze').doc('2023')
+            .collection(FirebaseAuth.instance.currentUser!.uid).get();
+        int sizeDocTotalSdz = docTotaliScadenze.size;
+        //print('Questa è la taglia $sizeDocTotalRif');
+        for(int i = 0; i < sizeDocTotalSdz; i++){
+          docTotaliScadenze.docs[i].reference.update({"costoScadenza": 0});
+        }
+
+        //Cancello Costi Totali Scadenze 2022
+        var docTotaliScadenze2k22 = await FirebaseFirestore.instance
+            .collection('CostiTotaliScadenze').doc('2022')
+            .collection(FirebaseAuth.instance.currentUser!.uid).get();
+        int sizeDocTotalSdz2k22 = docTotaliScadenze2k22.size;
+        //print('Questa è la taglia $sizeDocTotalRif2k22');
+        for(int i = 0; i < sizeDocTotalSdz2k22; i++){
+          docTotaliScadenze2k22.docs[i].reference.update({"costoScadenza": 0});
+        }
+
         //Cancello Costi Totali Rifornimento 2023
         var docTotaliRifornimenti = await FirebaseFirestore.instance
             .collection('CostiTotali').doc('2023')

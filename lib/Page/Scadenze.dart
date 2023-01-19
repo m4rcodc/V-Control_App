@@ -614,9 +614,9 @@ class _ScadenzeState extends State<Scadenze>{
                   ),
                   Container(
                     alignment: Alignment.center,
-                    margin: EdgeInsets.only(top: 30),
+                    margin: EdgeInsets.only(top: 40),
                     child: Text(
-                      'Premi il + in alto a destra \n\t\t per inserire un promemoria \ndelle scadenze del veicolo',
+                      'Premi il + in alto a destra \n\t\t per inserire un nuovo\n\t\t promemoria',
                        textAlign: TextAlign.center,
                        style: TextStyle( fontSize: 25,fontStyle: FontStyle.italic, fontWeight: FontWeight.bold, color: Colors.blue.shade400),
                     )

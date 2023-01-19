@@ -561,7 +561,7 @@ class _ManutenzioneState extends State<Manutenzione>{
                        final doc = await FirebaseFirestore.instance.collection(
                            'CostiManutenzione').where(
                            'mese', isEqualTo: months[current_month! - 1]).where(
-                           'year', isEqualTo: current_year)
+                           'year', isEqualTo: current_year.toString())
                            .where('uid',
                            isEqualTo: FirebaseAuth.instance.currentUser!.uid)
                            .get();
