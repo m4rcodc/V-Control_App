@@ -139,7 +139,7 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
     ),
     Container(
     margin: const EdgeInsets.symmetric(
-    vertical: 10.0, horizontal: 6.0),
+    vertical: 10.0, horizontal: 0.0),
     child:
     ElevatedButton(
     style: ElevatedButton.styleFrom(
@@ -195,9 +195,9 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
     children: [
     Icon(Icons.calendar_month),
      flagData == true ?
-      Text("Data rifornimento: ${formatter.format(now)}")
+      Text("Data rifornimento: ${formatter.format(now)}",style: TextStyle(fontSize: 12))
          :
-     Text("Data rifornimento: ${formatter.format(prova!)}")
+     Text("Data rifornimento: ${formatter.format(prova!)}",style: TextStyle(fontSize: 12))
           ],
          ),
         )
@@ -334,7 +334,7 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
     ),
     Container(
     margin: const EdgeInsets.symmetric(
-    vertical: 3.0, horizontal: 60.0),
+    vertical: 3.0, horizontal: 40.0),
     child: ElevatedButton(
     onPressed:
     () async
@@ -465,7 +465,7 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
                 ),
               ),
         Container(
-          width: 120,
+          width: 100,
           child:
           FloatingActionButton.extended(
             onPressed: () async{
@@ -966,7 +966,7 @@ class CostiRifornimentoState extends State<CostiRifornimento> {
                                 child: SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
                               child : DataTable(
-                              columnSpacing: 24,
+                              columnSpacing: 20,
                               sortAscending: true,
                               sortColumnIndex: 1,
                               dataRowHeight: 40,

@@ -362,7 +362,7 @@ late Stream<List<CommunityModel>> retrieveCommunityPoints;
                                     ),
                                     child: ListView.separated(
                                         padding: const EdgeInsets.only(
-                                            top: 12, left: 12, right: 12),
+                                            top: 12, left: 12, right: 8),
                                         shrinkWrap: true,
                                         itemBuilder: (context, index) {
                                           return ListTile(
@@ -375,7 +375,7 @@ late Stream<List<CommunityModel>> retrieveCommunityPoints;
                                                 SizedBox(
                                                   width: 3,
                                                 ),
-                                                Text(communityProfile[index].name!, style: TextStyle(color: Colors.black54, fontWeight: FontWeight.w500),)
+                                                Text(communityProfile[index].name!, style: TextStyle(color: Colors.black54, fontWeight: FontWeight.w500, fontSize: 12),)
                                               ],
                                             ),
                                             leading: Text("${index + 1}.",

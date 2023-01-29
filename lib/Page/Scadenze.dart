@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:car_control/Page/AddAssicurazione.dart';
 import 'package:car_control/Page/AddBollo.dart';
 import 'package:car_control/Page/AddTagliando.dart';
@@ -544,6 +545,152 @@ class _ScadenzeState extends State<Scadenze>{
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.info_outline),
+            onPressed: () => {
+              AwesomeDialog(
+                context: context,
+                headerAnimationLoop: false,
+                dialogType: DialogType.noHeader,
+                padding: EdgeInsets.zero,
+                dialogBackgroundColor: Colors.blue.shade200,
+                body:
+                Container(
+                  height: 380,
+                  child:
+                  Column(
+                    children: [
+                      Container(
+                          padding: EdgeInsets.symmetric(vertical:20, horizontal:10),
+                          alignment: Alignment.topCenter,
+                          child: Text('📅 Info Scadenze 📅', style: TextStyle(fontSize: 30, color: Colors.white, fontWeight: FontWeight.w500),)
+                      ),
+                      Container(
+                        height: 270,
+                        width: 265,
+                        padding: EdgeInsets.symmetric(vertical:15),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(25),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black54,
+                              blurRadius: 6.0,
+                            ),
+                          ],
+                        ),
+                        child: ListView(
+                          padding: EdgeInsets.symmetric(vertical: 3, horizontal: 10),
+                          children: [
+                            //Tipologia Veicolo
+                            Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                //border: Border.all(width: 1, color: Colors.red),
+                                borderRadius: BorderRadius.all(Radius.circular(25)),
+                                color: Colors.blue.shade200,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.blueGrey,
+                                    blurRadius: 3.0,
+                                    //spreadRadius: 0.0,
+                                    //offset: Offset(-2.0, 2.0,), // shadow direction: bottom right
+                                  )
+                                ],
+                              ),
+                              child:
+                              Text('Tipologia di scadenza', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.w500), textAlign: TextAlign.center,),
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+                              child:
+                              Row(
+                                children: [
+                                  Container(
+                                      child:
+                                      Text('Lungo termine:', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                                  ),
+                                  SizedBox(
+                                    width: 72,
+                                  ),
+                                  Container(
+                                      child:
+                                      Text('🟢', style: TextStyle(fontSize: 18))
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+                              child:
+                              Row(
+                                children: [
+                                  Container(
+                                      child:
+                                      Text('Pagamento effettuato:', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                                  ),
+                                  SizedBox(
+                                    width: 13,
+                                  ),
+                                  Container(
+                                      child:
+                                      Text('🟢', style: TextStyle(fontSize: 18))
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+                              child:
+                              Row(
+                                children: [
+                                  Container(
+                                      child:
+                                      Text('Medio termine:', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                                  ),
+                                  SizedBox(
+                                    width: 74,
+                                  ),
+                                  Container(
+                                      child:
+                                      Text('🟡', style: TextStyle(fontSize: 18))
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+                              child:
+                              Row(
+                                children: [
+                                  Container(
+                                      child:
+                                      Text('Breve termine', style: TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w500))
+                                  ),
+                                  SizedBox(
+                                    width: 85,
+                                  ),
+                                  Container(
+                                      child:
+                                      Text('🔴', style: TextStyle(fontSize: 18))
+                                  ),
+                                ],
+                              ),
+
+
+                            ),
+                          ],
+
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ).show()
+            }, //end
+          ),
           Container(
             margin: EdgeInsets.symmetric(horizontal: 10),
              child: SpeedDial(
@@ -558,8 +705,8 @@ class _ScadenzeState extends State<Scadenze>{
               shape: CircleBorder(),
               children: itemsAddScadenze,
             ),
+          )
 
-             )
     ],
         title: Text('Scadenze', style: TextStyle(color: Colors.white)),
         centerTitle: true,

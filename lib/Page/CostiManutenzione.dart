@@ -210,9 +210,9 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                           children: [
                                             Icon(Icons.calendar_month),
                                             flagDate == true ?
-                                            Text("Data rifornimento: ${formatter.format(now)}")
+                                            Text("Data rifornimento: ${formatter.format(now)}", style: TextStyle(fontSize: 12))
                                                 :
-                                            Text("Data rifornimento: ${formatter.format(prova!)}")
+                                            Text("Data rifornimento: ${formatter.format(prova!)}", style: TextStyle(fontSize: 12))
                                           ],
                                         ),
                                       )
@@ -338,7 +338,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                 ),
                                 Container(
                                   margin: const EdgeInsets.symmetric(
-                                      vertical: 3.0, horizontal: 60.0),
+                                      vertical: 3.0, horizontal: 40.0),
                                   child: ElevatedButton(
                                     onPressed:
                                         () async
@@ -500,7 +500,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                                         ),
                                       ),
                                       Container(
-                                        width: 120,
+                                        width: 100,
                                         child:
                                         FloatingActionButton.extended(
                                           onPressed: () async{
@@ -981,7 +981,7 @@ class CostiManutenzioneState extends State<CostiManutenzione>{
                             child: SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               child : DataTable(
-                                columnSpacing: 24,
+                                columnSpacing: 15,
                                 sortAscending: true,
                                 sortColumnIndex: 1,
                                 dataRowHeight: 40,

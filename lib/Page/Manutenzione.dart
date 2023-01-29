@@ -212,7 +212,7 @@ class _ManutenzioneState extends State<Manutenzione>{
                                           child: Image.asset('images/wheel.png',scale: 6),
                                         ),
                                         Container(
-                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 10),
+                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 6),
                                           alignment: Alignment.bottomCenter,
                                           child: Text('Cambio ruote', style: const TextStyle(
                                             fontSize: 12.0,
@@ -294,7 +294,7 @@ class _ManutenzioneState extends State<Manutenzione>{
                                           child: Image.asset('images/battery.png',scale: 4.6),
                                         ),
                                         Container(
-                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 8),
+                                          padding: EdgeInsets.symmetric(vertical:2,horizontal: 0),
                                           alignment: Alignment.bottomCenter,
                                           child: Text('Cambio batteria', style: const TextStyle(
                                             fontSize: 12.0,

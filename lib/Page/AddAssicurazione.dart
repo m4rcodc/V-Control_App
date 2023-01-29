@@ -1142,6 +1142,9 @@ class _AddAssicurazioneState extends State<AddAssicurazione> {
                       prezzo = value;
                     });
                   },
+                  onFieldSubmitted: (value) {
+                    FocusScope.of(context).unfocus();
+                  },
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,

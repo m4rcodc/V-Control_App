@@ -200,8 +200,9 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
 
                               ),
-
-
+                              onFieldSubmitted: (value) {
+                                FocusScope.of(context).unfocus();
+                              },
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Il campo "Password" non può essere vuoto.';

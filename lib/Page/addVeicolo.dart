@@ -1526,6 +1526,9 @@ class _AddVeicoloState extends State<AddVeicolo> {
                                 borderRadius: BorderRadius.circular(25),
                               ),
                             ),
+                            onFieldSubmitted: (value) {
+                              FocusScope.of(context).unfocus();
+                            },
                             validator: (value) {
                               if(value == null || value.isEmpty){
                                 return 'Inserisci i kilometri attuali del veicolo';
