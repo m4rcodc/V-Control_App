@@ -556,14 +556,14 @@ class _ScadenzeState extends State<Scadenze>{
                 dialogBackgroundColor: Colors.blue.shade200,
                 body:
                 Container(
-                  height: 380,
+                  height: 400,
                   child:
                   Column(
                     children: [
                       Container(
                           padding: EdgeInsets.symmetric(vertical:20, horizontal:10),
                           alignment: Alignment.topCenter,
-                          child: Text('📅 Info Scadenze 📅', style: TextStyle(fontSize: 30, color: Colors.white, fontWeight: FontWeight.w500),)
+                          child: Text('📅 Info Scadenze 📅', style: TextStyle(fontSize: 25, color: Colors.white, fontWeight: FontWeight.w500),)
                       ),
                       Container(
                         height: 270,

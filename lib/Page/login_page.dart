@@ -347,8 +347,12 @@ class _LoginPageState extends State<LoginPage> {
 
                                       if(isNewUser!)
                                         {
-                                          FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser?.uid).set({'name': googleUser.displayName, 'email' : googleUser.email, 'uid' : FirebaseAuth.instance.currentUser?.uid});
-                                          FirebaseFirestore.instance.collection('community').doc(FirebaseAuth.instance.currentUser?.uid).set({'name': googleUser.displayName, 'uid' : FirebaseAuth.instance.currentUser?.uid, 'points' : 0, 'make' : '', 'model' : '', 'fuel' : '', 'image' : googleUser.photoUrl});
+                                          List<String>? dispName = googleUser.displayName?.split(" ");
+                                          String nameAcc=dispName![0];
+                                          print("Il nome di google è $nameAcc");
+
+                                          FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser?.uid).set({'name': nameAcc, 'email' : googleUser.email, 'uid' : FirebaseAuth.instance.currentUser?.uid});
+                                          FirebaseFirestore.instance.collection('community').doc(FirebaseAuth.instance.currentUser?.uid).set({'name': nameAcc, 'uid' : FirebaseAuth.instance.currentUser?.uid, 'points' : 0, 'make' : '', 'model' : '', 'fuel' : '', 'image' : googleUser.photoUrl});
                                         }
 
                                       Navigator.pushNamedAndRemoveUntil(context, HomePage.routeName, (route) => false);
